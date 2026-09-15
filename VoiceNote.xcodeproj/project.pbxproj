@@ -1,0 +1,978 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01A26BD74BC965D7043C1373 /* QuickRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 719547707F6E6E9BD635FB71 /* QuickRecordSheet.swift */; };
+		05E9463AB05D1076F8420570 /* VoiceNoteApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B71FC831CBBDD2B10CE4B6F /* VoiceNoteApp.swift */; };
+		150164024A497C754D533571 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3229ADA6651393AA21E4F0C9 /* Assets.xcassets */; };
+		19CC67FDD78B32D38EFC89A3 /* WatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B77B4A4AA53F2A507ED972 /* WatchSyncService.swift */; };
+		2C70A1AEC649118537A228DF /* NoteListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5076F74D438DE05BAE7E4467 /* NoteListViewModel.swift */; };
+		34D6107477974F5DAAE2EB70 /* LLMCopywriterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE635D33AA5294F899D11FE3 /* LLMCopywriterServiceTests.swift */; };
+		39CAC693BEABBFA7BAFC79D5 /* WatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8042959CCF0B27FEEA6C7BBC /* WatchSyncService.swift */; };
+		3ECFBDDBA0E8E562C5392320 /* WatchSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C4D40BD373F5B50E2123E9 /* WatchSyncServiceTests.swift */; };
+		425665EE2F7E5EC279C810B6 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 861CDDB9E50913F04866EE59 /* AudioConstants.swift */; };
+		4322B367670C1991C268BFCB /* VoiceNoteLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B41505C98587A8BF26C90E /* VoiceNoteLiveActivity.swift */; };
+		4425740209349DEBE76D7794 /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538E0006D53A5FC8901EC86C /* NoteRepositoryTests.swift */; };
+		448F81CBADCA2B1F1431D199 /* ASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF922C9567CABA1A7C1BC64B /* ASRService.swift */; };
+		49901E7742C53BEBAD1A374D /* VoiceNoteWatchWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A340AD0333D10939C85A20E /* VoiceNoteWatchWidgets.swift */; };
+		4EE97EB29F92DC91E8333C50 /* WatchNotesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18E3F10F1769287038E3C26 /* WatchNotesListView.swift */; };
+		4F06590D658B8404071A4403 /* AudioRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9DA349A391475549AA45F37 /* AudioRecordingService.swift */; };
+		546F20E42F6424DF8FC20D39 /* SyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8694617CFE0FAF741D77A8 /* SyncPayload.swift */; };
+		54C9821C035A3164CAA3CF72 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ECAA020530A595773DB190E /* SettingsView.swift */; };
+		5C685A58E18F7D3A060BE932 /* WatchAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CEB0B9FA0CF4591563C0BEE /* WatchAudioRecorder.swift */; };
+		5FE041B0C3D6ED985AF37E31 /* WatchSyncStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2B7FFE9C6FA7E28BEFF0C1 /* WatchSyncStatusView.swift */; };
+		74389EC4C2A88D084B3DFD6D /* WatchStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76CF01C84CB32B1037D07FA /* WatchStorage.swift */; };
+		76F5D06E06B08F70F6ED8849 /* NoteListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09B643663F28D638ACE48949 /* NoteListView.swift */; };
+		7A26B95E575702E76CB8EA47 /* SyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A8694617CFE0FAF741D77A8 /* SyncPayload.swift */; };
+		7B535B365753D8FF6621C8E2 /* WatchMainRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4E7857499E4727F08A85E6 /* WatchMainRecordView.swift */; };
+		7BDD17A89A280757EAABD2FB /* VoiceNoteWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 049C48ECF98E72D486211B27 /* VoiceNoteWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		82CA0CB2E06587B5BD1E494D /* FormattingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD180FAE822886CBB37F3EE /* FormattingExtensions.swift */; };
+		836CBBFCC9EF1BCC5540D7C2 /* VoiceNoteWatchWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DA19F530F7DCDBE8F135CDE4 /* VoiceNoteWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		83F84F5B034D2530E03C6EDA /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBB9B8DC3E28A6D36C8C17EE /* NoteDetailView.swift */; };
+		99D9A67ACD9AF4ABC0B7FA12 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696BF396A8E6C4C04D0B808C /* VoiceNote.swift */; };
+		BA96D9705D08E686B19A5E08 /* LLMCopywriterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C0ACEB025D5174212BE1D1 /* LLMCopywriterService.swift */; };
+		BC888799A3FEF64F5730F3A2 /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06041893BEC7337EBC223A57 /* VoiceNoteActivityAttributes.swift */; };
+		C0E6372B7F671D265B713755 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 861CDDB9E50913F04866EE59 /* AudioConstants.swift */; };
+		C19FC3D837C87235F0555C22 /* FormattingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD180FAE822886CBB37F3EE /* FormattingExtensions.swift */; };
+		C704B458CB659D46FDA36203 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E53D8F727908DC3E4984D574 /* Assets.xcassets */; };
+		C7651BA0492FA1850386F804 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55DC192AEF08C2FFC1F0C4C /* ExtensionDelegate.swift */; };
+		D262D39AF2CF343B896A0D8E /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBDEEF870D37BE4A7B410FB /* NoteRepository.swift */; };
+		D949354A4F0B580DE53A741C /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06041893BEC7337EBC223A57 /* VoiceNoteActivityAttributes.swift */; };
+		DB027D02C636FB7C1E6AF0B5 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696BF396A8E6C4C04D0B808C /* VoiceNote.swift */; };
+		E06693E0EB00894B26899C4D /* NoteProcessingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343BE099D3CC8734F67F951B /* NoteProcessingPipeline.swift */; };
+		E1718B239338C79EDD4D2F31 /* AudioPlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37EA2591D569293E16B4537 /* AudioPlaybackService.swift */; };
+		E73E53B4E22418DCB12766FF /* NoteDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90958DD2D7405F978E0ABA2D /* NoteDetailViewModel.swift */; };
+		E79284D032ED275A47F63CC3 /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06041893BEC7337EBC223A57 /* VoiceNoteActivityAttributes.swift */; };
+		F0978DFECD9E639B95BB22F4 /* AudioFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B42BAE356440FD6E12784D5 /* AudioFileManager.swift */; };
+		F491E1EA88733370CB2D671A /* NoteRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47563703673E98A0DCAC9869 /* NoteRowView.swift */; };
+		F5555E457C223C6AF9534865 /* VoiceNoteWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1877D37C0072557C60D696 /* VoiceNoteWatchApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5CA74B8851C5D2D1E2726E0F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B59962CAA53A21089AF50CCA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2B752A81447CABEE265ACC7;
+			remoteInfo = VoiceNote;
+		};
+		B77EF34D9922F01C1E3DCF65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B59962CAA53A21089AF50CCA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0459F197BC471AD80A901EF9;
+			remoteInfo = VoiceNoteWatchWidgets;
+		};
+		C8E7833824FA25CA739CAF34 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B59962CAA53A21089AF50CCA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 367E3F34231E74D73EFAC6D1;
+			remoteInfo = VoiceNoteWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AED8D6B5644F881BEE576984 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				836CBBFCC9EF1BCC5540D7C2 /* VoiceNoteWatchWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B6E58CB6C0A33AD40346B1E2 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				7BDD17A89A280757EAABD2FB /* VoiceNoteWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		042A63AA4B3CBBC9FED9E314 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		049C48ECF98E72D486211B27 /* VoiceNoteWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = VoiceNoteWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		06041893BEC7337EBC223A57 /* VoiceNoteActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNoteActivityAttributes.swift; sourceTree = "<group>"; };
+		09B643663F28D638ACE48949 /* NoteListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListView.swift; sourceTree = "<group>"; };
+		0C4E7857499E4727F08A85E6 /* WatchMainRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMainRecordView.swift; sourceTree = "<group>"; };
+		0ECAA020530A595773DB190E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		17B41505C98587A8BF26C90E /* VoiceNoteLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNoteLiveActivity.swift; sourceTree = "<group>"; };
+		29CD4CD867274DE5E9A832C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2A340AD0333D10939C85A20E /* VoiceNoteWatchWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNoteWatchWidgets.swift; sourceTree = "<group>"; };
+		3229ADA6651393AA21E4F0C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		343BE099D3CC8734F67F951B /* NoteProcessingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteProcessingPipeline.swift; sourceTree = "<group>"; };
+		34B77B4A4AA53F2A507ED972 /* WatchSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncService.swift; sourceTree = "<group>"; };
+		3C2B7FFE9C6FA7E28BEFF0C1 /* WatchSyncStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncStatusView.swift; sourceTree = "<group>"; };
+		3CEB0B9FA0CF4591563C0BEE /* WatchAudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchAudioRecorder.swift; sourceTree = "<group>"; };
+		47563703673E98A0DCAC9869 /* NoteRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRowView.swift; sourceTree = "<group>"; };
+		4B71FC831CBBDD2B10CE4B6F /* VoiceNoteApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNoteApp.swift; sourceTree = "<group>"; };
+		5076F74D438DE05BAE7E4467 /* NoteListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListViewModel.swift; sourceTree = "<group>"; };
+		538E0006D53A5FC8901EC86C /* NoteRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepositoryTests.swift; sourceTree = "<group>"; };
+		5B42BAE356440FD6E12784D5 /* AudioFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileManager.swift; sourceTree = "<group>"; };
+		696BF396A8E6C4C04D0B808C /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
+		6F1877D37C0072557C60D696 /* VoiceNoteWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNoteWatchApp.swift; sourceTree = "<group>"; };
+		719547707F6E6E9BD635FB71 /* QuickRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRecordSheet.swift; sourceTree = "<group>"; };
+		7433457303A926F6AA4B486D /* VoiceNoteWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceNoteWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8042959CCF0B27FEEA6C7BBC /* WatchSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncService.swift; sourceTree = "<group>"; };
+		861CDDB9E50913F04866EE59 /* AudioConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConstants.swift; sourceTree = "<group>"; };
+		8A8694617CFE0FAF741D77A8 /* SyncPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncPayload.swift; sourceTree = "<group>"; };
+		90958DD2D7405F978E0ABA2D /* NoteDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailViewModel.swift; sourceTree = "<group>"; };
+		A4C0ACEB025D5174212BE1D1 /* LLMCopywriterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMCopywriterService.swift; sourceTree = "<group>"; };
+		A55DC192AEF08C2FFC1F0C4C /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
+		AEBDEEF870D37BE4A7B410FB /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
+		B6CF8B6EF5021D2ADDABE930 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C48301ED07727E5F61BCF9E7 /* VoiceNoteTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoiceNoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CBD180FAE822886CBB37F3EE /* FormattingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattingExtensions.swift; sourceTree = "<group>"; };
+		CE635D33AA5294F899D11FE3 /* LLMCopywriterServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMCopywriterServiceTests.swift; sourceTree = "<group>"; };
+		D03AA556AE5B893D64AC658B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D76CF01C84CB32B1037D07FA /* WatchStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStorage.swift; sourceTree = "<group>"; };
+		D8C4D40BD373F5B50E2123E9 /* WatchSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncServiceTests.swift; sourceTree = "<group>"; };
+		DA19F530F7DCDBE8F135CDE4 /* VoiceNoteWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VoiceNoteWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E18E3F10F1769287038E3C26 /* WatchNotesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchNotesListView.swift; sourceTree = "<group>"; };
+		E53D8F727908DC3E4984D574 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E9DA349A391475549AA45F37 /* AudioRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingService.swift; sourceTree = "<group>"; };
+		F0C6CB612C1E6A588543B52D /* VoiceNote.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F37EA2591D569293E16B4537 /* AudioPlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlaybackService.swift; sourceTree = "<group>"; };
+		FBB9B8DC3E28A6D36C8C17EE /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
+		FF922C9567CABA1A7C1BC64B /* ASRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRService.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0BBF8698F8471E3D9DE2A890 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				CBD180FAE822886CBB37F3EE /* FormattingExtensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		0D21A599F9FE88EF21512FE1 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				861CDDB9E50913F04866EE59 /* AudioConstants.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		1404592CE55EE77E823C5380 /* VoiceNoteApp */ = {
+			isa = PBXGroup;
+			children = (
+				59073075A119B8544AAB707C /* App */,
+				9B2F71A8F23D23E9B5C47CD6 /* Resources */,
+				63480C2900D701F4162DFD4B /* Services */,
+				3E963B47BE6EC81338F34BAC /* ViewModels */,
+				25FD37D297A2AF3E73675FAE /* Views */,
+			);
+			path = VoiceNoteApp;
+			sourceTree = "<group>";
+		};
+		15BBB277A136763EC3F230EF /* VoiceNoteWatch */ = {
+			isa = PBXGroup;
+			children = (
+				6BC18DF47562363B5729FA9D /* App */,
+				9505731A7FBFFCD42F71AD83 /* Resources */,
+				1F13938B44A261B89EFF3520 /* Services */,
+				E4834D76B504EAF3B8F34195 /* Views */,
+			);
+			path = VoiceNoteWatch;
+			sourceTree = "<group>";
+		};
+		1F13938B44A261B89EFF3520 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3CEB0B9FA0CF4591563C0BEE /* WatchAudioRecorder.swift */,
+				D76CF01C84CB32B1037D07FA /* WatchStorage.swift */,
+				8042959CCF0B27FEEA6C7BBC /* WatchSyncService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		25FD37D297A2AF3E73675FAE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FBB9B8DC3E28A6D36C8C17EE /* NoteDetailView.swift */,
+				09B643663F28D638ACE48949 /* NoteListView.swift */,
+				47563703673E98A0DCAC9869 /* NoteRowView.swift */,
+				719547707F6E6E9BD635FB71 /* QuickRecordSheet.swift */,
+				0ECAA020530A595773DB190E /* SettingsView.swift */,
+				3C2B7FFE9C6FA7E28BEFF0C1 /* WatchSyncStatusView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E963B47BE6EC81338F34BAC /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				90958DD2D7405F978E0ABA2D /* NoteDetailViewModel.swift */,
+				5076F74D438DE05BAE7E4467 /* NoteListViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		58AAEAA56640C9A8C28578AD /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				8D3B22C6BD6A5F017012BEAF /* UnitTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		59073075A119B8544AAB707C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				D03AA556AE5B893D64AC658B /* Info.plist */,
+				4B71FC831CBBDD2B10CE4B6F /* VoiceNoteApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		63480C2900D701F4162DFD4B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				FF922C9567CABA1A7C1BC64B /* ASRService.swift */,
+				5B42BAE356440FD6E12784D5 /* AudioFileManager.swift */,
+				F37EA2591D569293E16B4537 /* AudioPlaybackService.swift */,
+				E9DA349A391475549AA45F37 /* AudioRecordingService.swift */,
+				A4C0ACEB025D5174212BE1D1 /* LLMCopywriterService.swift */,
+				343BE099D3CC8734F67F951B /* NoteProcessingPipeline.swift */,
+				AEBDEEF870D37BE4A7B410FB /* NoteRepository.swift */,
+				34B77B4A4AA53F2A507ED972 /* WatchSyncService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		66AFE8341F3F19ADC23EA4C2 = {
+			isa = PBXGroup;
+			children = (
+				CF15B2127DD296BAB57C89F8 /* Shared */,
+				58AAEAA56640C9A8C28578AD /* Tests */,
+				1404592CE55EE77E823C5380 /* VoiceNoteApp */,
+				15BBB277A136763EC3F230EF /* VoiceNoteWatch */,
+				F088DCF8E266DF96F499FC7C /* VoiceNoteWatchWidgets */,
+				81EA5831B23D7E50246E2D17 /* VoiceNoteWidgets */,
+				F56E546AB9796992FC383BAE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6BC18DF47562363B5729FA9D /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A55DC192AEF08C2FFC1F0C4C /* ExtensionDelegate.swift */,
+				29CD4CD867274DE5E9A832C9 /* Info.plist */,
+				6F1877D37C0072557C60D696 /* VoiceNoteWatchApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		81EA5831B23D7E50246E2D17 /* VoiceNoteWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				B6CF8B6EF5021D2ADDABE930 /* Info.plist */,
+				17B41505C98587A8BF26C90E /* VoiceNoteLiveActivity.swift */,
+			);
+			path = VoiceNoteWidgets;
+			sourceTree = "<group>";
+		};
+		8D3B22C6BD6A5F017012BEAF /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				CE635D33AA5294F899D11FE3 /* LLMCopywriterServiceTests.swift */,
+				538E0006D53A5FC8901EC86C /* NoteRepositoryTests.swift */,
+				D8C4D40BD373F5B50E2123E9 /* WatchSyncServiceTests.swift */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
+		9505731A7FBFFCD42F71AD83 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3229ADA6651393AA21E4F0C9 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		9B2F71A8F23D23E9B5C47CD6 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E53D8F727908DC3E4984D574 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		CF15B2127DD296BAB57C89F8 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				0D21A599F9FE88EF21512FE1 /* Audio */,
+				0BBF8698F8471E3D9DE2A890 /* Extensions */,
+				F02B8D4FEC6FB1697D95CC7B /* Models */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		E4834D76B504EAF3B8F34195 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0C4E7857499E4727F08A85E6 /* WatchMainRecordView.swift */,
+				E18E3F10F1769287038E3C26 /* WatchNotesListView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		F02B8D4FEC6FB1697D95CC7B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				8A8694617CFE0FAF741D77A8 /* SyncPayload.swift */,
+				696BF396A8E6C4C04D0B808C /* VoiceNote.swift */,
+				06041893BEC7337EBC223A57 /* VoiceNoteActivityAttributes.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F088DCF8E266DF96F499FC7C /* VoiceNoteWatchWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				042A63AA4B3CBBC9FED9E314 /* Info.plist */,
+				2A340AD0333D10939C85A20E /* VoiceNoteWatchWidgets.swift */,
+			);
+			path = VoiceNoteWatchWidgets;
+			sourceTree = "<group>";
+		};
+		F56E546AB9796992FC383BAE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F0C6CB612C1E6A588543B52D /* VoiceNote.app */,
+				C48301ED07727E5F61BCF9E7 /* VoiceNoteTests.xctest */,
+				7433457303A926F6AA4B486D /* VoiceNoteWatch.app */,
+				DA19F530F7DCDBE8F135CDE4 /* VoiceNoteWatchWidgets.appex */,
+				049C48ECF98E72D486211B27 /* VoiceNoteWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0459F197BC471AD80A901EF9 /* VoiceNoteWatchWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F245EE940FD74B9674833BB6 /* Build configuration list for PBXNativeTarget "VoiceNoteWatchWidgets" */;
+			buildPhases = (
+				A069A87B42BF0D8B3751AC40 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoiceNoteWatchWidgets;
+			packageProductDependencies = (
+			);
+			productName = VoiceNoteWatchWidgets;
+			productReference = DA19F530F7DCDBE8F135CDE4 /* VoiceNoteWatchWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		363EFB67D55D882794AB0318 /* VoiceNoteTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDBE00601BDFDCA11C6958A1 /* Build configuration list for PBXNativeTarget "VoiceNoteTests" */;
+			buildPhases = (
+				BA2CEDE4866B055D29C59658 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				137396630F8D590184F22CD1 /* PBXTargetDependency */,
+			);
+			name = VoiceNoteTests;
+			packageProductDependencies = (
+			);
+			productName = VoiceNoteTests;
+			productReference = C48301ED07727E5F61BCF9E7 /* VoiceNoteTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		367E3F34231E74D73EFAC6D1 /* VoiceNoteWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 850B6274BB4D13242A6F07DD /* Build configuration list for PBXNativeTarget "VoiceNoteWidgets" */;
+			buildPhases = (
+				5A1F883CD1C140A4FBCC87D3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoiceNoteWidgets;
+			packageProductDependencies = (
+			);
+			productName = VoiceNoteWidgets;
+			productReference = 049C48ECF98E72D486211B27 /* VoiceNoteWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C15BCB2155692D2ACC1EE732 /* VoiceNoteWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B8DC8EBE5EE3CDA53863171D /* Build configuration list for PBXNativeTarget "VoiceNoteWatch" */;
+			buildPhases = (
+				AC90CFB52796C38C5FE58A05 /* Sources */,
+				7F59D1460476CEF953A26EC9 /* Resources */,
+				AED8D6B5644F881BEE576984 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B9CA743ACEE7EB27F6805CA8 /* PBXTargetDependency */,
+			);
+			name = VoiceNoteWatch;
+			packageProductDependencies = (
+			);
+			productName = VoiceNoteWatch;
+			productReference = 7433457303A926F6AA4B486D /* VoiceNoteWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D2B752A81447CABEE265ACC7 /* VoiceNote */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5BC33C3AEB461F4C6C177297 /* Build configuration list for PBXNativeTarget "VoiceNote" */;
+			buildPhases = (
+				DCEFC79536BD78189C8366A4 /* Sources */,
+				2CF95C81E0B59107AF4B63F4 /* Resources */,
+				B6E58CB6C0A33AD40346B1E2 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3B9C19521362F63FA2BA4BCD /* PBXTargetDependency */,
+			);
+			name = VoiceNote;
+			packageProductDependencies = (
+			);
+			productName = VoiceNote;
+			productReference = F0C6CB612C1E6A588543B52D /* VoiceNote.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B59962CAA53A21089AF50CCA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					0459F197BC471AD80A901EF9 = {
+						DevelopmentTeam = "";
+					};
+					363EFB67D55D882794AB0318 = {
+						DevelopmentTeam = "";
+					};
+					367E3F34231E74D73EFAC6D1 = {
+						DevelopmentTeam = "";
+					};
+					C15BCB2155692D2ACC1EE732 = {
+						DevelopmentTeam = "";
+					};
+					D2B752A81447CABEE265ACC7 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 882F271EACCB0D0C7B3E84B3 /* Build configuration list for PBXProject "VoiceNote" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 66AFE8341F3F19ADC23EA4C2;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F56E546AB9796992FC383BAE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D2B752A81447CABEE265ACC7 /* VoiceNote */,
+				C15BCB2155692D2ACC1EE732 /* VoiceNoteWatch */,
+				367E3F34231E74D73EFAC6D1 /* VoiceNoteWidgets */,
+				0459F197BC471AD80A901EF9 /* VoiceNoteWatchWidgets */,
+				363EFB67D55D882794AB0318 /* VoiceNoteTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2CF95C81E0B59107AF4B63F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C704B458CB659D46FDA36203 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7F59D1460476CEF953A26EC9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				150164024A497C754D533571 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5A1F883CD1C140A4FBCC87D3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D949354A4F0B580DE53A741C /* VoiceNoteActivityAttributes.swift in Sources */,
+				4322B367670C1991C268BFCB /* VoiceNoteLiveActivity.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A069A87B42BF0D8B3751AC40 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49901E7742C53BEBAD1A374D /* VoiceNoteWatchWidgets.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AC90CFB52796C38C5FE58A05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				425665EE2F7E5EC279C810B6 /* AudioConstants.swift in Sources */,
+				C7651BA0492FA1850386F804 /* ExtensionDelegate.swift in Sources */,
+				C19FC3D837C87235F0555C22 /* FormattingExtensions.swift in Sources */,
+				7A26B95E575702E76CB8EA47 /* SyncPayload.swift in Sources */,
+				DB027D02C636FB7C1E6AF0B5 /* VoiceNote.swift in Sources */,
+				BC888799A3FEF64F5730F3A2 /* VoiceNoteActivityAttributes.swift in Sources */,
+				F5555E457C223C6AF9534865 /* VoiceNoteWatchApp.swift in Sources */,
+				5C685A58E18F7D3A060BE932 /* WatchAudioRecorder.swift in Sources */,
+				7B535B365753D8FF6621C8E2 /* WatchMainRecordView.swift in Sources */,
+				4EE97EB29F92DC91E8333C50 /* WatchNotesListView.swift in Sources */,
+				74389EC4C2A88D084B3DFD6D /* WatchStorage.swift in Sources */,
+				39CAC693BEABBFA7BAFC79D5 /* WatchSyncService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BA2CEDE4866B055D29C59658 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				34D6107477974F5DAAE2EB70 /* LLMCopywriterServiceTests.swift in Sources */,
+				4425740209349DEBE76D7794 /* NoteRepositoryTests.swift in Sources */,
+				3ECFBDDBA0E8E562C5392320 /* WatchSyncServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DCEFC79536BD78189C8366A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				448F81CBADCA2B1F1431D199 /* ASRService.swift in Sources */,
+				C0E6372B7F671D265B713755 /* AudioConstants.swift in Sources */,
+				F0978DFECD9E639B95BB22F4 /* AudioFileManager.swift in Sources */,
+				E1718B239338C79EDD4D2F31 /* AudioPlaybackService.swift in Sources */,
+				4F06590D658B8404071A4403 /* AudioRecordingService.swift in Sources */,
+				82CA0CB2E06587B5BD1E494D /* FormattingExtensions.swift in Sources */,
+				BA96D9705D08E686B19A5E08 /* LLMCopywriterService.swift in Sources */,
+				83F84F5B034D2530E03C6EDA /* NoteDetailView.swift in Sources */,
+				E73E53B4E22418DCB12766FF /* NoteDetailViewModel.swift in Sources */,
+				76F5D06E06B08F70F6ED8849 /* NoteListView.swift in Sources */,
+				2C70A1AEC649118537A228DF /* NoteListViewModel.swift in Sources */,
+				E06693E0EB00894B26899C4D /* NoteProcessingPipeline.swift in Sources */,
+				D262D39AF2CF343B896A0D8E /* NoteRepository.swift in Sources */,
+				F491E1EA88733370CB2D671A /* NoteRowView.swift in Sources */,
+				01A26BD74BC965D7043C1373 /* QuickRecordSheet.swift in Sources */,
+				54C9821C035A3164CAA3CF72 /* SettingsView.swift in Sources */,
+				546F20E42F6424DF8FC20D39 /* SyncPayload.swift in Sources */,
+				99D9A67ACD9AF4ABC0B7FA12 /* VoiceNote.swift in Sources */,
+				E79284D032ED275A47F63CC3 /* VoiceNoteActivityAttributes.swift in Sources */,
+				05E9463AB05D1076F8420570 /* VoiceNoteApp.swift in Sources */,
+				19CC67FDD78B32D38EFC89A3 /* WatchSyncService.swift in Sources */,
+				5FE041B0C3D6ED985AF37E31 /* WatchSyncStatusView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		137396630F8D590184F22CD1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2B752A81447CABEE265ACC7 /* VoiceNote */;
+			targetProxy = 5CA74B8851C5D2D1E2726E0F /* PBXContainerItemProxy */;
+		};
+		3B9C19521362F63FA2BA4BCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 367E3F34231E74D73EFAC6D1 /* VoiceNoteWidgets */;
+			targetProxy = C8E7833824FA25CA739CAF34 /* PBXContainerItemProxy */;
+		};
+		B9CA743ACEE7EB27F6805CA8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0459F197BC471AD80A901EF9 /* VoiceNoteWatchWidgets */;
+			targetProxy = B77EF34D9922F01C1E3DCF65 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		00D26F41F2C6EF9E8F609359 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				INFOPLIST_FILE = VoiceNoteWatch/App/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		1194FF99399525D7BAAAB9FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = VoiceNoteApp/App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		11B4E07F597235EB6696E403 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceNote.app/VoiceNote";
+			};
+			name = Debug;
+		};
+		5FA22A072B53624FDB4F90BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceNote.app/VoiceNote";
+			};
+			name = Release;
+		};
+		8E56D1AFE00974F8E5834AA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AC73662C88B4CF97E6852071 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				INFOPLIST_FILE = VoiceNoteWatch/App/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		BA4BD72B6B0802A3A29C18AD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoiceNoteWatchWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_WKAppBundleIdentifier = com.voicenote.app.watchkitapp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app.watchkitapp.widgets;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		D703B82295042BBFDAAA3174 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoiceNoteWatchWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_WKAppBundleIdentifier = com.voicenote.app.watchkitapp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app.watchkitapp.widgets;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		DE4285A59A56502F03201AC5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = VoiceNoteApp/App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EB50A244306C8DA17372804E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoiceNoteWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app.widgets;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F248569A57B3F73A169A4D69 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F99C2CC50952BD096AF33C29 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoiceNoteWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voicenote.app.widgets;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5BC33C3AEB461F4C6C177297 /* Build configuration list for PBXNativeTarget "VoiceNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE4285A59A56502F03201AC5 /* Debug */,
+				1194FF99399525D7BAAAB9FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		850B6274BB4D13242A6F07DD /* Build configuration list for PBXNativeTarget "VoiceNoteWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB50A244306C8DA17372804E /* Debug */,
+				F99C2CC50952BD096AF33C29 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		882F271EACCB0D0C7B3E84B3 /* Build configuration list for PBXProject "VoiceNote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E56D1AFE00974F8E5834AA5 /* Debug */,
+				F248569A57B3F73A169A4D69 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B8DC8EBE5EE3CDA53863171D /* Build configuration list for PBXNativeTarget "VoiceNoteWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00D26F41F2C6EF9E8F609359 /* Debug */,
+				AC73662C88B4CF97E6852071 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CDBE00601BDFDCA11C6958A1 /* Build configuration list for PBXNativeTarget "VoiceNoteTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				11B4E07F597235EB6696E403 /* Debug */,
+				5FA22A072B53624FDB4F90BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F245EE940FD74B9674833BB6 /* Build configuration list for PBXNativeTarget "VoiceNoteWatchWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D703B82295042BBFDAAA3174 /* Debug */,
+				BA4BD72B6B0802A3A29C18AD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B59962CAA53A21089AF50CCA /* Project object */;
+}
