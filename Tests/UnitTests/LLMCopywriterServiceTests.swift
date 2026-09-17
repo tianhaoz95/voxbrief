@@ -1,5 +1,5 @@
 import XCTest
-@testable import VoiceNote
+@testable import Voxbrief
 
 final class LLMCopywriterServiceTests: XCTestCase {
     
@@ -51,5 +51,61 @@ final class LLMCopywriterServiceTests: XCTestCase {
         
         XCTAssertFalse(result.actionItems.isEmpty, "Action items should be extracted")
         XCTAssertTrue(result.cleanedMarkdown.contains("- [ ]"), "Action items should use markdown task list syntax")
+    }
+
+    // MARK: - Light Rewrite Mode
+
+    func testLightModeDoesNotRestructureIntoSections() async throws {
+        let transcript = "First condition is if wifi is connected sync immediately. Requirement is to support on-device speech recognition. Todo remember to submit app review notes."
+
+        let result = try await service.processTranscript(transcript, mode: .light)
+
+        XCTAssertTrue(result.requirements.isEmpty, "Light mode should not extract requirements")
+        XCTAssertTrue(result.conditions.isEmpty, "Light mode should not extract conditions")
+        XCTAssertTrue(result.actionItems.isEmpty, "Light mode should not extract action items")
+        XCTAssertFalse(result.cleanedMarkdown.contains("### 🎯 Requirements"), "Light mode markdown should have no section headers")
+        XCTAssertFalse(result.cleanedMarkdown.contains("### 🔢 Enumerated Conditions & Workflow"), "Light mode markdown should have no section headers")
+        XCTAssertFalse(result.cleanedMarkdown.contains("- [ ]"), "Light mode markdown should have no checklist formatting")
+    }
+
+    func testLightModeStillFixesTyposAndFillerWords() async throws {
+        let transcript = "um uh so basically we need to test the ios and watchos asr pipeline with the llm api."
+
+        let result = try await service.processTranscript(transcript, mode: .light)
+
+        XCTAssertFalse(result.cleanedMarkdown.contains(" um "), "Filler 'um' should be removed")
+        XCTAssertFalse(result.cleanedMarkdown.contains(" uh "), "Filler 'uh' should be removed")
+        XCTAssertTrue(result.cleanedMarkdown.contains("iOS"), "ios should be capitalized to iOS")
+        XCTAssertTrue(result.cleanedMarkdown.contains("watchOS"), "watchos should be capitalized to watchOS")
+        XCTAssertTrue(result.cleanedMarkdown.contains("ASR"), "asr should be capitalized to ASR")
+        XCTAssertTrue(result.cleanedMarkdown.contains("LLM"), "llm should be capitalized to LLM")
+        XCTAssertTrue(result.cleanedMarkdown.contains("API"), "api should be capitalized to API")
+    }
+
+    func testLightModePreservesOriginalSentenceOrder() async throws {
+        let transcript = "First we open the app. Then we tap record. Finally we review the transcript."
+
+        let result = try await service.processTranscript(transcript, mode: .light)
+
+        let openRange = result.cleanedMarkdown.range(of: "open the app")
+        let tapRange = result.cleanedMarkdown.range(of: "tap record")
+        let reviewRange = result.cleanedMarkdown.range(of: "review the transcript")
+
+        XCTAssertNotNil(openRange, "Original wording should be preserved verbatim")
+        XCTAssertNotNil(tapRange, "Original wording should be preserved verbatim")
+        XCTAssertNotNil(reviewRange, "Original wording should be preserved verbatim")
+        if let openRange, let tapRange, let reviewRange {
+            XCTAssertTrue(openRange.lowerBound < tapRange.lowerBound, "Sentence order should be preserved")
+            XCTAssertTrue(tapRange.lowerBound < reviewRange.lowerBound, "Sentence order should be preserved")
+        }
+    }
+
+    func testFullModeUnaffectedByModeParameter() async throws {
+        let transcript = "So um we need to build an apple watch complication. Requirement is to support on-device speech recognition."
+
+        let result = try await service.processTranscript(transcript, mode: .full)
+
+        XCTAssertFalse(result.requirements.isEmpty, "Explicit .full mode should still extract requirements")
+        XCTAssertTrue(result.cleanedMarkdown.contains("### 🎯 Requirements"), "Explicit .full mode should still restructure into sections")
     }
 }

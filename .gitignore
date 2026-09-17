@@ -7,3 +7,8 @@ xcuserdata/
 build/
 .build/
 .swiftpm/
+
+# Bundled on-device LLM model (~337MB) -- kept on disk for local archive
+# builds to embed, but too large for plain git (GitHub hard-blocks files
+# over 100MB without Git LFS).
+VoxbriefApp/Resources/Models/

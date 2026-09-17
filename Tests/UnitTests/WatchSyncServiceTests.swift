@@ -1,5 +1,5 @@
 import XCTest
-@testable import VoiceNote
+@testable import Voxbrief
 
 final class WatchSyncServiceTests: XCTestCase {
     

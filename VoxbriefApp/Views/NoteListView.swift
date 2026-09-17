@@ -1,0 +1,230 @@
+import SwiftUI
+
+public struct NoteListView: View {
+    @StateObject private var viewModel = NoteListViewModel()
+    @Environment(\.scenePhase) private var scenePhase
+
+    public init() {}
+
+    public var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                watchSyncBanner
+
+                if !viewModel.allTags.isEmpty {
+                    tagFilterBar
+                }
+
+                if viewModel.notes.isEmpty {
+                    emptyStateView
+                } else {
+                    List {
+                        ForEach(viewModel.notes) { note in
+                            NavigationLink(destination: NoteDetailView(note: note)) {
+                                NoteRowView(note: note)
+                            }
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    viewModel.toggleFavorite(note: note)
+                                } label: {
+                                    Label(note.isFavorite ? "Unfavorite" : "Favorite", systemImage: note.isFavorite ? "star.slash" : "star.fill")
+                                }
+                                .tint(.yellow)
+                            }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                Button(role: .destructive) {
+                                    viewModel.delete(note: note)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+
+                                if note.status == .failed {
+                                    Button {
+                                        viewModel.retryProcessing(note: note)
+                                    } label: {
+                                        Label("Retry", systemImage: "arrow.triangle.2.circlepath")
+                                    }
+                                    .tint(.accentColor)
+                                }
+                            }
+                        }
+                    }
+                    .listStyle(.plain)
+                    .refreshable {
+                        await viewModel.refresh()
+                    }
+                }
+            }
+            .navigationTitle("Voice Notes")
+            .searchable(text: $viewModel.searchText, prompt: "Search notes, requirements, tags...")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        viewModel.showingSyncStatus = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "applewatch")
+                            if viewModel.syncService.isReachable {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: 6, height: 6)
+                            }
+                        }
+                    }
+                }
+
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Menu {
+                        Picker("Source Filter", selection: $viewModel.filterSource) {
+                            Text("All Sources").tag(NoteSource?.none)
+                            Text("Apple Watch").tag(NoteSource?.some(.watchApp))
+                            Text("Watch Complication").tag(NoteSource?.some(.watchComplication))
+                            Text("Watch Live Activity").tag(NoteSource?.some(.watchLiveActivity))
+                            Text("iPhone Direct").tag(NoteSource?.some(.phoneApp))
+                        }
+
+                        Toggle(isOn: $viewModel.onlyFavorites) {
+                            Label("Favorites Only", systemImage: "star")
+                        }
+
+                        Divider()
+
+                        ShareLink(item: viewModel.exportAllNotesMarkdown()) {
+                            Label("Export All Notes", systemImage: "square.and.arrow.up.on.square")
+                        }
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    }
+
+                    Button {
+                        viewModel.showingSettings = true
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+
+                ToolbarItem(placement: .bottomBar) {
+                    Button {
+                        viewModel.showingRecordSheet = true
+                    } label: {
+                        Image(systemName: "mic.fill")
+                    }
+                    .tint(Color.accentColor)
+                    .overlay(alignment: .topTrailing) {
+                        if viewModel.pipeline.activeProcessingCount > 0 {
+                            Circle()
+                                .fill(.orange)
+                                .frame(width: 7, height: 7)
+                                .offset(x: 8, y: -6)
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $viewModel.showingRecordSheet) {
+                QuickRecordSheet {}
+            }
+            .sheet(isPresented: $viewModel.showingSyncStatus) {
+                WatchSyncStatusView(syncService: viewModel.syncService)
+            }
+            .sheet(isPresented: $viewModel.showingSettings) {
+                SettingsView()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    Task { await viewModel.refresh() }
+                }
+            }
+        }
+    }
+
+    // MARK: - Subviews
+
+    private var watchSyncBanner: some View {
+        Button {
+            viewModel.showingSyncStatus = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "applewatch.radiowaves.left.and.right")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                Text(viewModel.syncService.latestSyncMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+        }
+        .buttonStyle(.plain)
+        .overlay(alignment: .bottom) {
+            Divider()
+        }
+    }
+
+    private var tagFilterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                filterChip(title: "All", isSelected: viewModel.selectedTag == nil) {
+                    viewModel.selectedTag = nil
+                }
+
+                ForEach(viewModel.allTags, id: \.self) { tag in
+                    filterChip(title: tag, isSelected: viewModel.selectedTag == tag) {
+                        if viewModel.selectedTag == tag {
+                            viewModel.selectedTag = nil
+                        } else {
+                            viewModel.selectedTag = tag
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+        }
+    }
+
+    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background {
+                    Capsule()
+                        .fill(isSelected ? Color.accentColor : Color(UIColor.tertiarySystemFill))
+                }
+                .foregroundStyle(isSelected ? .white : .primary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: 18) {
+            Spacer()
+
+            Image(systemName: "waveform")
+                .font(.system(size: 46, weight: .light))
+                .foregroundStyle(.tertiary)
+
+            VStack(spacing: 6) {
+                Text("No Notes Yet")
+                    .font(.title3.weight(.semibold))
+                Text("Record from your Apple Watch, or tap the mic icon to capture an idea.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}

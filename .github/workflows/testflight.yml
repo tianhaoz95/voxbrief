@@ -1,0 +1,45 @@
+name: Release to TestFlight
+
+# Manual trigger only, on purpose: this uploads a real build to App Store
+# Connect. Run it from the Actions tab once you're ready to ship a build.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  release:
+    name: Build & Upload to TestFlight
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "16"
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/private_keys"
+          KEY_PATH="$RUNNER_TEMP/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          echo "$ASC_KEY_P8_BASE64" | base64 --decode > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+          echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
+      - name: Build and upload to TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: ./scripts/release_testflight.sh
+
+      - name: Clean up API key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/private_keys"

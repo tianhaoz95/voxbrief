@@ -1,11 +1,11 @@
-# VoiceNote: iOS & watchOS Voice Idea Capture & On-Device AI Cleanup
+# Voxbrief: iOS & watchOS Voice Idea Capture & On-Device AI Cleanup
 
-**VoiceNote** is a companion product for iOS and Apple Watch designed to effortlessly capture thoughts and ideas on the go.
+**Voxbrief** is a companion product for iOS and Apple Watch designed to effortlessly capture thoughts and ideas on the go.
 
 The primary capture surface is the **Apple Watch**, allowing instant one-tap recordings from watch face complications or Smart Stack Live Activities. Recordings are saved locally on the watch immediately, and synced to the iPhone in the background when connectivity or background tasks run. 
 
 Once synced, the iOS companion app processes each memo through a **two-stage pipeline**:
-1. **Stage 1 (ASR)**: On-device Speech Recognition converts voice into a raw transcript.
+1. **Stage 1 (ASR)**: On-device Whisper (via WhisperKit) converts voice into a raw transcript.
 2. **Stage 2 (On-Device LLM Cleanup & Copywriting)**: An on-device language model refines the transcript:
    - Requirements are converted into bullet points (`•`).
    - Enumerated conditions use numbered formatting (`1.`, `2.`, ...).
@@ -31,7 +31,7 @@ flowchart TD
         STORE --> PIPELINE["NoteProcessingPipeline"]
         
         subgraph Two-Stage Processing
-            PIPELINE -->|Stage 1| ASR["ASRService\n(SFSpeechRecognizer On-Device)"]
+            PIPELINE -->|Stage 1| ASR["ASRService\n(Whisper via WhisperKit, On-Device)"]
             ASR -->|Raw Transcript| LLM["LLMCopywriterService\n(On-Device NLP & LLM Engine)"]
             LLM -->|Formatted Markdown,\nBullets & Numbers| READY["Final Cleaned Note"]
         end
@@ -42,10 +42,10 @@ flowchart TD
 
 ---
 
-## ⌚ Apple Watch Companion (`VoiceNoteWatch`)
+## ⌚ Apple Watch Companion (`VoxbriefWatch`)
 
 ### 1. Complications & Live Activities
-- **Watch Face Complications**: Built using `WidgetKit` with support for `.accessoryCircular`, `.accessoryCorner`, `.accessoryRectangular`, and `.accessoryInline`. Tapping any complication instantly launches the recording flow via deep link `voicenote://record?source=watch_complication`.
+- **Watch Face Complications**: Built using `WidgetKit` with support for `.accessoryCircular`, `.accessoryCorner`, `.accessoryRectangular`, and `.accessoryInline`. Tapping any complication instantly launches the recording flow via deep link `voxbrief://record?source=watch_complication`.
 - **Live Activities**: Configured via `ActivityKit` (`VoiceNoteActivityAttributes`). Ongoing recordings display a real-time elapsed timer, pulsing audio waveform meter, and a one-tap **Stop & Save** button in the Smart Stack.
 
 ### 2. Instant Local Capture (No Immediate Conversion)
@@ -60,23 +60,21 @@ flowchart TD
 
 ---
 
-## 📱 iOS Companion App (`VoiceNoteApp`)
+## 📱 iOS Companion App (`VoxbriefApp`)
 
 ### 1. Two-Stage Processing Pipeline
 
 #### Stage 1: Speech-to-Text (ASR)
-- Handled by `ASRService`.
-- Uses Apple's `SFSpeechRecognizer` with `requiresOnDeviceRecognition = true` for maximum privacy and zero network latency.
-- Extracts speech from `.m4a` files into verbatim text with fallback handling for simulator/test environments.
+- Handled by `ASRService`, backed by [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift) running OpenAI's Whisper (`base.en`) fully on-device via CoreML.
+- No OS-level speech-recognition permission required (only microphone access) -- the model is downloaded once on first use and cached locally, after which transcription needs no network at all.
+- Extracts speech from `.m4a` files into verbatim text.
 
 #### Stage 2: On-Device LLM Cleanup & Copywriting
-- Handled by `LLMCopywriterService`.
-- **Requirements to Bullet Points**: Detects requirement markers (*"we need to"*, *"requirement is"*, *"must have"*, *"make sure to"*, *"ensure that"*) and converts them into structured bullet points (`- ...`).
-- **Enumerated Conditions to Numbered Lists**: Detects conditions and sequence cues (*"condition 1"*, *"first,"*, *"secondly,"*, *"step 1"*, *"then"*, *"if X then Y"*) and formats them into sequential numbered lists (`1. ...`, `2. ...`).
-- **Action Items Checklist**: Extracts actionable todos and assigns them to markdown checklists (`- [ ] ...`).
-- **Grammar & Typo Correction**: Removes verbal fillers (*"um"*, *"uh"*, *"you know"*, *"sort of"*), normalizes sentence capitalization, and corrects tech terminology (`iOS`, `watchOS`, `macOS`, `ASR`, `LLM`, `API`, `UI/UX`, `Wi-Fi`).
-- **Rich Markdown Formatting**: Generates clean Markdown with `# Title`, `> Executive Summary`, bulleted requirements, numbered conditions, task lists, and domain tags (`#watchOS`, `#iOS`, `#architecture`, `#security`).
-- **Local LLM Endpoint Support**: In addition to the built-in deterministic on-device NLP transformer, users can toggle a local LLM endpoint (such as Ollama `http://127.0.0.1:11434/api/generate`) in Settings.
+- Handled by `LLMCopywriterService`, backed by a real on-device LLM (Qwen3, via [MLX Swift](https://github.com/ml-explore/mlx-swift-examples)) rather than the rule-based transformer used in earlier builds.
+- **Two model tiers**: `Qwen3-0.6B-4bit` ships bundled inside the app (~350 MB) so cleanup works immediately, fully offline, with no setup. `Qwen3-4B-4bit` (~2.3 GB) is an optional, higher-quality model downloaded on demand from Settings — once downloaded, it's used automatically in place of the bundled model. Both run entirely on-device via CoreML/Metal; only the 4B download itself needs network.
+- **Structured extraction**: the model is prompted to return JSON (title, summary, requirements, conditions, action items, tags), which is then rendered into the app's own consistent Markdown layout — bulleted requirements, numbered conditions, task-list action items, and domain tags (`#watchOS`, `#iOS`, `#architecture`, `#security`).
+- **Local LLM Endpoint Support**: users can instead toggle a local LLM endpoint (such as Ollama `http://127.0.0.1:11434/api/generate`) in Settings to use a more powerful model running on their own machine — off by default.
+- **Fallback chain**: Ollama (if enabled) → downloaded Qwen3-4B (if present) → bundled Qwen3-0.6B → a deterministic rule-based transformer as the last-resort, zero-dependency fallback if on-device generation fails for any reason.
 
 ### 2. User Experience & Features
 - **Cleaned Note vs Raw Transcript**: Segmented switcher allows users to toggle between the polished Markdown note, the verbatim ASR transcript, and the 2-Stage Pipeline diagnostics.
@@ -94,20 +92,20 @@ The project is structured with clean modular targets:
 
 | Target | Platform | Type | Description |
 |---|---|---|---|
-| `VoiceNote` | iOS 17.0+ | Application | Main iOS companion app & pipeline runner |
-| `VoiceNoteWatch` | watchOS 10.0+ | Application | Apple Watch companion app for quick capture |
-| `VoiceNoteWidgets` | iOS 17.0+ | App Extension | WidgetKit Live Activity widget |
-| `VoiceNoteWatchWidgets` | watchOS 10.0+ | App Extension | Watch face complications (Circular, Corner, Rectangular, Inline) |
-| `VoiceNoteTests` | iOS 17.0+ | Unit Tests | Automated test suite verifying ASR, LLM, sync, and storage |
+| `Voxbrief` | iOS 17.0+ | Application | Main iOS companion app & pipeline runner |
+| `VoxbriefWatch` | watchOS 10.0+ | Application | Apple Watch companion app for quick capture |
+| `VoxbriefWidgets` | iOS 17.0+ | App Extension | WidgetKit Live Activity widget |
+| `VoxbriefWatchWidgets` | watchOS 10.0+ | App Extension | Watch face complications (Circular, Corner, Rectangular, Inline) |
+| `VoxbriefTests` | iOS 17.0+ | Unit Tests | Automated test suite verifying ASR, LLM, sync, and storage |
 
 ### Running the Unit Tests
 ```bash
 xcodebuild test \
-  -project VoiceNote.xcodeproj \
-  -scheme VoiceNote \
+  -project Voxbrief.xcodeproj \
+  -scheme Voxbrief \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
   CODE_SIGNING_ALLOWED=NO \
-  -only-testing:VoiceNoteTests
+  -only-testing:VoxbriefTests
 ```
 
 ### Regenerating Project from Spec

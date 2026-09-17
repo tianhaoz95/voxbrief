@@ -1,0 +1,1105 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0AD043C3BB7E0B09A1667977 /* NoteListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A722022C9E282A8840CA734E /* NoteListViewModelTests.swift */; };
+		0B5921AC2A3160AAF042406A /* NoteListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 406D633D5C4879AF1E20107B /* NoteListView.swift */; };
+		0F3402B7A31F2FBC8F90A113 /* AudioPlaybackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17618C9F07139808472E6688 /* AudioPlaybackService.swift */; };
+		15B55313D15D673F92B12C6B /* FormattingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F20D0BCE0BE7D3E7E931A7 /* FormattingExtensions.swift */; };
+		1619FD1E6146DC91861DAE7B /* ASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEAD3B4021131DA58668E5C9 /* ASRService.swift */; };
+		1FF80FB30E19699991CE584B /* VoxbriefWatchWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 68B3FA6D53152C4F4D6ADBB9 /* VoxbriefWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2338B06275B314ABB2F489C3 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A2146B25CD674831F950B98 /* OnboardingView.swift */; };
+		29A7E9237247703B7C122B19 /* WatchSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF568BAA055854561F1C46D7 /* WatchSyncServiceTests.swift */; };
+		2D4CF8A23ED4AE84CB00AE5B /* WatchSyncStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE056827F75E2A918AABC197 /* WatchSyncStatusView.swift */; };
+		385DAF7EA122261732E3B57D /* NoteProcessingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */; };
+		3D9D0AA84E166AEA9A87B10D /* VoxbriefWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2657ABEEE26CAC4BC36968D1 /* VoxbriefWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		42B91CC41B6C79D2A68C0DE1 /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04388B08F3A85CF017C8018 /* NoteRepository.swift */; };
+		434B61EB575DCFD7CD63EBA6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 653DA86C0171A62565403BC9 /* Assets.xcassets */; };
+		4B056B84EC62B04E005A0F43 /* WatchNotesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37729BD151097071676D002 /* WatchNotesListView.swift */; };
+		4DBFA9233C26DDEB7049630D /* Qwen3-0.6B-4bit in Resources */ = {isa = PBXBuildFile; fileRef = E7C3731F89B9CAC7ECDD9D86 /* Qwen3-0.6B-4bit */; };
+		4F7C18686C7D1DC467E52161 /* AudioRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E37077EC9E2F16A4D7C2E54 /* AudioRecordingService.swift */; };
+		5208B51DEF855BC15E07468D /* WatchAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BF494983C29E89D921ABACA /* WatchAudioRecorder.swift */; };
+		57711FA260DA9B0BE7DA8F44 /* NoteListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79425446C4B377940835B987 /* NoteListViewModel.swift */; };
+		5A9747356B47EEBC29B887B5 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FEE0D93589E948738A6156 /* VoiceNote.swift */; };
+		5BB8B8634927112B555DB910 /* AudioFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 805582BA92BDC768F983C370 /* AudioFileManager.swift */; };
+		5E5BDB04ACA4C9DA8D990692 /* SyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 196C6F6CC1AAC7FF5E616A8D /* SyncPayload.swift */; };
+		61F408C2E43D4E8D9B0D1C27 /* VoxbriefWatchWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48925CE7621616AF282F7CAF /* VoxbriefWatchWidgets.swift */; };
+		67642845892E3B515B0D78D2 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E0BDCC158250481339E11 /* AudioConstants.swift */; };
+		691B6C26A9E7585D09DB058C /* LLMCopywriterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9E58587D34FC957F4AE403 /* LLMCopywriterServiceTests.swift */; };
+		7B82D093883725D30E45366C /* WatchMainRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C3CF9D1D01A0040528A669 /* WatchMainRecordView.swift */; };
+		7D5BFD35B7EED990ABD3D552 /* VoxbriefWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32C11C7D6037937A9F59B01 /* VoxbriefWatchApp.swift */; };
+		7F41AF3BB8FD3A30117A83DA /* WatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6F47AE17245B344D9D2391 /* WatchSyncService.swift */; };
+		811785C3AB29046CEE31D3F2 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 229AFE98228CC08425BD323C /* WhisperKit */; };
+		845CFE1177B9118D762C4B21 /* WatchStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10E24B4B7F2AE722E9E2DF9 /* WatchStorage.swift */; };
+		87478723C6F1041048676D05 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD5F519993C6DB394849326 /* ExtensionDelegate.swift */; };
+		8A33B8791FF0B81B31C2EB69 /* NoteRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47B06B91C0E08B3E8267051 /* NoteRowView.swift */; };
+		8EFFC638DE223E39D228C688 /* MarkdownLiteText.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF370D074CADB2C25254782 /* MarkdownLiteText.swift */; };
+		936364B94D1E1E7839A01DC9 /* VoxbriefApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2887D77F3766E9B5992BF4CD /* VoxbriefApp.swift */; };
+		97423C8D59C66715E3817F3A /* LLMCopywriterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD147AE1BD15A3E6E9E9EA8C /* LLMCopywriterService.swift */; };
+		99AA4206F5D1BA2FF4C6DD3D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 251979C32C445301C3EDD38D /* Assets.xcassets */; };
+		99C50F6E5DA466503D6155E0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 015D2CED079AC4D35BFD7889 /* SettingsView.swift */; };
+		9C867C1A7E73EB35DDFDB8FC /* VoxbriefLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C7490BC66ADC2FB729D084B /* VoxbriefLiveActivity.swift */; };
+		9FDF6E8ED886E932926D1504 /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */; };
+		A43DE437BF1B5614D5BAB5E7 /* NoteDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB22B631A6BEF68F67B5C15A /* NoteDetailView.swift */; };
+		A5813846512DB507166D26CC /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = C6628A2DEF8598CD4850817D /* MLXLMCommon */; };
+		B31BAFA3116C01975E3C6AFC /* NoteRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBD578AD77C823CEBF8C5B8 /* NoteRepositoryTests.swift */; };
+		B3D2E5CCE28D62709F3D12D5 /* WatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5D2678B30255AFCCA761999 /* WatchSyncService.swift */; };
+		B573595E0689A89D4E29A477 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E0BDCC158250481339E11 /* AudioConstants.swift */; };
+		B6AC1161972BFA9EB301A4B9 /* OnDeviceLLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41C69644021D649EBA14B88 /* OnDeviceLLMService.swift */; };
+		BACB2440A0244326CC36D058 /* VoxbriefWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 959851115743BB9596288C80 /* VoxbriefWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C8ABA9BEC2112569C5505238 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = F12B540EED6866922E9E23CF /* MLXLLM */; };
+		CF522D7A437072483BE0EF9A /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */; };
+		D99F810CE255C259E1726018 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFEB07D6090DC24A5902E9AE /* LiveActivityManager.swift */; };
+		DE23A3F2D3F700A37D4AA4FC /* FormattingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F20D0BCE0BE7D3E7E931A7 /* FormattingExtensions.swift */; };
+		E820F921C0CB44339F74C770 /* SyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 196C6F6CC1AAC7FF5E616A8D /* SyncPayload.swift */; };
+		EAB97948647254097F03D47D /* RecordingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C43AFCEE906F715A993001 /* RecordingCoordinator.swift */; };
+		EACCE41A539C3FB1E8B76E71 /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */; };
+		F39F847D156570E22EC28858 /* NoteDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FA4EC385ED9D0FC96F7955 /* NoteDetailViewModel.swift */; };
+		F5C9810D4553F163281C72F5 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FEE0D93589E948738A6156 /* VoiceNote.swift */; };
+		FA66D9682EE62937A5BDEEBB /* QuickRecordSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26D9161722A62F745EEBA731 /* QuickRecordSheet.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6508DD8E201F7173F55A5208 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C7BA46F9711F1D39443D0410 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E817BB0ABEC329AE291877EC;
+			remoteInfo = VoxbriefWatchWidgets;
+		};
+		A128B3EE4D0763CE36F47B6F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C7BA46F9711F1D39443D0410 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 37352116B16272A1D780DF2D;
+			remoteInfo = Voxbrief;
+		};
+		DEAEAF11A45191D40415D7CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C7BA46F9711F1D39443D0410 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E1776B3060ABFCE1C160CC43;
+			remoteInfo = VoxbriefWidgets;
+		};
+		E2E7D8741B5B8D50EF059F3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C7BA46F9711F1D39443D0410 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 98AF90C393567ADA1B2E4ADF;
+			remoteInfo = VoxbriefWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6ADC1E683AD0AAF4FC34C261 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				BACB2440A0244326CC36D058 /* VoxbriefWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AF6141237E92BFCD95A590F /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3D9D0AA84E166AEA9A87B10D /* VoxbriefWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF2720D0779CD2E7B0C8256A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1FF80FB30E19699991CE584B /* VoxbriefWatchWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		015D2CED079AC4D35BFD7889 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		17618C9F07139808472E6688 /* AudioPlaybackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlaybackService.swift; sourceTree = "<group>"; };
+		17FEE0D93589E948738A6156 /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
+		196C6F6CC1AAC7FF5E616A8D /* SyncPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncPayload.swift; sourceTree = "<group>"; };
+		1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteProcessingPipeline.swift; sourceTree = "<group>"; };
+		251979C32C445301C3EDD38D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2657ABEEE26CAC4BC36968D1 /* VoxbriefWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = VoxbriefWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		26D9161722A62F745EEBA731 /* QuickRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRecordSheet.swift; sourceTree = "<group>"; };
+		2887D77F3766E9B5992BF4CD /* VoxbriefApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxbriefApp.swift; sourceTree = "<group>"; };
+		31C3CF9D1D01A0040528A669 /* WatchMainRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMainRecordView.swift; sourceTree = "<group>"; };
+		406D633D5C4879AF1E20107B /* NoteListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListView.swift; sourceTree = "<group>"; };
+		46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNoteActivityAttributes.swift; sourceTree = "<group>"; };
+		48925CE7621616AF282F7CAF /* VoxbriefWatchWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxbriefWatchWidgets.swift; sourceTree = "<group>"; };
+		496BFAFDCF52A425981CEADC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		4C7490BC66ADC2FB729D084B /* VoxbriefLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxbriefLiveActivity.swift; sourceTree = "<group>"; };
+		4F9E58587D34FC957F4AE403 /* LLMCopywriterServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMCopywriterServiceTests.swift; sourceTree = "<group>"; };
+		57C43AFCEE906F715A993001 /* RecordingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingCoordinator.swift; sourceTree = "<group>"; };
+		5FD5F519993C6DB394849326 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
+		653DA86C0171A62565403BC9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		68B3FA6D53152C4F4D6ADBB9 /* VoxbriefWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VoxbriefWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6A2146B25CD674831F950B98 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		6BF494983C29E89D921ABACA /* WatchAudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchAudioRecorder.swift; sourceTree = "<group>"; };
+		6E37077EC9E2F16A4D7C2E54 /* AudioRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingService.swift; sourceTree = "<group>"; };
+		72CDFABD6641AF3CBC9981F9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		79425446C4B377940835B987 /* NoteListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListViewModel.swift; sourceTree = "<group>"; };
+		7BB5149C264CEC3EE04592CE /* VoxbriefTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoxbriefTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		805582BA92BDC768F983C370 /* AudioFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileManager.swift; sourceTree = "<group>"; };
+		85FA4EC385ED9D0FC96F7955 /* NoteDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailViewModel.swift; sourceTree = "<group>"; };
+		959851115743BB9596288C80 /* VoxbriefWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoxbriefWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		988E0BDCC158250481339E11 /* AudioConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConstants.swift; sourceTree = "<group>"; };
+		9B6F47AE17245B344D9D2391 /* WatchSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncService.swift; sourceTree = "<group>"; };
+		9CBD578AD77C823CEBF8C5B8 /* NoteRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepositoryTests.swift; sourceTree = "<group>"; };
+		A37729BD151097071676D002 /* WatchNotesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchNotesListView.swift; sourceTree = "<group>"; };
+		A5D2678B30255AFCCA761999 /* WatchSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncService.swift; sourceTree = "<group>"; };
+		A722022C9E282A8840CA734E /* NoteListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListViewModelTests.swift; sourceTree = "<group>"; };
+		AB22B631A6BEF68F67B5C15A /* NoteDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailView.swift; sourceTree = "<group>"; };
+		AD147AE1BD15A3E6E9E9EA8C /* LLMCopywriterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMCopywriterService.swift; sourceTree = "<group>"; };
+		AE056827F75E2A918AABC197 /* WatchSyncStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncStatusView.swift; sourceTree = "<group>"; };
+		AF568BAA055854561F1C46D7 /* WatchSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSyncServiceTests.swift; sourceTree = "<group>"; };
+		B10E24B4B7F2AE722E9E2DF9 /* WatchStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchStorage.swift; sourceTree = "<group>"; };
+		B32C11C7D6037937A9F59B01 /* VoxbriefWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxbriefWatchApp.swift; sourceTree = "<group>"; };
+		BFF47C7AC8DE99A52D14D5E7 /* Voxbrief.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Voxbrief.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C41C69644021D649EBA14B88 /* OnDeviceLLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnDeviceLLMService.swift; sourceTree = "<group>"; };
+		CEAD3B4021131DA58668E5C9 /* ASRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRService.swift; sourceTree = "<group>"; };
+		D04388B08F3A85CF017C8018 /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
+		D0F20D0BCE0BE7D3E7E931A7 /* FormattingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattingExtensions.swift; sourceTree = "<group>"; };
+		DDF370D074CADB2C25254782 /* MarkdownLiteText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownLiteText.swift; sourceTree = "<group>"; };
+		DFEB07D6090DC24A5902E9AE /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		E7C3731F89B9CAC7ECDD9D86 /* Qwen3-0.6B-4bit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "Qwen3-0.6B-4bit"; path = "VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit"; sourceTree = SOURCE_ROOT; };
+		E957233BA796003140F2A4C4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F47B06B91C0E08B3E8267051 /* NoteRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRowView.swift; sourceTree = "<group>"; };
+		FCE2B224A5B2AD796EFD2862 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F8A834E720988185E71183C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				811785C3AB29046CEE31D3F2 /* WhisperKit in Frameworks */,
+				C8ABA9BEC2112569C5505238 /* MLXLLM in Frameworks */,
+				A5813846512DB507166D26CC /* MLXLMCommon in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01C9630DF76D64646B73D672 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				D0F20D0BCE0BE7D3E7E931A7 /* FormattingExtensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		04CCA88E7169AF9A7258976A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				CEAD3B4021131DA58668E5C9 /* ASRService.swift */,
+				805582BA92BDC768F983C370 /* AudioFileManager.swift */,
+				17618C9F07139808472E6688 /* AudioPlaybackService.swift */,
+				6E37077EC9E2F16A4D7C2E54 /* AudioRecordingService.swift */,
+				DFEB07D6090DC24A5902E9AE /* LiveActivityManager.swift */,
+				AD147AE1BD15A3E6E9E9EA8C /* LLMCopywriterService.swift */,
+				1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */,
+				D04388B08F3A85CF017C8018 /* NoteRepository.swift */,
+				C41C69644021D649EBA14B88 /* OnDeviceLLMService.swift */,
+				57C43AFCEE906F715A993001 /* RecordingCoordinator.swift */,
+				A5D2678B30255AFCCA761999 /* WatchSyncService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		067FA375470FD904498EC0F9 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				251979C32C445301C3EDD38D /* Assets.xcassets */,
+				86EAC0707E7C0DA3DA291981 /* Models */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		07683DFB3779D8D3D724D909 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D3E71B8D635558BF93727BE4 /* Audio */,
+				01C9630DF76D64646B73D672 /* Extensions */,
+				3EFFB945655B3E47AB7896BE /* Models */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		17B2D4376B4D9A467285980C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				653DA86C0171A62565403BC9 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		29061DF6783E3601BFFDAD04 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				5FD5F519993C6DB394849326 /* ExtensionDelegate.swift */,
+				E957233BA796003140F2A4C4 /* Info.plist */,
+				B32C11C7D6037937A9F59B01 /* VoxbriefWatchApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		38EF815C7E2AECBD837B3078 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				31C3CF9D1D01A0040528A669 /* WatchMainRecordView.swift */,
+				A37729BD151097071676D002 /* WatchNotesListView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		39379177EAA7DA351EC411EB /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				E04E5CCE4E0AF71F27D99E09 /* UnitTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		3EFFB945655B3E47AB7896BE /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				196C6F6CC1AAC7FF5E616A8D /* SyncPayload.swift */,
+				17FEE0D93589E948738A6156 /* VoiceNote.swift */,
+				46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6438D5EAF0A789F98B0338C2 /* VoxbriefWatchWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				FCE2B224A5B2AD796EFD2862 /* Info.plist */,
+				48925CE7621616AF282F7CAF /* VoxbriefWatchWidgets.swift */,
+			);
+			path = VoxbriefWatchWidgets;
+			sourceTree = "<group>";
+		};
+		6D4CC13DC4315C2B2BC7E100 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DDF370D074CADB2C25254782 /* MarkdownLiteText.swift */,
+				AB22B631A6BEF68F67B5C15A /* NoteDetailView.swift */,
+				406D633D5C4879AF1E20107B /* NoteListView.swift */,
+				F47B06B91C0E08B3E8267051 /* NoteRowView.swift */,
+				6A2146B25CD674831F950B98 /* OnboardingView.swift */,
+				26D9161722A62F745EEBA731 /* QuickRecordSheet.swift */,
+				015D2CED079AC4D35BFD7889 /* SettingsView.swift */,
+				AE056827F75E2A918AABC197 /* WatchSyncStatusView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		81D7B833EEED62C20A6078ED /* VoxbriefWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				496BFAFDCF52A425981CEADC /* Info.plist */,
+				4C7490BC66ADC2FB729D084B /* VoxbriefLiveActivity.swift */,
+			);
+			path = VoxbriefWidgets;
+			sourceTree = "<group>";
+		};
+		86EAC0707E7C0DA3DA291981 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E7C3731F89B9CAC7ECDD9D86 /* Qwen3-0.6B-4bit */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8A4AD2D1CD9D7BF090B2A3D8 /* VoxbriefApp */ = {
+			isa = PBXGroup;
+			children = (
+				D160600220B0A52BD5DF10E9 /* App */,
+				067FA375470FD904498EC0F9 /* Resources */,
+				04CCA88E7169AF9A7258976A /* Services */,
+				C0494C9B3D5F7E4B0230B64E /* ViewModels */,
+				6D4CC13DC4315C2B2BC7E100 /* Views */,
+			);
+			path = VoxbriefApp;
+			sourceTree = "<group>";
+		};
+		99A367A324023CD3FC3C58CE /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6BF494983C29E89D921ABACA /* WatchAudioRecorder.swift */,
+				B10E24B4B7F2AE722E9E2DF9 /* WatchStorage.swift */,
+				9B6F47AE17245B344D9D2391 /* WatchSyncService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C0494C9B3D5F7E4B0230B64E /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				85FA4EC385ED9D0FC96F7955 /* NoteDetailViewModel.swift */,
+				79425446C4B377940835B987 /* NoteListViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C147982AE37495BA2A65B7FB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BFF47C7AC8DE99A52D14D5E7 /* Voxbrief.app */,
+				7BB5149C264CEC3EE04592CE /* VoxbriefTests.xctest */,
+				959851115743BB9596288C80 /* VoxbriefWatch.app */,
+				68B3FA6D53152C4F4D6ADBB9 /* VoxbriefWatchWidgets.appex */,
+				2657ABEEE26CAC4BC36968D1 /* VoxbriefWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D160600220B0A52BD5DF10E9 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				72CDFABD6641AF3CBC9981F9 /* Info.plist */,
+				2887D77F3766E9B5992BF4CD /* VoxbriefApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D3E71B8D635558BF93727BE4 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				988E0BDCC158250481339E11 /* AudioConstants.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		D9AD3A2D1EA28068EFF810C4 /* VoxbriefWatch */ = {
+			isa = PBXGroup;
+			children = (
+				29061DF6783E3601BFFDAD04 /* App */,
+				17B2D4376B4D9A467285980C /* Resources */,
+				99A367A324023CD3FC3C58CE /* Services */,
+				38EF815C7E2AECBD837B3078 /* Views */,
+			);
+			path = VoxbriefWatch;
+			sourceTree = "<group>";
+		};
+		E04E5CCE4E0AF71F27D99E09 /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				4F9E58587D34FC957F4AE403 /* LLMCopywriterServiceTests.swift */,
+				A722022C9E282A8840CA734E /* NoteListViewModelTests.swift */,
+				9CBD578AD77C823CEBF8C5B8 /* NoteRepositoryTests.swift */,
+				AF568BAA055854561F1C46D7 /* WatchSyncServiceTests.swift */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
+		F3AB579659BA72E5180162D2 = {
+			isa = PBXGroup;
+			children = (
+				07683DFB3779D8D3D724D909 /* Shared */,
+				39379177EAA7DA351EC411EB /* Tests */,
+				8A4AD2D1CD9D7BF090B2A3D8 /* VoxbriefApp */,
+				D9AD3A2D1EA28068EFF810C4 /* VoxbriefWatch */,
+				6438D5EAF0A789F98B0338C2 /* VoxbriefWatchWidgets */,
+				81D7B833EEED62C20A6078ED /* VoxbriefWidgets */,
+				C147982AE37495BA2A65B7FB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		37352116B16272A1D780DF2D /* Voxbrief */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3CA1B4929BC0B21623BF17FA /* Build configuration list for PBXNativeTarget "Voxbrief" */;
+			buildPhases = (
+				D354A29E5E69D4A3EBB3FA9B /* Sources */,
+				B7296D71E17A4BB4F84A0F15 /* Resources */,
+				F8A834E720988185E71183C7 /* Frameworks */,
+				9AF6141237E92BFCD95A590F /* Embed Foundation Extensions */,
+				6ADC1E683AD0AAF4FC34C261 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				365A987A6A53AD11964A1DEC /* PBXTargetDependency */,
+				E2E42D8DD70EEFEF2914D3E0 /* PBXTargetDependency */,
+			);
+			name = Voxbrief;
+			packageProductDependencies = (
+				229AFE98228CC08425BD323C /* WhisperKit */,
+				F12B540EED6866922E9E23CF /* MLXLLM */,
+				C6628A2DEF8598CD4850817D /* MLXLMCommon */,
+			);
+			productName = Voxbrief;
+			productReference = BFF47C7AC8DE99A52D14D5E7 /* Voxbrief.app */;
+			productType = "com.apple.product-type.application";
+		};
+		98AF90C393567ADA1B2E4ADF /* VoxbriefWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E23C0AD22EFDDA5BF2411182 /* Build configuration list for PBXNativeTarget "VoxbriefWatch" */;
+			buildPhases = (
+				BBDEE9B7F98AB013A852E5DB /* Sources */,
+				742AF5DBE8102D6228D74D91 /* Resources */,
+				AF2720D0779CD2E7B0C8256A /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				131EA4B2A494544BC99E8EB9 /* PBXTargetDependency */,
+			);
+			name = VoxbriefWatch;
+			packageProductDependencies = (
+			);
+			productName = VoxbriefWatch;
+			productReference = 959851115743BB9596288C80 /* VoxbriefWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C31E19E69A8FB1FBE5695AFF /* VoxbriefTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 488303D63F27F666C024C181 /* Build configuration list for PBXNativeTarget "VoxbriefTests" */;
+			buildPhases = (
+				B7F157DB59EC61819EB59712 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0F135CBEB1A59C8C07FE6A53 /* PBXTargetDependency */,
+			);
+			name = VoxbriefTests;
+			packageProductDependencies = (
+			);
+			productName = VoxbriefTests;
+			productReference = 7BB5149C264CEC3EE04592CE /* VoxbriefTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E1776B3060ABFCE1C160CC43 /* VoxbriefWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6347F7B5CEAEB407CF110F32 /* Build configuration list for PBXNativeTarget "VoxbriefWidgets" */;
+			buildPhases = (
+				CBEEEC8BFDC99C939C64B844 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoxbriefWidgets;
+			packageProductDependencies = (
+			);
+			productName = VoxbriefWidgets;
+			productReference = 2657ABEEE26CAC4BC36968D1 /* VoxbriefWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		E817BB0ABEC329AE291877EC /* VoxbriefWatchWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9ECDD60325CD10C71BF6B8DA /* Build configuration list for PBXNativeTarget "VoxbriefWatchWidgets" */;
+			buildPhases = (
+				B138E345120AFA724C72940A /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoxbriefWatchWidgets;
+			packageProductDependencies = (
+			);
+			productName = VoxbriefWatchWidgets;
+			productReference = 68B3FA6D53152C4F4D6ADBB9 /* VoxbriefWatchWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C7BA46F9711F1D39443D0410 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					37352116B16272A1D780DF2D = {
+						DevelopmentTeam = "";
+					};
+					98AF90C393567ADA1B2E4ADF = {
+						DevelopmentTeam = "";
+					};
+					C31E19E69A8FB1FBE5695AFF = {
+						DevelopmentTeam = "";
+					};
+					E1776B3060ABFCE1C160CC43 = {
+						DevelopmentTeam = "";
+					};
+					E817BB0ABEC329AE291877EC = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 19D2B6D0F948D885FA3A2E5A /* Build configuration list for PBXProject "Voxbrief" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F3AB579659BA72E5180162D2;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5FA083E011276BDBA1332C19 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */,
+				2154F9A9B7BCA54BFB72DC64 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = C147982AE37495BA2A65B7FB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				37352116B16272A1D780DF2D /* Voxbrief */,
+				98AF90C393567ADA1B2E4ADF /* VoxbriefWatch */,
+				E1776B3060ABFCE1C160CC43 /* VoxbriefWidgets */,
+				E817BB0ABEC329AE291877EC /* VoxbriefWatchWidgets */,
+				C31E19E69A8FB1FBE5695AFF /* VoxbriefTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		742AF5DBE8102D6228D74D91 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				434B61EB575DCFD7CD63EBA6 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B7296D71E17A4BB4F84A0F15 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				99AA4206F5D1BA2FF4C6DD3D /* Assets.xcassets in Resources */,
+				4DBFA9233C26DDEB7049630D /* Qwen3-0.6B-4bit in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B138E345120AFA724C72940A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				61F408C2E43D4E8D9B0D1C27 /* VoxbriefWatchWidgets.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B7F157DB59EC61819EB59712 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				691B6C26A9E7585D09DB058C /* LLMCopywriterServiceTests.swift in Sources */,
+				0AD043C3BB7E0B09A1667977 /* NoteListViewModelTests.swift in Sources */,
+				B31BAFA3116C01975E3C6AFC /* NoteRepositoryTests.swift in Sources */,
+				29A7E9237247703B7C122B19 /* WatchSyncServiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBDEE9B7F98AB013A852E5DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				67642845892E3B515B0D78D2 /* AudioConstants.swift in Sources */,
+				87478723C6F1041048676D05 /* ExtensionDelegate.swift in Sources */,
+				DE23A3F2D3F700A37D4AA4FC /* FormattingExtensions.swift in Sources */,
+				E820F921C0CB44339F74C770 /* SyncPayload.swift in Sources */,
+				5A9747356B47EEBC29B887B5 /* VoiceNote.swift in Sources */,
+				EACCE41A539C3FB1E8B76E71 /* VoiceNoteActivityAttributes.swift in Sources */,
+				7D5BFD35B7EED990ABD3D552 /* VoxbriefWatchApp.swift in Sources */,
+				5208B51DEF855BC15E07468D /* WatchAudioRecorder.swift in Sources */,
+				7B82D093883725D30E45366C /* WatchMainRecordView.swift in Sources */,
+				4B056B84EC62B04E005A0F43 /* WatchNotesListView.swift in Sources */,
+				845CFE1177B9118D762C4B21 /* WatchStorage.swift in Sources */,
+				7F41AF3BB8FD3A30117A83DA /* WatchSyncService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CBEEEC8BFDC99C939C64B844 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9FDF6E8ED886E932926D1504 /* VoiceNoteActivityAttributes.swift in Sources */,
+				9C867C1A7E73EB35DDFDB8FC /* VoxbriefLiveActivity.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D354A29E5E69D4A3EBB3FA9B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1619FD1E6146DC91861DAE7B /* ASRService.swift in Sources */,
+				B573595E0689A89D4E29A477 /* AudioConstants.swift in Sources */,
+				5BB8B8634927112B555DB910 /* AudioFileManager.swift in Sources */,
+				0F3402B7A31F2FBC8F90A113 /* AudioPlaybackService.swift in Sources */,
+				4F7C18686C7D1DC467E52161 /* AudioRecordingService.swift in Sources */,
+				15B55313D15D673F92B12C6B /* FormattingExtensions.swift in Sources */,
+				97423C8D59C66715E3817F3A /* LLMCopywriterService.swift in Sources */,
+				D99F810CE255C259E1726018 /* LiveActivityManager.swift in Sources */,
+				8EFFC638DE223E39D228C688 /* MarkdownLiteText.swift in Sources */,
+				A43DE437BF1B5614D5BAB5E7 /* NoteDetailView.swift in Sources */,
+				F39F847D156570E22EC28858 /* NoteDetailViewModel.swift in Sources */,
+				0B5921AC2A3160AAF042406A /* NoteListView.swift in Sources */,
+				57711FA260DA9B0BE7DA8F44 /* NoteListViewModel.swift in Sources */,
+				385DAF7EA122261732E3B57D /* NoteProcessingPipeline.swift in Sources */,
+				42B91CC41B6C79D2A68C0DE1 /* NoteRepository.swift in Sources */,
+				8A33B8791FF0B81B31C2EB69 /* NoteRowView.swift in Sources */,
+				B6AC1161972BFA9EB301A4B9 /* OnDeviceLLMService.swift in Sources */,
+				2338B06275B314ABB2F489C3 /* OnboardingView.swift in Sources */,
+				FA66D9682EE62937A5BDEEBB /* QuickRecordSheet.swift in Sources */,
+				EAB97948647254097F03D47D /* RecordingCoordinator.swift in Sources */,
+				99C50F6E5DA466503D6155E0 /* SettingsView.swift in Sources */,
+				5E5BDB04ACA4C9DA8D990692 /* SyncPayload.swift in Sources */,
+				F5C9810D4553F163281C72F5 /* VoiceNote.swift in Sources */,
+				CF522D7A437072483BE0EF9A /* VoiceNoteActivityAttributes.swift in Sources */,
+				936364B94D1E1E7839A01DC9 /* VoxbriefApp.swift in Sources */,
+				B3D2E5CCE28D62709F3D12D5 /* WatchSyncService.swift in Sources */,
+				2D4CF8A23ED4AE84CB00AE5B /* WatchSyncStatusView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0F135CBEB1A59C8C07FE6A53 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 37352116B16272A1D780DF2D /* Voxbrief */;
+			targetProxy = A128B3EE4D0763CE36F47B6F /* PBXContainerItemProxy */;
+		};
+		131EA4B2A494544BC99E8EB9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E817BB0ABEC329AE291877EC /* VoxbriefWatchWidgets */;
+			targetProxy = 6508DD8E201F7173F55A5208 /* PBXContainerItemProxy */;
+		};
+		365A987A6A53AD11964A1DEC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E1776B3060ABFCE1C160CC43 /* VoxbriefWidgets */;
+			targetProxy = DEAEAF11A45191D40415D7CA /* PBXContainerItemProxy */;
+		};
+		E2E42D8DD70EEFEF2914D3E0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 98AF90C393567ADA1B2E4ADF /* VoxbriefWatch */;
+			targetProxy = E2E7D8741B5B8D50EF059F3F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0614445AB05A07C8AF246906 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				INFOPLIST_FILE = VoxbriefWatch/App/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		192938261CD4F94048DBB7A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				INFOPLIST_FILE = VoxbriefWatch/App/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		5023233472FB06568C9BD97E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Voxbrief.app/Voxbrief";
+			};
+			name = Release;
+		};
+		51635E5B19261EDF05959A7F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = VoxbriefApp/App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		72686414E95D13E208A8D8F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoxbriefWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app.widgets;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		72BA7A3605962A8D4486A339 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = VoxbriefApp/App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7AB30EDAB559B1DEE4DE7F62 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Voxbrief.app/Voxbrief";
+			};
+			name = Debug;
+		};
+		7AC15A13A053EC6AF8AF1F3C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MARKETING_VERSION = 1.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		9F6C768FE9ACB5636FBACEAC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MARKETING_VERSION = 1.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		9FF31E30C14DBC1F1FE1F4A0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoxbriefWatchWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_WKAppBundleIdentifier = com.jacksonzhou666.voxbrief.app.watchkitapp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app.watchkitapp.widgets;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B2703CDC94350D5E2DAE5E40 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoxbriefWatchWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_WKAppBundleIdentifier = com.jacksonzhou666.voxbrief.app.watchkitapp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app.watchkitapp.widgets;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		ED0E2FDC56D17CC7B4615D33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = VoxbriefWidgets/Info.plist;
+				INFOPLIST_KEY_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jacksonzhou666.voxbrief.app.widgets;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		19D2B6D0F948D885FA3A2E5A /* Build configuration list for PBXProject "Voxbrief" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9F6C768FE9ACB5636FBACEAC /* Debug */,
+				7AC15A13A053EC6AF8AF1F3C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		3CA1B4929BC0B21623BF17FA /* Build configuration list for PBXNativeTarget "Voxbrief" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72BA7A3605962A8D4486A339 /* Debug */,
+				51635E5B19261EDF05959A7F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		488303D63F27F666C024C181 /* Build configuration list for PBXNativeTarget "VoxbriefTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7AB30EDAB559B1DEE4DE7F62 /* Debug */,
+				5023233472FB06568C9BD97E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6347F7B5CEAEB407CF110F32 /* Build configuration list for PBXNativeTarget "VoxbriefWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72686414E95D13E208A8D8F3 /* Debug */,
+				ED0E2FDC56D17CC7B4615D33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9ECDD60325CD10C71BF6B8DA /* Build configuration list for PBXNativeTarget "VoxbriefWatchWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9FF31E30C14DBC1F1FE1F4A0 /* Debug */,
+				B2703CDC94350D5E2DAE5E40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E23C0AD22EFDDA5BF2411182 /* Build configuration list for PBXNativeTarget "VoxbriefWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0614445AB05A07C8AF246906 /* Debug */,
+				192938261CD4F94048DBB7A9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2154F9A9B7BCA54BFB72DC64 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ml-explore/mlx-swift-examples";
+			requirement = {
+				kind = exactVersion;
+				version = 2.29.1;
+			};
+		};
+		5FA083E011276BDBA1332C19 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/argmaxinc/argmax-oss-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		229AFE98228CC08425BD323C /* WhisperKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5FA083E011276BDBA1332C19 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */;
+			productName = WhisperKit;
+		};
+		C6628A2DEF8598CD4850817D /* MLXLMCommon */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2154F9A9B7BCA54BFB72DC64 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */;
+			productName = MLXLMCommon;
+		};
+		F12B540EED6866922E9E23CF /* MLXLLM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2154F9A9B7BCA54BFB72DC64 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */;
+			productName = MLXLLM;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C7BA46F9711F1D39443D0410 /* Project object */;
+}

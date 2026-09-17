@@ -80,7 +80,21 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
     public var source: NoteSource
     public var isFavorite: Bool
     public var errorMessage: String?
-    
+
+    /// Human-readable label for whichever Stage 2 engine actually produced this note's cleanup
+    /// (e.g. "On-Device LLM (Qwen3-0.6B)", "Ollama", or the rule-based fallback's label) --
+    /// `nil` for notes processed before this field existed. Lets the UI show the user when the
+    /// preferred engine wasn't available instead of silently degrading to the rule-based
+    /// transformer with no indication anything less than the real LLM ran.
+    public var cleanupEngine: String?
+
+    /// Stage 2's "light" rewrite: typos/grammar/filler words fixed, but original wording and
+    /// sentence order preserved -- no requirements/conditions/action-item restructuring. Kept
+    /// alongside `cleanedNote` (the structured "full" rewrite) so the UI can offer both. `nil`
+    /// for notes processed before this field existed, or if the light pass failed.
+    public var lightCleanedNote: String?
+    public var lightCleanupEngine: String?
+
     public init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
@@ -97,7 +111,10 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         status: NoteProcessingStatus = .ready,
         source: NoteSource = .phoneApp,
         isFavorite: Bool = false,
-        errorMessage: String? = nil
+        errorMessage: String? = nil,
+        cleanupEngine: String? = nil,
+        lightCleanedNote: String? = nil,
+        lightCleanupEngine: String? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -115,5 +132,8 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         self.source = source
         self.isFavorite = isFavorite
         self.errorMessage = errorMessage
+        self.cleanupEngine = cleanupEngine
+        self.lightCleanedNote = lightCleanedNote
+        self.lightCleanupEngine = lightCleanupEngine
     }
 }
