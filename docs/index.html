@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Voxbrief · Spoken Thoughts to Structured Specs (100% On-Device AI)</title>
-  <meta name="description" content="Capture voice notes instantly on Apple Watch and iPhone. Transform stream-of-consciousness audio into structured Markdown specs, bullets, and action items with on-device Whisper & Qwen3 LLM.">
+  <meta name="description" content="Capture voice notes instantly on Apple Watch and iPhone. Transform stream-of-consciousness audio into structured Markdown specs, requirements, and action items with on-device Whisper & Qwen3 LLM.">
   <meta property="og:title" content="Voxbrief · Voice Notes to Structured AI Specs">
   <meta property="og:description" content="Zero cloud servers. 100% on-device AI for Apple Watch & iPhone.">
   <meta property="og:image" content="assets/promo/promo_hero.png">
@@ -12,9 +12,11 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- Ambient Lighting Effects -->
   <div class="bg-glow"></div>
+  <div class="bg-grid"></div>
 
-  <!-- Navigation -->
+  <!-- Header Navigation -->
   <header class="header">
     <div class="container nav">
       <a href="index.html" class="brand">
@@ -22,8 +24,8 @@
         <span class="brand-name">Voxbrief</span>
       </a>
       <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#pipeline">Two-Stage AI</a></li>
+        <li><a href="#demo">Live Demo</a></li>
+        <li><a href="#features">Architecture</a></li>
         <li><a href="#watch">Apple Watch</a></li>
         <li><a href="#screenshots">Screenshots</a></li>
         <li><a href="support.html">Support</a></li>
@@ -36,15 +38,27 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="container">
-      <div class="badge-pill">
-        <span>⚡️ Native On-Device AI · iOS 17 &amp; watchOS 10</span>
+      <div class="hero-pill-wrap">
+        <div class="badge-pill">
+          <div class="sound-bars">
+            <span class="sound-bar"></span>
+            <span class="sound-bar"></span>
+            <span class="sound-bar"></span>
+            <span class="sound-bar"></span>
+          </div>
+          <span class="pulsing-dot"></span>
+          <span>100% PRIVATE ON-DEVICE SPEECH &amp; LLM · iOS 17 &amp; watchOS 10</span>
+        </div>
       </div>
+
       <h1 class="hero-title">
-        Spoken Thoughts to <span class="text-gradient">Structured Specs</span>
+        From Fleeting Thoughts to <br><span class="text-gradient">Structured Technical Specs</span>
       </h1>
+
       <p class="hero-subtitle">
-        Capture voice ideas in 1 tap on Apple Watch or iPhone. Transcribe with Whisper CoreML and transform stream-of-consciousness memos into engineering-grade Markdown specs, bullet requirements, and action items — 100% offline.
+        Capture voice memos instantly on Apple Watch or iPhone. On-device <strong>Whisper</strong> and <strong>Qwen3 LLM</strong> turn stream-of-consciousness audio into clean Markdown requirements, numbered logic, and action items — completely offline.
       </p>
+
       <div class="hero-cta">
         <a href="https://github.com/tianhaoz95/voxbrief/releases" class="btn-primary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.64 1.35-.57.65-1.06 1.72-0.93 2.74 1.01.08 2.03-.5 2.65-1.24z"/></svg>
@@ -54,106 +68,287 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
           View Source Code
         </a>
+        <a href="#demo" class="btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          Interactive Demo
+        </a>
       </div>
 
-      <!-- Hero Showcase Graphic -->
-      <div class="hero-graphic-wrap">
-        <img src="assets/promo/promo_hero.png" alt="Voxbrief Hero Showcase: Apple Watch & iPhone">
+      <!-- Key Metrics Strip -->
+      <div class="metrics-strip">
+        <div class="metric-item">
+          <div class="metric-value">0 ms</div>
+          <div class="metric-label">Cloud Latency · 100% Local</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value">0 Bytes</div>
+          <div class="metric-label">Voice Data Sent to Cloud</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value">Stage 1 + 2</div>
+          <div class="metric-label">WhisperCoreML + Qwen3 MLX</div>
+        </div>
+        <div class="metric-item">
+          <div class="metric-value">1 Tap</div>
+          <div class="metric-label">Apple Watch Complication</div>
+        </div>
+      </div>
+
+      <!-- Hero Showcase Graphic with Floating Micro-Cards -->
+      <div class="hero-graphic-container">
+        <div class="floating-chip floating-chip-top">
+          <div class="chip-icon-box">⌚</div>
+          <span>Apple Watch Series 11 · 1-Tap Offline AAC Capture</span>
+        </div>
+
+        <div class="floating-chip floating-chip-bottom">
+          <div class="chip-icon-box">⚡️</div>
+          <span>MLX Swift Metal GPU · Qwen3 On-Device Copywriter</span>
+        </div>
+
+        <div class="hero-graphic-wrap">
+          <img src="assets/promo/promo_hero.png" alt="Voxbrief Hero Showcase: Apple Watch &amp; iPhone">
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Core Features Section -->
+  <!-- Interactive Live Demo Section -->
+  <section class="live-demo-section" id="demo">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag">Interactive Preview</div>
+        <h2 class="section-title">See the Two-Stage Transformation</h2>
+        <p class="section-subtitle">Experience how disorganized spoken voice memos become production-ready specifications with zero cloud round-trips.</p>
+      </div>
+
+      <div class="demo-terminal">
+        <!-- Terminal Header -->
+        <div class="demo-header">
+          <div class="demo-traffic-lights">
+            <span class="traffic-light traffic-red"></span>
+            <span class="traffic-light traffic-yellow"></span>
+            <span class="traffic-light traffic-green"></span>
+          </div>
+
+          <div class="demo-tab-selector">
+            <button class="demo-tab-btn active" onclick="switchDemoTab(0)">1. AI Architecture</button>
+            <button class="demo-tab-btn" onclick="switchDemoTab(1)">2. Watch Complications</button>
+            <button class="demo-tab-btn" onclick="switchDemoTab(2)">3. Release Checklist</button>
+          </div>
+        </div>
+
+        <!-- Audio Player Simulation Bar -->
+        <div class="audio-player-bar">
+          <button class="play-toggle-btn" id="playBtn" onclick="togglePlaySimulation()">
+            <svg id="playIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pauseIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <div class="waveform-scrubber" id="waveformBar">
+            <span class="waveform-col active" style="height: 35%;"></span>
+            <span class="waveform-col active" style="height: 70%;"></span>
+            <span class="waveform-col active" style="height: 95%;"></span>
+            <span class="waveform-col active" style="height: 40%;"></span>
+            <span class="waveform-col active" style="height: 80%;"></span>
+            <span class="waveform-col active" style="height: 60%;"></span>
+            <span class="waveform-col active" style="height: 90%;"></span>
+            <span class="waveform-col active" style="height: 75%;"></span>
+            <span class="waveform-col active" style="height: 50%;"></span>
+            <span class="waveform-col" style="height: 85%;"></span>
+            <span class="waveform-col" style="height: 65%;"></span>
+            <span class="waveform-col" style="height: 95%;"></span>
+            <span class="waveform-col" style="height: 40%;"></span>
+            <span class="waveform-col" style="height: 75%;"></span>
+            <span class="waveform-col" style="height: 55%;"></span>
+            <span class="waveform-col" style="height: 85%;"></span>
+            <span class="waveform-col" style="height: 30%;"></span>
+          </div>
+          <div class="player-timer" id="playerTimer">00:18 / 00:54</div>
+          <div class="player-pill">AAC @ 32kHz Mono</div>
+        </div>
+
+        <!-- Split View: Raw Spoken Memo vs Structured Markdown Spec -->
+        <div class="demo-split-view">
+          <!-- Left: Spoken Memo -->
+          <div class="split-col-raw">
+            <div class="split-col-title">
+              <span class="split-badge split-badge-raw">Spoken Voice Stream</span>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Verbatim Whisper Output</span>
+            </div>
+            <div class="raw-transcript-box" id="rawTranscriptBox">
+              "hey team <span class="filler">so yeah</span> for the AI engine we need complete privacy. requirement one is speech recognition must run locally with whisperkit and coreml so no audio ever leaves the device. requirement two is stage two structured copywriting runs on-device using qwen3 with mlx swift. condition 1 if the device supports metal gpu acceleration execute directly on neural engine. condition 2 if user configures a local ollama endpoint route there instead. <span class="filler">um</span> make sure to encrypt local storage with aes 256."
+            </div>
+          </div>
+
+          <!-- Center Flow Divider -->
+          <div class="split-divider">
+            <div class="pipeline-flow-icon">⚡️</div>
+            <div class="pipeline-flow-text">Two-Stage On-Device Flow</div>
+          </div>
+
+          <!-- Right: Clean Spec -->
+          <div class="split-col-spec">
+            <div class="split-col-title">
+              <span class="split-badge split-badge-clean">Structured Markdown Spec</span>
+              <button class="btn-copy-spec" id="copyBtn" onclick="copyDemoSpec()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="copyBtnText">Copy Markdown</span>
+              </button>
+            </div>
+            <div class="spec-rendered-box" id="specRenderedBox">
+              <div class="spec-title-line">On-Device AI Engine &amp; Privacy Architecture</div>
+              <div class="spec-quote">Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.</div>
+              
+              <div class="spec-section-head">🎯 Requirements</div>
+              <ul class="spec-list">
+                <li>Run speech recognition locally via WhisperKit CoreML (no audio leaves device)</li>
+                <li>Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration</li>
+                <li>Encrypt local audio recordings and notes database on disk with AES-256</li>
+              </ul>
+
+              <div class="spec-section-head">🔢 Execution Logic</div>
+              <ul class="spec-list">
+                <li>If device supports Metal GPU, execute on-device Qwen3 model</li>
+                <li>If user opts into local LLM in Settings, route to private Ollama host</li>
+              </ul>
+
+              <div class="spec-section-head">✅ Action Items</div>
+              <ul class="spec-checklist">
+                <li><span class="check-box-icon">✓</span> Benchmark CoreML neural engine inference latency</li>
+                <li><span class="check-box-icon">✓</span> Validate MLX Swift memory allocation and cache purge</li>
+              </ul>
+
+              <div class="spec-tag-chips">
+                <span class="spec-tag">#AI</span>
+                <span class="spec-tag">#privacy</span>
+                <span class="spec-tag">#CoreML</span>
+                <span class="spec-tag">#architecture</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modern Bento Box Architecture Grid -->
   <section class="section" id="features">
     <div class="container">
       <div class="section-header">
-        <div class="section-tag">Engineered for Builders</div>
-        <h2 class="section-title">Built for Speed, Structure &amp; Absolute Privacy</h2>
-        <p class="section-subtitle">No accounts, no cloud APIs, no subscriptions. Everything runs directly on your Apple hardware.</p>
+        <div class="section-tag">System Architecture</div>
+        <h2 class="section-title">Engineered for Builders Who Think Aloud</h2>
+        <p class="section-subtitle">No accounts, no cloud APIs, no subscriptions. Everything runs directly on your Apple hardware with native CoreML and Metal acceleration.</p>
       </div>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">⌚</div>
-          <h3 class="feature-title">1-Tap Apple Watch Capture</h3>
-          <p class="feature-desc">Tap a complication on any watch face (circular, corner, rectangular, inline) or Smart Stack Live Activity. Records immediately to local watch flash storage with zero battery drain.</p>
+      <div class="bento-grid">
+        <!-- Bento 1: Two Stage Intelligence (Large Span 2) -->
+        <div class="bento-item bento-span-2">
+          <div class="bento-icon">⚡️</div>
+          <h3 class="bento-title">Two-Stage On-Device Intelligence</h3>
+          <p class="bento-desc">
+            Audio recording is decoupled from copy synthesis. Stage 1 executes OpenAI's Whisper model on the Apple Neural Engine via <strong>WhisperKit CoreML</strong> for verbatim acoustic accuracy. Stage 2 executes <strong>Qwen3</strong> via <strong>MLX Swift</strong> with Apple Silicon GPU acceleration to extract requirements, conditions, and checklists into Markdown.
+          </p>
+          <div class="bento-visual-wrap">
+            <img src="assets/promo/promo_pipeline.png" alt="Two-Stage Pipeline Diagram">
+          </div>
+          <div class="tech-chips" style="margin-top: 20px;">
+            <span class="tech-chip">OpenAI Whisper</span>
+            <span class="tech-chip">Apple Neural Engine</span>
+            <span class="tech-chip">MLX Swift</span>
+            <span class="tech-chip">Metal GPU</span>
+            <span class="tech-chip">Qwen3 4-Bit</span>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🎙️</div>
-          <h3 class="feature-title">Stage 1: Whisper ASR</h3>
-          <p class="feature-desc">On-device OpenAI Whisper (WhisperKit CoreML) transcribes audio into verbatim text with exceptional punctuation, casing, and acoustic fidelity directly on Apple Neural Engine.</p>
+        <!-- Bento 2: Apple Watch Standalone -->
+        <div class="bento-item">
+          <div class="bento-icon bento-icon-purple">⌚</div>
+          <h3 class="bento-title">Apple Watch Standalone</h3>
+          <p class="bento-desc">
+            Capture audio with a single tap on your watch face complications (Circular, Corner, Rectangular, Inline). Operates 100% offline away from your iPhone. Automatically transfers high-efficiency AAC audio when back in range.
+          </p>
+          <div class="tech-chips">
+            <span class="tech-chip">WidgetKit Complications</span>
+            <span class="tech-chip">WatchConnectivity</span>
+            <span class="tech-chip">Zero Battery Drain</span>
+            <span class="tech-chip">Smart Stack</span>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🧠</div>
-          <h3 class="feature-title">Stage 2: On-Device LLM</h3>
-          <p class="feature-desc">Qwen3 via MLX Swift Metal GPU extracts structured JSON: converts requirements into bullets, workflows into numbered sequences, to-dos into checklists, and tags domains.</p>
+        <!-- Bento 3: Absolute Privacy -->
+        <div class="bento-item">
+          <div class="bento-icon bento-icon-emerald">🔒</div>
+          <h3 class="bento-title">Zero Cloud &amp; Zero Tracking</h3>
+          <p class="bento-desc">
+            Your voice and thoughts never pass through external servers. Zero telemetry, zero analytics libraries, zero advertising IDs. All notes and audio are stored securely in your device's sandboxed local filesystem.
+          </p>
+          <div class="tech-chips">
+            <span class="tech-chip">Sandboxed Storage</span>
+            <span class="tech-chip">Zero External APIs</span>
+            <span class="tech-chip">Airplane Mode Safe</span>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🔒</div>
-          <h3 class="feature-title">100% Privacy &amp; Offline</h3>
-          <p class="feature-desc">Your voice notes and thoughts never leave your device. Zero telemetry, zero external servers, zero advertising tracking. Works completely offline anywhere in the world.</p>
+        <!-- Bento 4: Flexible Model Selection -->
+        <div class="bento-item">
+          <div class="bento-icon">⚙️</div>
+          <h3 class="bento-title">3 AI Model Tiers</h3>
+          <p class="bento-desc">
+            Ships with pre-bundled <strong>Qwen3-0.6B</strong> ready on first launch. Download the high-fidelity <strong>Qwen3-4B</strong> on-demand in Settings, or configure a private local <strong>Ollama</strong> network host.
+          </p>
+          <div class="tech-chips">
+            <span class="tech-chip">Bundled Qwen3-0.6B</span>
+            <span class="tech-chip">Downloadable Qwen3-4B</span>
+            <span class="tech-chip">Private Ollama LAN</span>
+          </div>
         </div>
 
-        <div class="feature-card">
-          <div class="feature-icon">🎵</div>
-          <h3 class="feature-title">Audio Player &amp; Scrubber</h3>
-          <p class="feature-desc">Listen back to original audio with an interactive waveform visualizer, timestamp scrub controls, duration counter, and playback speed adjustments.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">⚙️</div>
-          <h3 class="feature-title">Bundled, 4B &amp; Ollama</h3>
-          <p class="feature-desc">Ships with bundled Qwen3-0.6B (ready offline from launch), optional Qwen3-4B downloadable in Settings, and full support for private local Ollama endpoints.</p>
+        <!-- Bento 5: Productivity & Export (Large Span 2) -->
+        <div class="bento-item bento-span-2">
+          <div class="bento-icon bento-icon-purple">🚀</div>
+          <h3 class="bento-title">Seamless Workflow Integration</h3>
+          <p class="bento-desc">
+            Every note is formatted in GitHub-flavored Markdown. Copy bulleted requirements directly into GitHub issues, Jira tickets, Obsidian vaults, Apple Notes, or Slack channels with a single tap. Audio playback includes interactive waveform scrubbing and speed adjustments.
+          </p>
+          <div class="tech-chips">
+            <span class="tech-chip">GitHub Flavored Markdown</span>
+            <span class="tech-chip">Obsidian Ready</span>
+            <span class="tech-chip">Audio Scrubber</span>
+            <span class="tech-chip">iOS System Share Sheet</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Two-Stage Pipeline Showcase Section -->
-  <section class="section" id="pipeline">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-tag">Under the Hood</div>
-        <h2 class="section-title">The Two-Stage On-Device AI Pipeline</h2>
-        <p class="section-subtitle">How spoken stream-of-consciousness audio becomes polished technical specs.</p>
-      </div>
-
-      <div class="showcase-banner">
-        <img src="assets/promo/promo_pipeline.png" alt="Two-Stage Pipeline: Whisper ASR to Qwen3 LLM">
-      </div>
-
-      <div class="pipeline-step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h3>Stage 1: Speech-to-Text Recognition (WhisperKit CoreML)</h3>
-          <p>The companion app receives raw AAC audio from Apple Watch or direct iPhone recording. WhisperKit runs OpenAI's Whisper model fully on-device to produce a verbatim transcript without missing technical jargon.</p>
-        </div>
-      </div>
-
-      <div class="pipeline-step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h3>Stage 2: Structured NLP Copywriting (MLX Swift + Qwen3)</h3>
-          <p>Qwen3 processes the raw text locally via Apple Metal GPU acceleration. It identifies requirements (bullets), sequential execution rules (numbers), action items (checklists), and tags, assembling them into clean Markdown.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Apple Watch Section -->
+  <!-- Apple Watch Dedicated Section -->
   <section class="section" id="watch">
     <div class="container">
       <div class="section-header">
         <div class="section-tag">Watch Companion</div>
-        <h2 class="section-title">Never Miss a Passing Thought</h2>
-        <p class="section-subtitle">Capture while driving, walking, or away from your phone. WatchConnectivity background fetch transfers audio automatically when near.</p>
+        <h2 class="section-title">Record Passing Thoughts at the Speed of Speech</h2>
+        <p class="section-subtitle">Keep your phone in your pocket or on your desk. Capture fleeting ideas while driving, running, or in meetings.</p>
       </div>
 
       <div class="showcase-banner">
         <img src="assets/promo/promo_watch.png" alt="Apple Watch Companion Showcase">
+      </div>
+
+      <div class="pipeline-grid">
+        <div class="pipeline-step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Instant Complication Tap</h3>
+            <p>One touch on any watch face complication begins immediate audio recording without waiting for the full UI to load. Tactile haptics confirm recording status.</p>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Automated Background Sync</h3>
+            <p>Audio is saved locally in watch flash storage. As soon as you are near your iPhone, encrypted WatchConnectivity transfers queue and transfer seamlessly in the background.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -162,35 +357,37 @@
   <section class="section" id="screenshots">
     <div class="container">
       <div class="section-header">
-        <div class="section-tag">App Tour</div>
+        <div class="section-tag">Product Gallery</div>
         <h2 class="section-title">App Store Screenshots</h2>
-        <p class="section-subtitle">Explore the clean, native iOS and watchOS interfaces.</p>
+        <p class="section-subtitle">Designed exclusively for modern iOS 17 and watchOS 10 native interfaces.</p>
       </div>
 
-      <div class="screenshots-scroll">
-        <div class="screen-card">
-          <img src="assets/screenshots/iphone/01_notes_list.png" alt="Note List and Dynamic Tags">
-          <div class="screen-card-caption">Voice Notes List &amp; Tags</div>
-        </div>
-        <div class="screen-card">
-          <img src="assets/screenshots/iphone/02_note_detail.png" alt="Structured Note Detail">
-          <div class="screen-card-caption">Structured Markdown Spec</div>
-        </div>
-        <div class="screen-card">
-          <img src="assets/screenshots/iphone/03_two_stage_pipeline.png" alt="Verbatim Whisper Transcript">
-          <div class="screen-card-caption">Raw Verbatim Transcript</div>
-        </div>
-        <div class="screen-card">
-          <img src="assets/screenshots/iphone/04_pipeline_diagnostics.png" alt="Pipeline Diagnostics">
-          <div class="screen-card-caption">Pipeline Diagnostics</div>
-        </div>
-        <div class="screen-card">
-          <img src="assets/screenshots/iphone/05_quick_record.png" alt="Direct iPhone Recording">
-          <div class="screen-card-caption">Pulsing Voice Capture</div>
-        </div>
-        <div class="screen-card">
-          <img src="assets/screenshots/iphone/06_settings_pipeline.png" alt="On-Device Model Settings">
-          <div class="screen-card-caption">On-Device AI Settings</div>
+      <div class="screenshots-gallery-wrap">
+        <div class="screenshots-scroll">
+          <div class="screen-card">
+            <img src="assets/screenshots/iphone/01_notes_list.png" alt="Voice Notes List &amp; Tags">
+            <div class="screen-card-caption">Voice Notes List &amp; Tags</div>
+          </div>
+          <div class="screen-card">
+            <img src="assets/screenshots/iphone/02_note_detail.png" alt="Structured Markdown Spec">
+            <div class="screen-card-caption">Structured Markdown Spec</div>
+          </div>
+          <div class="screen-card">
+            <img src="assets/screenshots/iphone/03_two_stage_pipeline.png" alt="Verbatim Whisper Transcript">
+            <div class="screen-card-caption">Raw Verbatim Transcript</div>
+          </div>
+          <div class="screen-card">
+            <img src="assets/screenshots/iphone/04_pipeline_diagnostics.png" alt="Pipeline Diagnostics">
+            <div class="screen-card-caption">Pipeline Diagnostics</div>
+          </div>
+          <div class="screen-card">
+            <img src="assets/screenshots/iphone/05_quick_record.png" alt="Direct iPhone Recording">
+            <div class="screen-card-caption">Direct iPhone Capture</div>
+          </div>
+          <div class="screen-card">
+            <img src="assets/screenshots/iphone/06_settings_pipeline.png" alt="On-Device Model Settings">
+            <div class="screen-card-caption">On-Device AI Settings</div>
+          </div>
         </div>
       </div>
     </div>
@@ -200,9 +397,12 @@
   <section class="section">
     <div class="container">
       <div class="privacy-callout">
-        <h2>Your Thoughts Belong Only to You</h2>
-        <p>Unlike cloud assistants that harvest voice data for server training, Voxbrief runs Whisper and Qwen3 directly on your device hardware. No telemetry, no remote storage, and no tracking — guaranteed.</p>
-        <a href="privacy.html" class="btn-primary">Read Our Privacy Policy</a>
+        <div class="privacy-shield-icon">🛡️</div>
+        <h2>Your Voice Belongs Exclusively to You</h2>
+        <p>
+          Unlike cloud assistants that send your audio recordings to remote data centers for surveillance or model training, Voxbrief processes 100% of your voice data locally on your Apple device. No cloud storage, no account registration, and no tracking.
+        </p>
+        <a href="privacy.html" class="btn-primary">Read Our Full Privacy Policy</a>
       </div>
     </div>
   </section>
@@ -216,13 +416,13 @@
             <img src="assets/icon.png" alt="Voxbrief Icon" class="brand-icon">
             <span class="brand-name">Voxbrief</span>
           </div>
-          <p>Frictionless voice idea capture for Apple Watch &amp; iPhone. On-device AI processing powered by WhisperKit &amp; MLX Swift.</p>
+          <p>Instant voice idea capture for Apple Watch &amp; iPhone. Two-stage on-device AI pipeline powered by WhisperKit CoreML and MLX Swift Qwen3.</p>
         </div>
         <div class="footer-col">
-          <h4>Navigation</h4>
+          <h4>Product</h4>
           <ul>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#pipeline">Two-Stage AI</a></li>
+            <li><a href="#demo">Live Demo</a></li>
+            <li><a href="#features">Architecture</a></li>
             <li><a href="#watch">Apple Watch</a></li>
             <li><a href="#screenshots">Screenshots</a></li>
           </ul>
@@ -246,9 +446,176 @@
       </div>
       <div class="footer-bottom">
         <div>&copy; 2026 Tianhao Zhou. All rights reserved.</div>
-        <div>Designed for Apple Watch &amp; iPhone (iOS 17+ · watchOS 10+)</div>
+        <div>Built with Swift, SwiftUI, WhisperKit CoreML &amp; MLX Swift.</div>
       </div>
     </div>
   </footer>
+
+  <!-- Interactive Demo Logic Script -->
+  <script>
+    const demoData = [
+      {
+        timer: "00:18 / 00:54",
+        raw: `"hey team <span class='filler'>so yeah</span> for the AI engine we need complete privacy. requirement one is speech recognition must run locally with whisperkit and coreml so no audio ever leaves the device. requirement two is stage two structured copywriting runs on-device using qwen3 with mlx swift. condition 1 if the device supports metal gpu acceleration execute directly on neural engine. condition 2 if user configures a local ollama endpoint route there instead. <span class='filler'>um</span> make sure to encrypt local storage with aes 256."`,
+        spec: `
+          <div class="spec-title-line">On-Device AI Engine &amp; Privacy Architecture</div>
+          <div class="spec-quote">Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.</div>
+          
+          <div class="spec-section-head">🎯 Requirements</div>
+          <ul class="spec-list">
+            <li>Run speech recognition locally via WhisperKit CoreML (no audio leaves device)</li>
+            <li>Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration</li>
+            <li>Encrypt local audio recordings and notes database on disk with AES-256</li>
+          </ul>
+
+          <div class="spec-section-head">🔢 Execution Logic</div>
+          <ul class="spec-list">
+            <li>If device supports Metal GPU, execute on-device Qwen3 model</li>
+            <li>If user opts into local LLM in Settings, route to private Ollama host</li>
+          </ul>
+
+          <div class="spec-section-head">✅ Action Items</div>
+          <ul class="spec-checklist">
+            <li><span class="check-box-icon">✓</span> Benchmark CoreML neural engine inference latency</li>
+            <li><span class="check-box-icon">✓</span> Validate MLX Swift memory allocation and cache purge</li>
+          </ul>
+
+          <div class="spec-tag-chips">
+            <span class="spec-tag">#AI</span>
+            <span class="spec-tag">#privacy</span>
+            <span class="spec-tag">#CoreML</span>
+            <span class="spec-tag">#architecture</span>
+          </div>
+        `,
+        copyMarkdown: `# On-Device AI Engine & Privacy Architecture\n\n> Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.\n\n### 🎯 Requirements\n- Run speech recognition locally via WhisperKit CoreML (no audio leaves device)\n- Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration\n- Encrypt local audio recordings and notes database on disk with AES-256\n\n### 🔢 Execution Logic\n1. If device supports Metal GPU, execute on-device Qwen3 model\n2. If user opts into local LLM in Settings, route to private Ollama host\n\n### ✅ Action Items\n- [ ] Benchmark CoreML neural engine inference latency\n- [ ] Validate MLX Swift memory allocation and cache purge\n\n#AI #privacy #CoreML #architecture`
+      },
+      {
+        timer: "00:12 / 00:20",
+        raw: `"make sure the watch app supports all watch face complication families <span class='filler'>you know</span> circular corner rectangular and inline. condition 1 tapping complication starts capture immediately without launching full app UI. condition 2 background fetch sweeps un-synced memos every fifteen minutes. <span class='filler'>like</span> test across 42, 46 and Ultra displays."`,
+        spec: `
+          <div class="spec-title-line">Apple Watch Complications &amp; Offline Sync</div>
+          <div class="spec-quote">Instant 1-tap recording from watch face complications with background queue sync.</div>
+          
+          <div class="spec-section-head">🎯 Requirements</div>
+          <ul class="spec-list">
+            <li>Support all WidgetKit complication families: circular, corner, rectangular, inline</li>
+            <li>Maintain offline queue on Apple Watch with zero phone dependency</li>
+            <li>Background sync transfers AAC memos automatically when iPhone is nearby</li>
+          </ul>
+
+          <div class="spec-section-head">🔢 Workflow Conditions</div>
+          <ul class="spec-list">
+            <li>Tapping complication immediately starts audio capture without UI delay</li>
+            <li>Background fetch sweeps un-synced memos every 15-30 minutes</li>
+          </ul>
+
+          <div class="spec-section-head">✅ Action Items</div>
+          <ul class="spec-checklist">
+            <li><span class="check-box-icon">✓</span> Test complications across 42mm, 46mm, and 49mm Ultra displays</li>
+            <li><span class="check-box-icon">✓</span> Verify Smart Stack Live Activity timer accuracy</li>
+          </ul>
+
+          <div class="spec-tag-chips">
+            <span class="spec-tag">#watchOS</span>
+            <span class="spec-tag">#widgets</span>
+            <span class="spec-tag">#design</span>
+          </div>
+        `,
+        copyMarkdown: `# Apple Watch Complications & Offline Sync\n\n> Instant 1-tap recording from watch face complications with background queue sync.\n\n### 🎯 Requirements\n- Support all WidgetKit complication families: circular, corner, rectangular, inline\n- Maintain offline queue on Apple Watch with zero phone dependency\n- Background sync transfers AAC memos automatically when iPhone is nearby\n\n### 🔢 Workflow Conditions\n1. Tapping complication immediately starts audio capture without UI delay\n2. Background fetch sweeps un-synced memos every 15-30 minutes\n\n### ✅ Action Items\n- [ ] Test complications across 42mm, 46mm, and 49mm Ultra displays\n- [ ] Verify Smart Stack Live Activity timer accuracy\n\n#watchOS #widgets #design`
+      },
+      {
+        timer: "00:24 / 00:38",
+        raw: `"quick release sync for testflight. <span class='filler'>um</span> first requirement build number must be UTC timestamp string so App Store Connect never rejects duplicate builds. second requirement confirm launch screen empty dict is present so app doesn't letterbox. <span class='filler'>also</span> make sure automated screenshots script generates both iphone and watch assets."`,
+        spec: `
+          <div class="spec-title-line">TestFlight &amp; App Store Release Automation</div>
+          <div class="spec-quote">Automated CI/CD release workflow and visual asset generation for App Store Connect.</div>
+          
+          <div class="spec-section-head">🎯 Requirements</div>
+          <ul class="spec-list">
+            <li>Automate build numbering via UTC timestamp to prevent duplicate rejections</li>
+            <li>Ensure empty UILaunchScreen dict is set in Info.plist to avoid letterboxing</li>
+            <li>Embed watch companion and WidgetKit extensions in single IPA</li>
+          </ul>
+
+          <div class="spec-section-head">🔢 CI Conditions</div>
+          <ul class="spec-list">
+            <li>On workflow_dispatch, sign with App Store Connect API key</li>
+            <li>Fail build fast if 1024x1024 marketing icons are missing</li>
+          </ul>
+
+          <div class="spec-section-head">✅ Action Items</div>
+          <ul class="spec-checklist">
+            <li><span class="check-box-icon">✓</span> Execute scripts/capture_screenshots.sh on booted simulators</li>
+            <li><span class="check-box-icon">✓</span> Verify Fastlane metadata conforms to 30/100 char constraints</li>
+          </ul>
+
+          <div class="spec-tag-chips">
+            <span class="spec-tag">#TestFlight</span>
+            <span class="spec-tag">#CI</span>
+            <span class="spec-tag">#Fastlane</span>
+          </div>
+        `,
+        copyMarkdown: `# TestFlight & App Store Release Automation\n\n> Automated CI/CD release workflow and visual asset generation for App Store Connect.\n\n### 🎯 Requirements\n- Automate build numbering via UTC timestamp to prevent duplicate rejections\n- Ensure empty UILaunchScreen dict is set in Info.plist to avoid letterboxing\n- Embed watch companion and WidgetKit extensions in single IPA\n\n### 🔢 CI Conditions\n1. On workflow_dispatch, sign with App Store Connect API key\n2. Fail build fast if 1024x1024 marketing icons are missing\n\n### ✅ Action Items\n- [ ] Execute scripts/capture_screenshots.sh on booted simulators\n- [ ] Verify Fastlane metadata conforms to 30/100 char constraints\n\n#TestFlight #CI #Fastlane`
+      }
+    ];
+
+    let currentTabIndex = 0;
+    let isPlaying = false;
+    let waveInterval = null;
+
+    function switchDemoTab(index) {
+      currentTabIndex = index;
+      const tabBtns = document.querySelectorAll('.demo-tab-btn');
+      tabBtns.forEach((btn, i) => {
+        if (i === index) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+
+      const data = demoData[index];
+      document.getElementById('playerTimer').textContent = data.timer;
+      document.getElementById('rawTranscriptBox').innerHTML = data.raw;
+      document.getElementById('specRenderedBox').innerHTML = data.spec;
+
+      const copyText = document.getElementById('copyBtnText');
+      copyText.textContent = "Copy Markdown";
+    }
+
+    function togglePlaySimulation() {
+      isPlaying = !isPlaying;
+      const playIcon = document.getElementById('playIcon');
+      const pauseIcon = document.getElementById('pauseIcon');
+      const waveCols = document.querySelectorAll('.waveform-col');
+
+      if (isPlaying) {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+        waveInterval = setInterval(() => {
+          waveCols.forEach(col => {
+            const h = Math.floor(Math.random() * 70) + 25;
+            col.style.height = h + '%';
+            if (Math.random() > 0.4) col.classList.add('active');
+            else col.classList.remove('active');
+          });
+        }, 150);
+      } else {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+        clearInterval(waveInterval);
+      }
+    }
+
+    function copyDemoSpec() {
+      const markdown = demoData[currentTabIndex].copyMarkdown;
+      navigator.clipboard.writeText(markdown).then(() => {
+        const copyText = document.getElementById('copyBtnText');
+        copyText.textContent = "Copied! ✓";
+        setTimeout(() => {
+          copyText.textContent = "Copy Markdown";
+        }, 2000);
+      }).catch(err => {
+        console.error('Clipboard copy failed: ', err);
+      });
+    }
+  </script>
 </body>
 </html>
