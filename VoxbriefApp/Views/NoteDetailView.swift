@@ -4,18 +4,9 @@ public struct NoteDetailView: View {
     @StateObject private var viewModel: NoteDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var copiedField: CopyField?
-    @State private var contentWidth: CGFloat = .infinity
 
     private enum CopyField: Equatable {
         case fullRewrite, lightCleanup, rawTranscript
-    }
-
-    /// Four text labels ("Full Rewrite" / "Light Cleanup" / "Raw Transcript" / "2-Stage
-    /// Pipeline") don't fit a segmented control on narrower phones or at larger Dynamic Type
-    /// sizes -- fall back to icon-only segments below this width instead of letting the labels
-    /// truncate/wrap illegibly.
-    private var useCompactTabBar: Bool {
-        contentWidth < 380
     }
 
     public init(note: VoiceNote) {
@@ -41,15 +32,9 @@ public struct NoteDetailView: View {
 
                 Picker("View Mode", selection: $viewModel.selectedTab) {
                     ForEach(NoteDetailViewModel.DetailTab.allCases) { tab in
-                        Group {
-                            if useCompactTabBar {
-                                Image(systemName: tab.iconName)
-                            } else {
-                                Text(tab.rawValue)
-                            }
-                        }
-                        .accessibilityLabel(tab.rawValue)
-                        .tag(tab)
+                        Image(systemName: tab.iconName)
+                            .accessibilityLabel(tab.rawValue)
+                            .tag(tab)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -68,13 +53,6 @@ public struct NoteDetailView: View {
             .padding()
         }
         .background(Color(UIColor.systemGroupedBackground))
-        .background(
-            GeometryReader { geo in
-                Color.clear
-                    .onAppear { contentWidth = geo.size.width }
-                    .onChange(of: geo.size.width) { _, newWidth in contentWidth = newWidth }
-            }
-        )
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

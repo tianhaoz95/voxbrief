@@ -212,9 +212,12 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         let systemPrompt = """
         You lightly proofread a rough spoken voice-memo transcript. Fix only typos, grammar \
         mistakes, and obvious speech-to-text errors, and remove filler words (um, uh, you know, \
-        sort of, kind of). Do NOT reorganize, summarize, restructure into lists, or drop any \
-        content -- keep the original wording, sentence order, and level of detail as close to \
-        verbatim as possible. Respond with ONLY one valid JSON object -- no markdown code fences, \
+        sort of, kind of). Also remove any bracketed non-speech annotations the speech recognizer \
+        inserted, such as [Laughter], [Music], [Inaudible Remark], or [BLANK_AUDIO] -- these are \
+        the recognizer's own audio-event tags, not spoken words. Do NOT reorganize, summarize, \
+        restructure into lists, or drop any actual spoken content -- keep the original wording, \
+        sentence order, and level of detail as close to verbatim as possible. Respond with ONLY \
+        one valid JSON object -- no markdown code fences, \
         no commentary before or after -- using exactly these keys: "title" (string, 8 words or \
         fewer), "summary" (one sentence string), "cleanedText" (string, the full lightly-corrected \
         transcript as continuous prose), "tags" (array of short hashtags starting with #).
@@ -227,7 +230,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         }
         let decoded = try JSONDecoder().decode(OnDeviceLLMLightJSONResult.self, from: Data(jsonSubstring.utf8))
 
-        let sanitizedFallback = sanitizeSpeechTranscript(transcript)
+        let sanitizedFallback = stripASRSpecialTokens(sanitizeSpeechTranscript(transcript))
 
         let title: String
         if let candidate = decoded.title?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
@@ -243,9 +246,11 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             summary = "Voice memo lightly proofread on-device."
         }
 
+        // Strip as a safety net even when the model returned its own cleanedText -- small models
+        // don't always follow the "omit bracketed annotations" instruction reliably.
         let cleanedText: String
         if let candidate = decoded.cleanedText?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
-            cleanedText = candidate
+            cleanedText = stripASRSpecialTokens(candidate)
         } else {
             cleanedText = sanitizedFallback
         }
@@ -361,11 +366,29 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         )
     }
     
+    /// Strips WhisperKit's bracketed non-speech annotations (e.g. "[Laughter]",
+    /// "[ Inaudible Remark ]", "[Music]", "[BLANK_AUDIO]") -- these are audio-event tags the ASR
+    /// model emits, not spoken words. Light Cleanup otherwise preserves the transcript verbatim,
+    /// so these need removing explicitly rather than being kept as if they were content.
+    private func stripASRSpecialTokens(_ text: String) -> String {
+        guard let regex = try? NSRegularExpression(pattern: "\\[[^\\[\\]]*\\]") else { return text }
+        var result = regex.stringByReplacingMatches(
+            in: text,
+            options: [],
+            range: NSRange(location: 0, length: text.utf16.count),
+            withTemplate: ""
+        )
+        while result.contains("  ") {
+            result = result.replacingOccurrences(of: "  ", with: " ")
+        }
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Light-mode counterpart to `transformLocally`: fixes typos, filler words, and tech-term
     /// capitalization but never buckets sentences into requirements/conditions/action items --
     /// the output stays in the transcript's original order as plain prose.
     private func transformLocallyLight(rawTranscript: String) -> LLMProcessingResult {
-        let sanitized = sanitizeSpeechTranscript(rawTranscript)
+        let sanitized = stripASRSpecialTokens(sanitizeSpeechTranscript(rawTranscript))
         let cleanedSentences = splitIntoSentences(sanitized).map { cleanAndFormatSentence($0) }.filter { !$0.isEmpty }
 
         let title = generateTitle(from: cleanedSentences, raw: sanitized)
@@ -638,8 +661,11 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         case .light:
             prompt = """
             Lightly proofread the following raw voice transcript: fix typos, grammar, and remove \
-            filler words (um, uh, you know, sort of). Keep the original wording, sentence order, \
-            and level of detail -- do not restructure it into lists or sections, and do not add \
+            filler words (um, uh, you know, sort of). Also remove any bracketed non-speech \
+            annotations the speech recognizer inserted, such as [Laughter], [Music], or \
+            [Inaudible Remark] -- these are the recognizer's own audio-event tags, not spoken \
+            words. Keep the original wording, sentence order, and level of detail for everything \
+            actually spoken -- do not restructure it into lists or sections, and do not add \
             commentary. Return only the corrected transcript as plain prose.
 
             Transcript:
@@ -690,7 +716,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
                     requirements: [],
                     conditions: [],
                     actionItems: [],
-                    cleanedMarkdown: trimmedResponse,
+                    cleanedMarkdown: stripASRSpecialTokens(trimmedResponse),
                     tags: structured.tags,
                     engine: CleanupEngineLabel.ollama
                 )

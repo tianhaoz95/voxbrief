@@ -18,8 +18,8 @@ public final class NoteDetailViewModel: ObservableObject {
 
         public var id: String { rawValue }
 
-        /// SF Symbol shown instead of `rawValue` when the segmented tab bar doesn't have room
-        /// for four text labels (see `NoteDetailView.useCompactTabBar`).
+        /// SF Symbol shown in the segmented tab bar; `rawValue` is used as its accessibility
+        /// label instead.
         public var iconName: String {
             switch self {
             case .cleanedNote: return "doc.plaintext"

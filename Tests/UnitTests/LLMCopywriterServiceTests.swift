@@ -82,6 +82,20 @@ final class LLMCopywriterServiceTests: XCTestCase {
         XCTAssertTrue(result.cleanedMarkdown.contains("API"), "api should be capitalized to API")
     }
 
+    func testLightModeRemovesWhisperSpecialTokens() async throws {
+        let transcript = "Writing on board [ breathing heavily ] [ Laughter ] [ Inaudible Remark ] So, kind of, what are you doing?"
+
+        let result = try await service.processTranscript(transcript, mode: .light)
+
+        XCTAssertFalse(result.cleanedMarkdown.contains("["), "Bracketed ASR annotations should be stripped")
+        XCTAssertFalse(result.cleanedMarkdown.contains("]"), "Bracketed ASR annotations should be stripped")
+        XCTAssertFalse(result.cleanedMarkdown.contains("breathing heavily"), "Non-speech annotation content should be gone")
+        XCTAssertFalse(result.cleanedMarkdown.contains("Laughter"), "Non-speech annotation content should be gone")
+        XCTAssertFalse(result.cleanedMarkdown.contains("Inaudible"), "Non-speech annotation content should be gone")
+        XCTAssertTrue(result.cleanedMarkdown.contains("Writing on board"), "Actual spoken content should be preserved")
+        XCTAssertTrue(result.cleanedMarkdown.contains("what are you doing"), "Actual spoken content should be preserved")
+    }
+
     func testLightModePreservesOriginalSentenceOrder() async throws {
         let transcript = "First we open the app. Then we tap record. Finally we review the transcript."
 
