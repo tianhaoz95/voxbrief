@@ -48,7 +48,20 @@ Launch the app on a simulator (builds, installs, and boots automatically — see
 ```
 Override the target device with `IPHONE_NAME="..."` / `WATCH_NAME="..."` env vars (see script headers). Simulator-to-simulator WatchConnectivity file transfer is unreliable — use Settings → "Simulate Incoming Watch Audio Sync" in the iOS app to exercise the processing pipeline without depending on it.
 
+Capture screenshots and generate promotional assets for App Store release:
+```bash
+./scripts/capture_screenshots.sh                  # full pipeline (builds, captures iPhone + Watch, generates promo)
+./scripts/capture_screenshots.sh --skip-build     # fast capture using existing DerivedData builds
+./scripts/capture_screenshots.sh --iphone-only    # iPhone screenshots only
+./scripts/capture_screenshots.sh --watch-only     # Apple Watch screenshots only
+./scripts/capture_screenshots.sh --help           # view all options (--device-iphone, --output-dir, etc.)
+
+# Generate or update framed promotional marketing composites independently:
+python3 ./scripts/generate_promo_assets.py
+```
+
 ## Architecture
+
 
 ### Targets (defined in `project.yml`, sources checked out under matching top-level directories)
 - `Voxbrief` (iOS 17+) — main app, sources = `Shared/` + `VoxbriefApp/`. Embeds both `VoxbriefWidgets` and `VoxbriefWatch` (see below).

@@ -289,44 +289,49 @@ def build_promo_watch(capture_shot: Path, active_shot: Path, queue_shot: Path, o
     print(f"  Generated: {out_path.name}")
 
 def main():
-    print("-> Generating promotional graphics...")
-    iphone_list = IPHONE_DIR / "01_notes_list.png"
-    iphone_detail = IPHONE_DIR / "02_note_detail.png"
-    iphone_raw = IPHONE_DIR / "03_two_stage_pipeline.png"
-    watch_active = WATCH_DIR / "watch_02_recording_active.png"
-    watch_capture = WATCH_DIR / "watch_01_instant_capture.png"
-    watch_queue = WATCH_DIR / "watch_03_notes_queue.png"
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate high-resolution promotional graphics for Voxbrief")
+    parser.add_argument("--iphone-dir", type=Path, default=REPO_ROOT / "metadata" / "screenshots" / "iphone", help="Directory with iPhone screenshots")
+    parser.add_argument("--watch-dir", type=Path, default=REPO_ROOT / "metadata" / "screenshots" / "watch", help="Directory with Apple Watch screenshots")
+    parser.add_argument("--promo-dir", type=Path, default=REPO_ROOT / "metadata" / "promotional", help="Output directory for promotional composites")
+    parser.add_argument("--docs-dir", type=Path, default=REPO_ROOT / "docs" / "assets" / "promo", help="Docs directory to copy promotional assets to")
+    args = parser.parse_args()
 
-    # Fallbacks if metadata/screenshots was already populated
-    if not iphone_detail.exists():
-        iphone_detail = REPO_ROOT / "metadata" / "screenshots" / "test_detail_cleaned.png"
-    if not watch_active.exists():
-        watch_active = REPO_ROOT / "metadata" / "screenshots" / "watch_active_recording.png"
-    if not watch_capture.exists():
-        watch_capture = REPO_ROOT / "metadata" / "screenshots" / "watch_test_shot.png"
+    args.promo_dir.mkdir(parents=True, exist_ok=True)
+    if args.docs_dir:
+        args.docs_dir.mkdir(parents=True, exist_ok=True)
+
+    print("-> Generating promotional graphics...")
+    iphone_list = args.iphone_dir / "01_notes_list.png"
+    iphone_detail = args.iphone_dir / "02_note_detail.png"
+    iphone_raw = args.iphone_dir / "03_two_stage_pipeline.png"
+    watch_active = args.watch_dir / "watch_02_recording_active.png"
+    watch_capture = args.watch_dir / "watch_01_instant_capture.png"
+    watch_queue = args.watch_dir / "watch_03_notes_queue.png"
 
     # 1. Hero Showcase
-    hero_out = PROMO_DIR / "promo_hero.png"
+    hero_out = args.promo_dir / "promo_hero.png"
     build_promo_hero(iphone_detail, watch_active, hero_out)
-    if hero_out.exists():
+    if hero_out.exists() and args.docs_dir:
         import shutil
-        shutil.copy(hero_out, DOCS_PROMO_DIR / "promo_hero.png")
+        shutil.copy(hero_out, args.docs_dir / "promo_hero.png")
 
     # 2. Pipeline Comparison
-    pipeline_out = PROMO_DIR / "promo_pipeline.png"
+    pipeline_out = args.promo_dir / "promo_pipeline.png"
     build_promo_pipeline(iphone_raw, iphone_detail, pipeline_out)
-    if pipeline_out.exists():
+    if pipeline_out.exists() and args.docs_dir:
         import shutil
-        shutil.copy(pipeline_out, DOCS_PROMO_DIR / "promo_pipeline.png")
+        shutil.copy(pipeline_out, args.docs_dir / "promo_pipeline.png")
 
     # 3. Watch Showcase
-    watch_out = PROMO_DIR / "promo_watch.png"
+    watch_out = args.promo_dir / "promo_watch.png"
     build_promo_watch(watch_capture, watch_active, watch_queue, watch_out)
-    if watch_out.exists():
+    if watch_out.exists() and args.docs_dir:
         import shutil
-        shutil.copy(watch_out, DOCS_PROMO_DIR / "promo_watch.png")
+        shutil.copy(watch_out, args.docs_dir / "promo_watch.png")
 
     print("✅ Promotional assets generated successfully!")
 
 if __name__ == "__main__":
     main()
+
