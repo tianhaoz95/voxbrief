@@ -5,10 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Voxbrief · Spoken Thoughts to Structured Specs (100% On-Device AI)</title>
   <meta name="description" content="Capture voice notes instantly on Apple Watch and iPhone. Transform stream-of-consciousness audio into structured Markdown specs, requirements, and action items with on-device Whisper & Qwen3 LLM.">
+  <meta name="theme-color" content="#050811">
+  <link rel="canonical" href="https://tianhaoz95.github.io/voxbrief/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tianhaoz95.github.io/voxbrief/">
   <meta property="og:title" content="Voxbrief · Voice Notes to Structured AI Specs">
   <meta property="og:description" content="Zero cloud servers. 100% on-device AI for Apple Watch & iPhone.">
-  <meta property="og:image" content="assets/promo/promo_hero.png">
+  <meta property="og:image" content="https://tianhaoz95.github.io/voxbrief/assets/promo/promo_hero.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Voxbrief · Voice Notes to Structured AI Specs">
+  <meta name="twitter:description" content="Zero cloud servers. 100% on-device AI for Apple Watch & iPhone.">
+  <meta name="twitter:image" content="https://tianhaoz95.github.io/voxbrief/assets/promo/promo_hero.png">
   <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="apple-touch-icon" href="assets/icon.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -23,7 +32,7 @@
         <img src="assets/icon.png" alt="Voxbrief App Icon" class="brand-icon">
         <span class="brand-name">Voxbrief</span>
       </a>
-      <ul class="nav-links">
+      <ul class="nav-links" id="navLinks">
         <li><a href="#demo">Live Demo</a></li>
         <li><a href="#features">Architecture</a></li>
         <li><a href="#watch">Apple Watch</a></li>
@@ -32,6 +41,9 @@
         <li><a href="privacy.html">Privacy</a></li>
         <li><a href="https://github.com/tianhaoz95/voxbrief" target="_blank" rel="noopener" class="btn-cta-nav">GitHub</a></li>
       </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navLinks">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
     </div>
   </header>
 
@@ -61,8 +73,8 @@
 
       <div class="hero-cta">
         <a href="https://github.com/tianhaoz95/voxbrief/releases" class="btn-primary">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.64 1.35-.57.65-1.06 1.72-0.93 2.74 1.01.08 2.03-.5 2.65-1.24z"/></svg>
-          Available on App Store
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 11l5 5 5-5"/><path d="M4 19h16"/></svg>
+          Get the Latest Build
         </a>
         <a href="https://github.com/tianhaoz95/voxbrief" class="btn-secondary" target="_blank" rel="noopener">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
@@ -71,6 +83,19 @@
         <a href="#demo" class="btn-secondary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
           Interactive Demo
+        </a>
+      </div>
+
+      <!-- GitHub Activity Trust Bar -->
+      <div class="trust-bar">
+        <a href="https://github.com/tianhaoz95/voxbrief" target="_blank" rel="noopener">
+          <img src="https://img.shields.io/github/stars/tianhaoz95/voxbrief?style=flat-square&label=Stars&color=38bdf8&labelColor=0f172a" alt="GitHub Stars" loading="lazy">
+        </a>
+        <a href="https://github.com/tianhaoz95/voxbrief/commits/main" target="_blank" rel="noopener">
+          <img src="https://img.shields.io/github/last-commit/tianhaoz95/voxbrief?style=flat-square&label=Last%20Commit&color=a855f7&labelColor=0f172a" alt="Last Commit" loading="lazy">
+        </a>
+        <a href="https://github.com/tianhaoz95/voxbrief/issues" target="_blank" rel="noopener">
+          <img src="https://img.shields.io/github/issues/tianhaoz95/voxbrief?style=flat-square&label=Open%20Issues&color=10b981&labelColor=0f172a" alt="Open Issues" loading="lazy">
         </a>
       </div>
 
@@ -116,13 +141,13 @@
   <!-- Interactive Live Demo Section -->
   <section class="live-demo-section" id="demo">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header reveal">
         <div class="section-tag">Interactive Preview</div>
         <h2 class="section-title">See the Two-Stage Transformation</h2>
         <p class="section-subtitle">Experience how disorganized spoken voice memos become production-ready specifications with zero cloud round-trips.</p>
       </div>
 
-      <div class="demo-terminal">
+      <div class="demo-terminal reveal">
         <!-- Terminal Header -->
         <div class="demo-header">
           <div class="demo-traffic-lights">
@@ -234,7 +259,7 @@
   <!-- Modern Bento Box Architecture Grid -->
   <section class="section" id="features">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header reveal">
         <div class="section-tag">System Architecture</div>
         <h2 class="section-title">Engineered for Builders Who Think Aloud</h2>
         <p class="section-subtitle">No accounts, no cloud APIs, no subscriptions. Everything runs directly on your Apple hardware with native CoreML and Metal acceleration.</p>
@@ -242,7 +267,7 @@
 
       <div class="bento-grid">
         <!-- Bento 1: Two Stage Intelligence (Large Span 2) -->
-        <div class="bento-item bento-span-2">
+        <div class="bento-item bento-span-2 reveal">
           <div class="bento-icon">⚡️</div>
           <h3 class="bento-title">Two-Stage On-Device Intelligence</h3>
           <p class="bento-desc">
@@ -261,7 +286,7 @@
         </div>
 
         <!-- Bento 2: Apple Watch Standalone -->
-        <div class="bento-item">
+        <div class="bento-item reveal">
           <div class="bento-icon bento-icon-purple">⌚</div>
           <h3 class="bento-title">Apple Watch Standalone</h3>
           <p class="bento-desc">
@@ -276,7 +301,7 @@
         </div>
 
         <!-- Bento 3: Absolute Privacy -->
-        <div class="bento-item">
+        <div class="bento-item reveal">
           <div class="bento-icon bento-icon-emerald">🔒</div>
           <h3 class="bento-title">Zero Cloud &amp; Zero Tracking</h3>
           <p class="bento-desc">
@@ -290,7 +315,7 @@
         </div>
 
         <!-- Bento 4: Flexible Model Selection -->
-        <div class="bento-item">
+        <div class="bento-item reveal">
           <div class="bento-icon">⚙️</div>
           <h3 class="bento-title">3 AI Model Tiers</h3>
           <p class="bento-desc">
@@ -304,7 +329,7 @@
         </div>
 
         <!-- Bento 5: Productivity & Export (Large Span 2) -->
-        <div class="bento-item bento-span-2">
+        <div class="bento-item bento-span-2 reveal">
           <div class="bento-icon bento-icon-purple">🚀</div>
           <h3 class="bento-title">Seamless Workflow Integration</h3>
           <p class="bento-desc">
@@ -324,30 +349,45 @@
   <!-- Apple Watch Dedicated Section -->
   <section class="section" id="watch">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header reveal">
         <div class="section-tag">Watch Companion</div>
         <h2 class="section-title">Record Passing Thoughts at the Speed of Speech</h2>
         <p class="section-subtitle">Keep your phone in your pocket or on your desk. Capture fleeting ideas while driving, running, or in meetings.</p>
       </div>
 
-      <div class="showcase-banner">
+      <div class="showcase-banner reveal">
         <img src="assets/promo/promo_watch.png" alt="Apple Watch Companion Showcase">
       </div>
 
       <div class="pipeline-grid">
-        <div class="pipeline-step">
+        <div class="pipeline-step reveal">
           <div class="step-number">1</div>
           <div class="step-content">
             <h3>Instant Complication Tap</h3>
             <p>One touch on any watch face complication begins immediate audio recording without waiting for the full UI to load. Tactile haptics confirm recording status.</p>
           </div>
         </div>
-        <div class="pipeline-step">
+        <div class="pipeline-step reveal">
           <div class="step-number">2</div>
           <div class="step-content">
             <h3>Automated Background Sync</h3>
             <p>Audio is saved locally in watch flash storage. As soon as you are near your iPhone, encrypted WatchConnectivity transfers queue and transfer seamlessly in the background.</p>
           </div>
+        </div>
+      </div>
+
+      <div class="watch-screens-grid">
+        <div class="watch-screen-card reveal">
+          <img src="assets/screenshots/watch/watch_01_instant_capture.png" alt="Apple Watch Instant Capture Complication">
+          <div class="watch-screen-card-caption">Instant Capture</div>
+        </div>
+        <div class="watch-screen-card reveal">
+          <img src="assets/screenshots/watch/watch_02_recording_active.png" alt="Apple Watch Recording In Progress">
+          <div class="watch-screen-card-caption">Recording Active</div>
+        </div>
+        <div class="watch-screen-card reveal">
+          <img src="assets/screenshots/watch/watch_03_notes_queue.png" alt="Apple Watch Pending Sync Queue">
+          <div class="watch-screen-card-caption">Offline Sync Queue</div>
         </div>
       </div>
     </div>
@@ -356,35 +396,35 @@
   <!-- App Screenshots Gallery -->
   <section class="section" id="screenshots">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header reveal">
         <div class="section-tag">Product Gallery</div>
-        <h2 class="section-title">App Store Screenshots</h2>
+        <h2 class="section-title">iPhone App Screenshots</h2>
         <p class="section-subtitle">Designed exclusively for modern iOS 17 and watchOS 10 native interfaces.</p>
       </div>
 
       <div class="screenshots-gallery-wrap">
         <div class="screenshots-scroll">
-          <div class="screen-card">
+          <div class="screen-card reveal">
             <img src="assets/screenshots/iphone/01_notes_list.png" alt="Voice Notes List &amp; Tags">
             <div class="screen-card-caption">Voice Notes List &amp; Tags</div>
           </div>
-          <div class="screen-card">
+          <div class="screen-card reveal">
             <img src="assets/screenshots/iphone/02_note_detail.png" alt="Structured Markdown Spec">
             <div class="screen-card-caption">Structured Markdown Spec</div>
           </div>
-          <div class="screen-card">
+          <div class="screen-card reveal">
             <img src="assets/screenshots/iphone/03_two_stage_pipeline.png" alt="Verbatim Whisper Transcript">
             <div class="screen-card-caption">Raw Verbatim Transcript</div>
           </div>
-          <div class="screen-card">
+          <div class="screen-card reveal">
             <img src="assets/screenshots/iphone/04_pipeline_diagnostics.png" alt="Pipeline Diagnostics">
             <div class="screen-card-caption">Pipeline Diagnostics</div>
           </div>
-          <div class="screen-card">
+          <div class="screen-card reveal">
             <img src="assets/screenshots/iphone/05_quick_record.png" alt="Direct iPhone Recording">
             <div class="screen-card-caption">Direct iPhone Capture</div>
           </div>
-          <div class="screen-card">
+          <div class="screen-card reveal">
             <img src="assets/screenshots/iphone/06_settings_pipeline.png" alt="On-Device Model Settings">
             <div class="screen-card-caption">On-Device AI Settings</div>
           </div>
@@ -396,7 +436,7 @@
   <!-- Privacy Callout -->
   <section class="section">
     <div class="container">
-      <div class="privacy-callout">
+      <div class="privacy-callout reveal">
         <div class="privacy-shield-icon">🛡️</div>
         <h2>Your Voice Belongs Exclusively to You</h2>
         <p>
@@ -450,6 +490,14 @@
       </div>
     </div>
   </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" aria-label="Back to top">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+
+  <!-- Shared Nav / Reveal / Scroll-Spy Script -->
+  <script src="js/site.js"></script>
 
   <!-- Interactive Demo Logic Script -->
   <script>
