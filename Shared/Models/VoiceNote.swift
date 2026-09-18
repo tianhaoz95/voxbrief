@@ -54,6 +54,19 @@ public enum NoteProcessingStatus: String, Codable, Sendable, CaseIterable {
             return false
         }
     }
+
+    /// SF Symbol representing this stage, for live-progress UI (e.g. the reprocessing indicator
+    /// in `NoteDetailView`).
+    public var iconName: String {
+        switch self {
+        case .recordedOnWatch: return "applewatch"
+        case .syncing: return "arrow.triangle.2.circlepath"
+        case .transcribingASR: return "waveform"
+        case .cleaningLLM: return "sparkles"
+        case .ready: return "checkmark.circle.fill"
+        case .failed: return "exclamationmark.triangle.fill"
+        }
+    }
 }
 
 /// Complete Voice Note model containing raw audio metadata, ASR transcript, and LLM-processed note

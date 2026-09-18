@@ -17,6 +17,17 @@ public final class NoteDetailViewModel: ObservableObject {
         case pipeline = "2-Stage Pipeline"
 
         public var id: String { rawValue }
+
+        /// SF Symbol shown instead of `rawValue` when the segmented tab bar doesn't have room
+        /// for four text labels (see `NoteDetailView.useCompactTabBar`).
+        public var iconName: String {
+            switch self {
+            case .cleanedNote: return "doc.plaintext"
+            case .lightCleanup: return "wand.and.stars"
+            case .rawTranscript: return "waveform"
+            case .pipeline: return "gearshape.2"
+            }
+        }
     }
     
     private let repository: NoteRepository

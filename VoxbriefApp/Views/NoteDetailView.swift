@@ -4,9 +4,18 @@ public struct NoteDetailView: View {
     @StateObject private var viewModel: NoteDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var copiedField: CopyField?
+    @State private var contentWidth: CGFloat = .infinity
 
     private enum CopyField: Equatable {
         case fullRewrite, lightCleanup, rawTranscript
+    }
+
+    /// Four text labels ("Full Rewrite" / "Light Cleanup" / "Raw Transcript" / "2-Stage
+    /// Pipeline") don't fit a segmented control on narrower phones or at larger Dynamic Type
+    /// sizes -- fall back to icon-only segments below this width instead of letting the labels
+    /// truncate/wrap illegibly.
+    private var useCompactTabBar: Bool {
+        contentWidth < 380
     }
 
     public init(note: VoiceNote) {
@@ -32,7 +41,15 @@ public struct NoteDetailView: View {
 
                 Picker("View Mode", selection: $viewModel.selectedTab) {
                     ForEach(NoteDetailViewModel.DetailTab.allCases) { tab in
-                        Text(tab.rawValue).tag(tab)
+                        Group {
+                            if useCompactTabBar {
+                                Image(systemName: tab.iconName)
+                            } else {
+                                Text(tab.rawValue)
+                            }
+                        }
+                        .accessibilityLabel(tab.rawValue)
+                        .tag(tab)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -51,6 +68,13 @@ public struct NoteDetailView: View {
             .padding()
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { contentWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { _, newWidth in contentWidth = newWidth }
+            }
+        )
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -462,30 +486,45 @@ public struct NoteDetailView: View {
 
     // MARK: - 2-Stage Pipeline Diagnostics Section
 
+    private enum PipelineStepState {
+        case pending, active, done
+    }
+
+    /// Stage 1 only ever runs during a full retry (`retryFullProcessing`) -- a plain Stage-2-only
+    /// reprocess (`reprocessNote`) starts from an existing transcript and never revisits ASR.
+    private var asrStepState: PipelineStepState {
+        if viewModel.note.status == .transcribingASR { return .active }
+        return viewModel.note.rawTranscript.isEmpty ? .pending : .done
+    }
+
+    private var llmStepState: PipelineStepState {
+        if viewModel.note.status == .cleaningLLM { return .active }
+        if viewModel.isReprocessing && asrStepState == .done { return .pending }
+        return viewModel.note.cleanedNote.isEmpty ? .pending : .done
+    }
+
     private var pipelineSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 0) {
             pipelineStep(
                 number: 1,
                 title: "Speech-to-Text (ASR)",
                 description: "Converts audio into a verbatim text transcript.",
-                isDone: !viewModel.note.rawTranscript.isEmpty
+                icon: "waveform",
+                state: asrStepState
             )
+
+            connectorLine(filled: asrStepState == .done)
 
             pipelineStep(
                 number: 2,
                 title: "On-Device LLM Cleanup",
                 description: "Formats requirements into bullets, conditions into numbered steps, and fixes grammar.",
-                isDone: !viewModel.note.cleanedNote.isEmpty
+                icon: "sparkles",
+                state: llmStepState
             )
 
             if viewModel.isReprocessing {
-                HStack {
-                    ProgressView()
-                    Text("Re-running on-device model…")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.top, 4)
+                liveProgressBanner
             } else {
                 Button {
                     viewModel.reprocessNote()
@@ -496,27 +535,73 @@ public struct NoteDetailView: View {
                         .padding(.vertical, 4)
                 }
                 .buttonStyle(.borderedProminent)
-                .padding(.top, 4)
+                .padding(.top, 12)
             }
         }
     }
 
-    private func pipelineStep(number: Int, title: String, description: String, isDone: Bool) -> some View {
+    /// Live status card shown while a reprocess/retry is in flight -- reflects the note's actual
+    /// `NoteProcessingStatus` (not a fake timer), with an animated icon so progress reads as
+    /// "alive" rather than a bare spinner.
+    private var liveProgressBanner: some View {
+        let status = viewModel.note.status
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                Image(systemName: status.iconName)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .symbolEffect(.pulse, options: .repeating, isActive: true)
+                    .frame(width: 22)
+
+                Text(status.stepDescription)
+                    .font(.subheadline.weight(.semibold))
+                    .contentTransition(.opacity)
+                    .animation(.easeInOut, value: status)
+
+                Spacer(minLength: 0)
+            }
+
+            ProgressView()
+                .progressViewStyle(.linear)
+                .tint(Color.accentColor)
+        }
+        .padding(14)
+        .background(Color.accentColor.opacity(0.08), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(.top, 12)
+    }
+
+    private func connectorLine(filled: Bool) -> some View {
+        Rectangle()
+            .fill(filled ? Color.green : Color(UIColor.tertiarySystemFill))
+            .frame(width: 2, height: 16)
+            .padding(.leading, 27)
+            .animation(.easeInOut(duration: 0.3), value: filled)
+    }
+
+    private func pipelineStep(number: Int, title: String, description: String, icon: String, state: PipelineStepState) -> some View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(isDone ? Color.green : Color(UIColor.tertiarySystemFill))
+                    .fill(stepColor(state))
                     .frame(width: 28, height: 28)
-                if isDone {
+
+                switch state {
+                case .done:
                     Image(systemName: "checkmark")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(.white)
-                } else {
+                case .active:
+                    Image(systemName: icon)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(.white)
+                        .symbolEffect(.pulse, options: .repeating, isActive: true)
+                case .pending:
                     Text("\(number)")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: state)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
@@ -530,5 +615,13 @@ public struct NoteDetailView: View {
         }
         .padding(14)
         .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    private func stepColor(_ state: PipelineStepState) -> Color {
+        switch state {
+        case .done: return .green
+        case .active: return .accentColor
+        case .pending: return Color(UIColor.tertiarySystemFill)
+        }
     }
 }
