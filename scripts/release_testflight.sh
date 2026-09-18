@@ -93,6 +93,12 @@ mkdir -p "$BUILD_DIR"
 rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
 
 echo "-> Archiving Voxbrief (Release, embeds VoxbriefWatch + both widget extensions)..."
+# CODE_SIGN_IDENTITY is pinned to "Apple Distribution" (not "Apple Development") since this
+# archive is exported for App Store/TestFlight -- on a machine/CI runner with no matching
+# Distribution certificate+key already in its keychain, -allowProvisioningUpdates would
+# otherwise happily mint a brand-new "iOS Development" certificate on every single run
+# (each one an orphan, since the private key never leaves that run's ephemeral keychain)
+# until Apple's per-team certificate cap is hit and every subsequent archive fails outright.
 xcodebuild archive \
   -project "$REPO_ROOT/Voxbrief.xcodeproj" \
   -scheme Voxbrief \
@@ -106,7 +112,7 @@ xcodebuild archive \
   CODE_SIGNING_ALLOWED=YES \
   CODE_SIGNING_REQUIRED=YES \
   CODE_SIGN_STYLE=Automatic \
-  CODE_SIGN_IDENTITY="Apple Development" \
+  CODE_SIGN_IDENTITY="Apple Distribution" \
   DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
   CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
 
