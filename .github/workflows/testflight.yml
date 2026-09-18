@@ -59,29 +59,37 @@ jobs:
           chmod 600 "$KEY_PATH"
           echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 
-      # Import the single pinned "Apple Distribution: HEJI TECHNOLOGY LLC" certificate
-      # (exported once from a machine that already had it, see DISTRIBUTION_P12_BASE64/
-      # DISTRIBUTION_P12_PASSWORD secrets) into a dedicated keychain, instead of letting
+      # Import the single pinned "Apple Development: Tianhao Zhou" certificate (exported
+      # once from a machine that already had it, see DEVELOPMENT_P12_BASE64/
+      # DEVELOPMENT_P12_PASSWORD secrets) into a dedicated keychain, instead of letting
       # -allowProvisioningUpdates mint a brand-new certificate on every run. A fresh
       # runner's empty keychain has no matching private key to reuse, so without this,
       # every run silently created (and never cleaned up) a new certificate until the
       # account hit Apple's per-team certificate cap and every subsequent build failed.
+      #
+      # This is a Development (not Distribution) certificate on purpose: the app's own
+      # linked SPM package targets (MLX, WhisperKit, etc.) are auto-categorized by Xcode
+      # as "development" signing regardless of build configuration, so forcing a
+      # Distribution identity project-wide via CODE_SIGN_IDENTITY conflicts with them
+      # ("has conflicting provisioning settings"). The separate -exportArchive step (see
+      # release_testflight.sh) still correctly re-signs the final app/extensions with a
+      # Distribution identity for the App Store, independent of what the archive step used.
       - name: Import signing certificate
         env:
-          DISTRIBUTION_P12_BASE64: ${{ secrets.DISTRIBUTION_P12_BASE64 }}
-          DISTRIBUTION_P12_PASSWORD: ${{ secrets.DISTRIBUTION_P12_PASSWORD }}
+          DEVELOPMENT_P12_BASE64: ${{ secrets.DEVELOPMENT_P12_BASE64 }}
+          DEVELOPMENT_P12_PASSWORD: ${{ secrets.DEVELOPMENT_P12_PASSWORD }}
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/signing.keychain-db"
           KEYCHAIN_PASSWORD="$(openssl rand -base64 24)"
-          CERT_PATH="$RUNNER_TEMP/distribution.p12"
+          CERT_PATH="$RUNNER_TEMP/development.p12"
 
-          echo "$DISTRIBUTION_P12_BASE64" | base64 --decode > "$CERT_PATH"
+          echo "$DEVELOPMENT_P12_BASE64" | base64 --decode > "$CERT_PATH"
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$DISTRIBUTION_P12_PASSWORD" \
+          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$DEVELOPMENT_P12_PASSWORD" \
             -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s \
             -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"

@@ -93,12 +93,17 @@ mkdir -p "$BUILD_DIR"
 rm -rf "$ARCHIVE_PATH" "$EXPORT_PATH"
 
 echo "-> Archiving Voxbrief (Release, embeds VoxbriefWatch + both widget extensions)..."
-# CODE_SIGN_IDENTITY is pinned to "Apple Distribution" (not "Apple Development") since this
-# archive is exported for App Store/TestFlight -- on a machine/CI runner with no matching
-# Distribution certificate+key already in its keychain, -allowProvisioningUpdates would
-# otherwise happily mint a brand-new "iOS Development" certificate on every single run
-# (each one an orphan, since the private key never leaves that run's ephemeral keychain)
-# until Apple's per-team certificate cap is hit and every subsequent archive fails outright.
+# CODE_SIGN_IDENTITY is pinned to "Apple Development", not "Apple Distribution": the app's
+# linked SPM package targets (MLX, WhisperKit, etc.) are auto-categorized by Xcode as
+# "development" signing regardless of build configuration, so forcing a Distribution
+# identity project-wide here conflicts with them ("has conflicting provisioning settings").
+# The separate -exportArchive step below still re-signs the final app/extensions with a
+# proper Distribution identity for the App Store -- that's a distinct signing pass from
+# this one. On a machine/CI runner with no existing "Apple Development" certificate+key in
+# its keychain, -allowProvisioningUpdates will mint a brand-new one; on an ephemeral CI
+# runner that's an orphan every time (the private key never leaves that run's keychain), so
+# CI pins and reuses one persisted certificate instead (see .github/workflows/testflight.yml)
+# rather than accumulating new ones until Apple's per-team certificate cap is hit.
 xcodebuild archive \
   -project "$REPO_ROOT/Voxbrief.xcodeproj" \
   -scheme Voxbrief \
@@ -112,7 +117,7 @@ xcodebuild archive \
   CODE_SIGNING_ALLOWED=YES \
   CODE_SIGNING_REQUIRED=YES \
   CODE_SIGN_STYLE=Automatic \
-  CODE_SIGN_IDENTITY="Apple Distribution" \
+  CODE_SIGN_IDENTITY="Apple Development" \
   DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
   CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
 
