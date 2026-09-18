@@ -9,8 +9,8 @@ public struct NoteDetailView: View {
         case fullRewrite, lightCleanup, rawTranscript
     }
 
-    public init(note: VoiceNote) {
-        _viewModel = StateObject(wrappedValue: NoteDetailViewModel(note: note))
+    public init(note: VoiceNote, initialTab: NoteDetailViewModel.DetailTab = .cleanedNote) {
+        _viewModel = StateObject(wrappedValue: NoteDetailViewModel(note: note, initialTab: initialTab))
     }
 
     public var body: some View {

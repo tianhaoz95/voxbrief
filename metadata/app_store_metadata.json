@@ -1,0 +1,49 @@
+{
+  "app_info": {
+    "bundle_id": "com.jacksonzhou666.voxbrief.app",
+    "watch_bundle_id": "com.jacksonzhou666.voxbrief.app.watchkitapp",
+    "app_name": "Voxbrief: Voice Notes to AI",
+    "subtitle": "Watch Memos to Structured Docs",
+    "primary_locale": "en-US",
+    "primary_category": "Productivity",
+    "secondary_category": "Utilities",
+    "content_rights": {
+      "contains_third_party_content": false,
+      "owns_all_content": true
+    },
+    "age_rating": {
+      "rating": "4+",
+      "unrestricted_web_access": false,
+      "gambling": false,
+      "violence": "None",
+      "profanity": "None",
+      "sexual_content": "None",
+      "medical_treatment": false
+    }
+  },
+  "version_info": {
+    "version": "1.1",
+    "build_number": "Auto-generated UTC timestamp (e.g. 202609180100)",
+    "copyright": "© 2026 Tianhao Zhou",
+    "promotional_text": "Capture voice ideas instantly on Apple Watch or iPhone. Transform spoken memos into structured Markdown specs, bullets, and action items with 100% on-device AI.",
+    "keywords": "voice memo,speech to text,whisper,transcription,ai notes,apple watch,markdown,on-device,audio recorder",
+    "support_url": "https://tianhaoz95.github.io/voxbrief/support.html",
+    "marketing_url": "https://tianhaoz95.github.io/voxbrief/",
+    "privacy_policy_url": "https://tianhaoz95.github.io/voxbrief/privacy.html",
+    "export_compliance": {
+      "uses_encryption": false,
+      "its_app_uses_non_exempt_encryption": false
+    }
+  },
+  "app_review_notes": {
+    "contact_email": "tianhaoz95@users.noreply.github.com",
+    "demo_account_required": false,
+    "demo_instructions": "Voxbrief requires no login, account, or external network connection. All speech recognition (OpenAI Whisper via WhisperKit CoreML) and structured language model processing (Qwen3 via MLX Swift Metal GPU acceleration) execute fully on-device. To test the pipeline on a physical device or simulator: 1) Open the app; pre-seeded demo voice notes are visible immediately. 2) Tap the microphone button in the toolbar to test instant voice capture. 3) Open Settings -> tap 'Simulate Incoming Watch Audio Sync' to inject and test a live memo through the complete Two-Stage ASR and LLM cleanup pipeline. 4) An Apple Watch companion app is embedded and provides 1-tap capture via complications and Smart Stack Live Activities."
+  },
+  "hardware_requirements": {
+    "ios_minimum": "17.0",
+    "watchos_minimum": "10.0",
+    "device_families": ["iPhone", "iPad", "Apple Watch"],
+    "required_capabilities": ["microphone"]
+  }
+}

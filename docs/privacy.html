@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy · Voxbrief</title>
+  <meta name="description" content="Privacy Policy for Voxbrief: 100% on-device voice processing, zero tracking, zero cloud transmission.">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container nav">
+      <a href="index.html" class="brand">
+        <img src="assets/icon.png" alt="Voxbrief App Icon" class="brand-icon">
+        <span class="brand-name">Voxbrief</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="privacy.html" class="active">Privacy</a></li>
+        <li><a href="terms.html">Terms</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container">
+      <div class="legal-content">
+        <div class="legal-header">
+          <h1>Privacy Policy</h1>
+          <div class="legal-updated">Last Updated: September 18, 2026</div>
+        </div>
+
+        <div class="legal-body">
+          <p><strong>Voxbrief</strong> is built from the ground up on a fundamental principle: <strong>your thoughts, spoken voice memos, and notes belong solely to you.</strong> We do not operate remote servers, we do not require account registration, and we do not collect, transmit, or monetize your personal data.</p>
+
+          <h2>1. 100% On-Device Processing Architecture</h2>
+          <p>Voxbrief runs its entire speech-to-text and AI transformation pipeline locally on your personal Apple device hardware:</p>
+          <ul>
+            <li><strong>Stage 1 (Speech Recognition):</strong> Audio transcription is executed locally via <strong>WhisperKit</strong> running OpenAI's Whisper model through Apple's CoreML framework on the Apple Neural Engine. No audio is ever streamed or uploaded to OpenAI or any cloud provider.</li>
+            <li><strong>Stage 2 (NLP Copywriting):</strong> Note restructuring and copy cleanup are performed on-device using <strong>Qwen3</strong> via <strong>MLX Swift</strong> with Apple Silicon Metal GPU acceleration. Processing takes place in memory on your device.</li>
+          </ul>
+
+          <h2>2. Microphone Data &amp; Audio Recordings</h2>
+          <p>Voxbrief requests microphone permission (<code>NSMicrophoneUsageDescription</code>) solely to capture voice memos when you explicitly initiate recording via:</p>
+          <ul>
+            <li>Tapping the record button in the iPhone app</li>
+            <li>Tapping an Apple Watch face complication (circular, corner, rectangular, or inline)</li>
+            <li>Activating the Smart Stack Live Activity widget</li>
+          </ul>
+          <p>Audio is recorded in high-efficiency AAC format (<code>.m4a</code>) and stored exclusively in the app's sandboxed local filesystem. Audio recording stops immediately when you tap stop or dismiss the recording view.</p>
+
+          <h2>3. Watch-to-iPhone Synchronization</h2>
+          <p>Recordings initiated on Apple Watch are transferred directly to your paired iPhone using Apple's encrypted <strong>WatchConnectivity</strong> framework (<code>WCSession.transferFile</code>). This transfer is handled point-to-point by the operating system over Bluetooth or local Wi-Fi without passing through any external servers or intermediaries.</p>
+
+          <h2>4. Data Storage &amp; User Control</h2>
+          <p>All note metadata, transcripts, structured Markdown specifications, tags, and audio files are persisted strictly within your device's sandboxed storage:</p>
+          <ul>
+            <li><strong>Note metadata:</strong> Stored locally as a JSON file in your device's <code>Application Support</code> directory.</li>
+            <li><strong>Audio files:</strong> Stored locally in your app's sandboxed <code>Documents</code> directory.</li>
+          </ul>
+          <p>You have absolute control over your data at all times. You can delete individual notes or your entire history directly within the app. Uninstalling the app permanently purges all stored audio and notes from your device.</p>
+
+          <h2>5. Optional Local LLM Endpoint (Ollama)</h2>
+          <p>In Settings, Voxbrief offers an optional setting: <em>"Use Local LLM Endpoint"</em>. By default, this option is turned <strong>OFF</strong>. If and only if you explicitly toggle this option on and specify a URL (such as a local Ollama instance running on your private local network), Voxbrief will send note transcripts to that specific address for processing. Nothing is ever sent to any third-party cloud endpoint unless you intentionally configure it.</p>
+
+          <h2>6. Third-Party Analytics, Advertising &amp; Tracking</h2>
+          <p>Voxbrief contains <strong>zero third-party tracking frameworks, zero advertising SDKs, and zero telemetry analytics</strong>:</p>
+          <ul>
+            <li>We do not use Google Analytics, Firebase, Mixpanel, or similar telemetry libraries.</li>
+            <li>We do not track user identifiers, device advertising IDs (IDFA), or location data.</li>
+            <li>We do not sell, rent, or share any information with third parties.</li>
+          </ul>
+
+          <h2>7. App Tracking Transparency (ATT)</h2>
+          <p>In accordance with Apple App Store Review Guideline 5.1.2, Voxbrief does not track users across apps or websites owned by other companies, nor do we share user data with data brokers. Therefore, App Tracking Transparency prompts are not required.</p>
+
+          <h2>8. Children's Privacy</h2>
+          <p>Because Voxbrief operates entirely locally and collects no personal data, it does not knowingly collect information from children under the age of 13 or any other age group.</p>
+
+          <h2>9. Changes to this Privacy Policy</h2>
+          <p>If we update this Privacy Policy in future versions, the revised policy will be posted on this page with an updated "Last Updated" timestamp. Material changes will be highlighted in the application's App Store release notes.</p>
+
+          <h2>10. Contact Us</h2>
+          <p>If you have any questions or feedback regarding this Privacy Policy or your data, please contact us via our GitHub repository:</p>
+          <p><strong>GitHub Issues:</strong> <a href="https://github.com/tianhaoz95/voxbrief/issues" target="_blank" rel="noopener">https://github.com/tianhaoz95/voxbrief/issues</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 Tianhao Zhou. All rights reserved.</div>
+        <div><a href="index.html">Home</a> &middot; <a href="terms.html">Terms of Service</a> &middot; <a href="support.html">Support</a></div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

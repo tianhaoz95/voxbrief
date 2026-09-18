@@ -3,6 +3,8 @@ import SwiftUI
 public struct NoteListView: View {
     @StateObject private var viewModel = NoteListViewModel()
     @Environment(\.scenePhase) private var scenePhase
+    @State private var selectedDetailNote: VoiceNote? = nil
+    @State private var selectedDetailTab: NoteDetailViewModel.DetailTab = .cleanedNote
 
     public init() {}
 
@@ -129,11 +131,65 @@ public struct NoteListView: View {
             .sheet(isPresented: $viewModel.showingSettings) {
                 SettingsView()
             }
+            .navigationDestination(item: $selectedDetailNote) { note in
+                NoteDetailView(note: note, initialTab: selectedDetailTab)
+            }
+            .onAppear {
+                applyLaunchArguments()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .voxbriefNavigate)) { notification in
+                guard let userInfo = notification.userInfo as? [String: String],
+                      let screen = userInfo["screen"] else { return }
+                applyNavigation(screen: screen, tab: userInfo["tab"])
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     Task { await viewModel.refresh() }
                 }
             }
+        }
+    }
+
+    private func applyLaunchArguments() {
+        let args = ProcessInfo.processInfo.arguments
+        if let screenIdx = args.firstIndex(of: "-voxbriefScreen"), screenIdx + 1 < args.count {
+            let screen = args[screenIdx + 1]
+            let tab = args.firstIndex(of: "-voxbriefTab").flatMap { idx in
+                idx + 1 < args.count ? args[idx + 1] : nil
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                applyNavigation(screen: screen, tab: tab)
+            }
+        }
+    }
+
+    private func applyNavigation(screen: String, tab: String?) {
+        viewModel.showingRecordSheet = false
+        viewModel.showingSyncStatus = false
+        viewModel.showingSettings = false
+        selectedDetailNote = nil
+
+        switch screen {
+        case "list":
+            break
+        case "detail":
+            if let note = viewModel.notes.first {
+                switch tab {
+                case "raw": selectedDetailTab = .rawTranscript
+                case "pipeline": selectedDetailTab = .pipeline
+                case "light": selectedDetailTab = .lightCleanup
+                default: selectedDetailTab = .cleanedNote
+                }
+                selectedDetailNote = note
+            }
+        case "record":
+            viewModel.showingRecordSheet = true
+        case "settings":
+            viewModel.showingSettings = true
+        case "sync":
+            viewModel.showingSyncStatus = true
+        default:
+            break
         }
     }
 

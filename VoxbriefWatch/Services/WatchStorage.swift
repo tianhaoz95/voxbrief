@@ -52,6 +52,9 @@ public final class WatchStorage: ObservableObject {
         }
         self.storageURL = docs.appendingPathComponent("watch_notes.json")
         load()
+        if notes.isEmpty {
+            seedSampleNotesIfEmpty()
+        }
     }
     
     public func fileURL(for fileName: String) -> URL {
@@ -110,5 +113,27 @@ public final class WatchStorage: ObservableObject {
         } catch {
             print("[WatchStorage] Failed to persist: \(error)")
         }
+    }
+
+    private func seedSampleNotesIfEmpty() {
+        guard notes.isEmpty else { return }
+        let sample1 = WatchLocalNote(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-600),
+            duration: 18.5,
+            localFileName: "sample_recording_1.m4a",
+            source: .watchComplication,
+            syncState: .pending
+        )
+        let sample2 = WatchLocalNote(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-3600 * 2),
+            duration: 32.0,
+            localFileName: "sample_recording_2.m4a",
+            source: .watchApp,
+            syncState: .synced
+        )
+        self.notes = [sample1, sample2]
+        persist()
     }
 }

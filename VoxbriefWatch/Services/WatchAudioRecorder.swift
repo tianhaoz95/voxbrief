@@ -69,6 +69,12 @@ public final class WatchAudioRecorder: NSObject, ObservableObject {
         return noteId
     }
     
+    public func setSimulatedRecording(active: Bool, duration: TimeInterval = 14.0, level: Float = 0.65) {
+        self.isRecording = active
+        self.recordingDuration = duration
+        self.audioLevel = level
+    }
+
     public func stopRecording(source: NoteSource = .watchApp) -> WatchLocalNote? {
         guard isRecording, let recorder = audioRecorder, let noteId = currentNoteId, let fileURL = currentFileURL else {
             return nil

@@ -195,8 +195,106 @@ public final class NoteRepository: ObservableObject {
             source: .watchLiveActivity,
             isFavorite: false
         )
+
+        let sample3 = VoiceNote(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-86400 * 2),
+            duration: 54.2,
+            audioFileName: nil,
+            title: "On-Device AI Engine & Privacy Architecture",
+            summary: "Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.",
+            rawTranscript: "hey team so for the AI engine we need complete privacy. requirement one is speech recognition must run locally with whisperkit and coreml so no audio ever leaves the device. requirement two is stage two structured copywriting runs on-device using qwen3 with mlx swift. condition 1 if the device supports metal gpu acceleration execute directly on neural engine. condition 2 if user configures a local ollama endpoint route there instead. make sure to encrypt local storage with aes 256.",
+            cleanedNote: """
+            # On-Device AI Engine & Privacy Architecture
+
+            > Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.
+
+            ### 🎯 Requirements
+            - Run speech recognition locally via WhisperKit CoreML (no audio leaves device)
+            - Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration
+            - Encrypt local audio recordings and notes database on disk with AES-256
+            - Zero cloud accounts, telemetry, or external API requirements
+
+            ### 🔢 Execution Logic & Fallback Chain
+            1. If device supports Metal GPU, execute on-device Qwen3 model
+            2. If user explicitly opts into local LLM endpoint in Settings, route to private Ollama host
+            3. If on-device inference is unavailable, fall back to deterministic transformer
+
+            ### ✅ Action Items
+            - [ ] Benchmark CoreML neural engine inference latency on A17/A18 Pro
+            - [ ] Validate MLX Swift memory allocation and cache purge on backgrounding
+            - [ ] Confirm zero network requests during full note processing
+            """,
+            requirements: [
+                "Run speech recognition locally via WhisperKit CoreML (no audio leaves device)",
+                "Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration",
+                "Encrypt local audio recordings and notes database on disk with AES-256",
+                "Zero cloud accounts, telemetry, or external API requirements"
+            ],
+            conditions: [
+                "If device supports Metal GPU, execute on-device Qwen3 model",
+                "If user explicitly opts into local LLM endpoint in Settings, route to private Ollama host",
+                "If on-device inference is unavailable, fall back to deterministic transformer"
+            ],
+            actionItems: [
+                "Benchmark CoreML neural engine inference latency on A17/A18 Pro",
+                "Validate MLX Swift memory allocation and cache purge on backgrounding",
+                "Confirm zero network requests during full note processing"
+            ],
+            tags: ["#AI", "#privacy", "#CoreML", "#architecture"],
+            status: .ready,
+            source: .phoneApp,
+            isFavorite: true,
+            cleanupEngine: "On-Device LLM (Qwen3-0.6B)"
+        )
+
+        let sample4 = VoiceNote(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-86400 * 3),
+            duration: 19.8,
+            audioFileName: nil,
+            title: "Apple Watch Complications & Offline Sync",
+            summary: "Instant 1-tap recording from watch face complications with background queue sync.",
+            rawTranscript: "make sure the watch app supports all watch face complication families circular corner rectangular and inline. condition 1 tapping complication starts capture immediately without launching full app UI. condition 2 background fetch sweeps un-synced memos every fifteen minutes.",
+            cleanedNote: """
+            # Apple Watch Complications & Offline Sync
+
+            > Instant 1-tap recording from watch face complications with background queue sync.
+
+            ### 🎯 Requirements
+            - Support all WidgetKit complication families: circular, corner, rectangular, inline
+            - Maintain offline queue on Apple Watch with zero phone dependency
+            - Background sync transfers AAC memos automatically when iPhone is nearby
+
+            ### 🔢 Workflow Conditions
+            1. Tapping complication immediately starts audio capture without UI delay
+            2. Background fetch sweeps un-synced memos every 15-30 minutes
+
+            ### ✅ Action Items
+            - [ ] Test complications across 42mm, 46mm, and 49mm Ultra displays
+            - [ ] Verify Smart Stack Live Activity timer accuracy
+            """,
+            requirements: [
+                "Support all WidgetKit complication families: circular, corner, rectangular, inline",
+                "Maintain offline queue on Apple Watch with zero phone dependency",
+                "Background sync transfers AAC memos automatically when iPhone is nearby"
+            ],
+            conditions: [
+                "Tapping complication immediately starts audio capture without UI delay",
+                "Background fetch sweeps un-synced memos every 15-30 minutes"
+            ],
+            actionItems: [
+                "Test complications across 42mm, 46mm, and 49mm Ultra displays",
+                "Verify Smart Stack Live Activity timer accuracy"
+            ],
+            tags: ["#watchOS", "#widgets", "#design"],
+            status: .ready,
+            source: .watchComplication,
+            isFavorite: false,
+            cleanupEngine: "On-Device LLM (Qwen3-0.6B)"
+        )
         
-        self.notes = [sample1, sample2]
+        self.notes = [sample1, sample2, sample3, sample4]
         persistNotes()
     }
 }

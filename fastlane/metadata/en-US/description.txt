@@ -1,0 +1,40 @@
+Capture ideas at the speed of thought. Voxbrief is the native companion app for Apple Watch and iPhone that transforms spoken stream-of-consciousness thoughts into structured, engineering-grade Markdown notes, technical specifications, and actionable checklists — powered entirely by 100% on-device AI.
+
+Zero cloud servers. Zero account logins. Zero recurring subscriptions. Your voice and your thoughts never leave your personal hardware.
+
+KEY CAPABILITIES & WORKFLOWS
+
+• ONE-TAP APPLE WATCH CAPTURE
+Inspiration strikes anywhere — while walking, running, driving, or in transit. Tap a complication widget directly on your watch face (circular, corner, rectangular, or inline) or launch from the Smart Stack Live Activity. Voice memos record instantly in high-efficiency AAC at 32kHz mono, stored securely on watch flash storage with zero battery-draining processing on the wrist. When your iPhone is in range, recordings sync automatically in the background.
+
+• TWO-STAGE ON-DEVICE AI PIPELINE
+Once received on iPhone, Voxbrief executes a breakthrough two-stage pipeline:
+- Stage 1 (Verbatim Speech-to-Text): On-device OpenAI Whisper (via WhisperKit CoreML) transcribes every spoken word with exceptional punctuation, capitalization, and acoustic accuracy.
+- Stage 2 (On-Device LLM Copywriting): Powered by Qwen3 running natively on Apple Silicon via MLX Swift and Metal GPU acceleration. Voxbrief analyzes raw speech, removes filler words ("um", "uh", "like"), structures requirements into bullet points (•), turns sequential logic into numbered conditions (1., 2., 3.), extracts actionable to-dos ([ ]), and tags topics (#architecture, #iOS, #AI).
+
+• TWO PROCESSING TIERS: BUNDLED & OPTIONAL 4B
+- Bundled (Qwen3-0.6B-4bit): Built directly into the app (~350 MB). Ready to clean notes immediately upon installation with zero downloads, zero setup, and completely offline capability.
+- Downloaded (Qwen3-4B-4bit): An optional 2.3 GB higher-capacity model downloadable on demand from Settings for even deeper nuance, technical synthesis, and executive summaries.
+- Private Local LLM Support: Have an Ollama instance running on your Mac or home server? Toggle Local LLM Endpoint in Settings to point to your private server.
+
+• CLEANED NOTE VS. RAW TRANSCRIPT SWITCHER
+Never wonder what the AI changed. Toggle seamlessly between:
+- Full Rewrite: Structured Markdown with requirements bullets, conditions, checklists, and metadata.
+- Light Cleanup: Typos, grammar, and fillers fixed while preserving original phrasing and sentence flow.
+- Raw Transcript: Verbatim speech-to-text transcript from Stage 1 Whisper.
+- 2-Stage Pipeline Diagnostics: Full transparency into the exact inference engine, models, and latency.
+
+• INTEGRATED AUDIO SCRUBBER
+Listen back to original voice recordings with the interactive waveform player, precise timestamp scrubbing, and playback speed controls.
+
+• PRIVACY-FIRST BY DESIGN
+Unlike cloud-dependent voice assistants, Voxbrief operates entirely on your device:
+- Audio is never uploaded to any remote server or third-party AI provider.
+- No analytics, no advertising identifiers, no user tracking.
+- All notes are persisted in local sandbox JSON storage that you control.
+- Export entire libraries or individual notes to Markdown with one tap.
+
+SYSTEM REQUIREMENTS
+- iPhone: iOS 17.0 or later
+- Apple Watch: watchOS 10.0 or later
+- Supports iPhone 16/17 Pro Max, Dynamic Island, Smart Stack Live Activities, and all Apple Watch sizes (40mm, 42mm, 44mm, 46mm, and Ultra 49mm).

@@ -50,12 +50,36 @@ private struct RootView: View {
     }
 
     private func handleDeepLink(_ url: URL) {
-        guard url.host == "record" else { return }
+        guard let host = url.host else { return }
         let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
-        let action = queryItems.first(where: { $0.name == "action" })?.value
+        var params: [String: String] = [:]
+        for item in queryItems {
+            if let val = item.value {
+                params[item.name] = val
+            }
+        }
 
-        if action == "stop" {
-            RecordingCoordinator.shared.handleStopDeepLink()
+        if host == "record" {
+            let action = params["action"]
+            if action == "stop" {
+                RecordingCoordinator.shared.handleStopDeepLink()
+            } else {
+                NotificationCenter.default.post(
+                    name: .voxbriefNavigate,
+                    object: nil,
+                    userInfo: ["screen": "record"]
+                )
+            }
+        } else if host == "navigate" {
+            NotificationCenter.default.post(
+                name: .voxbriefNavigate,
+                object: nil,
+                userInfo: params
+            )
         }
     }
+}
+
+extension Notification.Name {
+    public static let voxbriefNavigate = Notification.Name("com.jacksonzhou666.voxbrief.navigate")
 }

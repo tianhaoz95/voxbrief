@@ -1,0 +1,1 @@
+voice memo,speech to text,whisper,transcription,ai notes,apple watch,markdown,on-device,audio recorder

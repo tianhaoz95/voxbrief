@@ -1,0 +1,11 @@
+Welcome to Voxbrief 1.1!
+
+What's New in this release:
+• Apple Watch 1-Tap Capture: Record voice thoughts effortlessly from watch face complications and Smart Stack Live Activities with zero latency.
+• Two-Stage On-Device AI Pipeline:
+  - Stage 1: Verbatim speech recognition powered by OpenAI Whisper via WhisperKit CoreML.
+  - Stage 2: Structured copywriting, bullets, conditions, and action items powered by Qwen3 via MLX Swift Metal GPU acceleration.
+• 100% On-Device Privacy: Your recordings, transcripts, and notes never leave your personal hardware. No cloud servers, no account logins, no telemetry.
+• Interactive Audio Player: Inspect waveforms, scrub through timestamps, and verify original audio alongside generated notes.
+• Structured Markdown Export: Share clean specs, requirements, and checklists directly into your favorite markdown tools and editors.
+• Optional Local LLM Support: Connect directly to a private Ollama endpoint in Settings if desired.

@@ -83,6 +83,11 @@ public struct QuickRecordSheet: View {
     }
     
     private func startAutoRecord() {
+        if ProcessInfo.processInfo.arguments.contains("-voxbriefSimulateRecording") {
+            recordingService.setSimulatedRecording(active: true, duration: 14.5, level: 0.68)
+            hasStarted = true
+            return
+        }
         Task {
             let granted = await recordingService.requestPermission()
             if granted {

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support &amp; FAQ · Voxbrief</title>
+  <meta name="description" content="Support, documentation, and frequently asked questions for Voxbrief on iOS and watchOS.">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container nav">
+      <a href="index.html" class="brand">
+        <img src="assets/icon.png" alt="Voxbrief App Icon" class="brand-icon">
+        <span class="brand-name">Voxbrief</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="support.html" class="active">Support</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="terms.html">Terms</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container">
+      <div class="legal-content">
+        <div class="legal-header">
+          <h1>Help &amp; Support</h1>
+          <div class="legal-updated">Documentation, FAQ &amp; Troubleshooting for Voxbrief</div>
+        </div>
+
+        <div class="legal-body">
+          <p>Welcome to Voxbrief support. Voxbrief is designed to be completely autonomous, private, and effortless to use. Below you'll find answers to common questions, setup guides, and troubleshooting tips.</p>
+
+          <h2>Frequently Asked Questions</h2>
+
+          <h3>Does Voxbrief require an internet connection?</h3>
+          <p><strong>No.</strong> Voxbrief runs 100% on-device. Audio recording, speech-to-text transcription (via WhisperKit), and LLM copywriting (via MLX Swift and Qwen3) execute entirely locally on your iPhone and Apple Watch hardware. You can capture and process voice notes completely offline, on flights, or in remote areas without any cellular or Wi-Fi connectivity.</p>
+
+          <h3>Can I record on Apple Watch without my iPhone nearby?</h3>
+          <p><strong>Yes.</strong> The Apple Watch app is fully standalone. When you record a memo while away from your iPhone, the high-efficiency AAC audio file is saved securely in your Apple Watch's local storage. As soon as your Apple Watch and iPhone reconnect over Bluetooth or local Wi-Fi, the audio transfer initiates automatically in the background via Apple's WatchConnectivity framework.</p>
+
+          <h3>Which devices and OS versions are supported?</h3>
+          <ul>
+            <li><strong>iPhone:</strong> iOS 17.0 or later (optimized for iPhone with Apple Silicon / Apple Neural Engine).</li>
+            <li><strong>Apple Watch:</strong> watchOS 10.0 or later (Series 4 or newer, SE, Ultra).</li>
+          </ul>
+
+          <h3>What on-device AI models does Voxbrief use?</h3>
+          <ul>
+            <li><strong>Speech-to-Text (ASR):</strong> OpenAI's Whisper model running on Apple CoreML via WhisperKit.</li>
+            <li><strong>NLP Copywriting (Bundled):</strong> Qwen3-0.6B (4-bit quantized) ships pre-installed inside the application bundle. It requires zero setup and is immediately available upon first launch.</li>
+            <li><strong>NLP Copywriting (High-Fidelity):</strong> Qwen3-4B (4-bit quantized) can be downloaded on-demand in Settings &rarr; <em>On-Device Models</em> for even richer structuring and synthesis.</li>
+            <li><strong>Local Network LLM (Optional):</strong> If you run Ollama or a local LLM server on your home network, you can optionally configure Voxbrief to route note structuring to your private LAN endpoint.</li>
+          </ul>
+
+          <h3>Where are my voice notes and audio stored?</h3>
+          <p>All data is saved strictly inside the app's sandboxed local filesystem on your personal device. Note JSON metadata is in <code>Application Support</code>, and audio recordings are in <code>Documents</code>. Nothing is uploaded to our servers because we operate no servers.</p>
+
+          <h2>Quick Start Guide</h2>
+
+          <h3>1. Adding Watch Complications</h3>
+          <p>You can launch one-tap recording directly from your watch face:</p>
+          <ol>
+            <li>Touch and hold your watch face, then tap <strong>Edit</strong>.</li>
+            <li>Swipe left to the complications customization screen.</li>
+            <li>Tap any complication slot (Circular, Corner, Rectangular, or Inline) and select <strong>Voxbrief</strong>.</li>
+            <li>Press the Digital Crown to save. Tapping the complication will immediately open the recorder.</li>
+          </ol>
+
+          <h3>2. Managing Notes on iPhone</h3>
+          <ul>
+            <li><strong>Structured Markdown:</strong> View clean requirement bullets, condition lists, checklists, and tags extracted from your thoughts.</li>
+            <li><strong>Audio Playback:</strong> Play back the original recorded voice memo with synchronized audio scrubber.</li>
+            <li><strong>Raw Transcript:</strong> Inspect the verbatim speech-to-text transcript at any time.</li>
+            <li><strong>Copy &amp; Export:</strong> Tap the copy icon to copy formatted Markdown to your clipboard or share with Notes, Slack, GitHub, or Jira.</li>
+          </ul>
+
+          <h2>Troubleshooting</h2>
+
+          <h3>Watch audio is not syncing to iPhone</h3>
+          <ol>
+            <li>Ensure Bluetooth is enabled on both your iPhone and Apple Watch.</li>
+            <li>Ensure both devices are unlocked at least once.</li>
+            <li>Open the Voxbrief app on your iPhone. iOS will prioritize queued <code>WCSession</code> background transfers.</li>
+            <li>In the iPhone app, you can pull to refresh or navigate to <strong>Settings &rarr; Sync Status</strong> to check connection status.</li>
+          </ol>
+
+          <h3>Microphone permission denied</h3>
+          <p>If audio recording fails with a permission alert:</p>
+          <ol>
+            <li>Open the iOS <strong>Settings</strong> app.</li>
+            <li>Scroll down and select <strong>Voxbrief</strong>.</li>
+            <li>Ensure the <strong>Microphone</strong> toggle is enabled.</li>
+          </ol>
+
+          <h2>Contact &amp; Bug Reports</h2>
+          <p>Have a question, feedback, or encountered a bug? We welcome your issues and feature suggestions on our open GitHub repository:</p>
+          <p><strong>GitHub Issues:</strong> <a href="https://github.com/tianhaoz95/voxbrief/issues" target="_blank" rel="noopener">https://github.com/tianhaoz95/voxbrief/issues</a></p>
+          <p><strong>Source Repository:</strong> <a href="https://github.com/tianhaoz95/voxbrief" target="_blank" rel="noopener">https://github.com/tianhaoz95/voxbrief</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>&copy; 2026 Tianhao Zhou. All rights reserved.</div>
+        <div><a href="index.html">Home</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Service</a></div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

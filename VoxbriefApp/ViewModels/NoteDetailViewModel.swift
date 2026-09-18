@@ -38,11 +38,13 @@ public final class NoteDetailViewModel: ObservableObject {
     
     public init(
         note: VoiceNote,
+        initialTab: DetailTab = .cleanedNote,
         repository: NoteRepository = .shared,
         pipeline: NoteProcessingPipeline = .shared,
         playbackService: AudioPlaybackService = .shared
     ) {
         self.note = note
+        self.selectedTab = initialTab
         self.repository = repository
         self.pipeline = pipeline
         self.playbackService = playbackService

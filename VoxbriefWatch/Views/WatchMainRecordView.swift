@@ -9,13 +9,14 @@ public struct WatchMainRecordView: View {
     @State private var currentSource: NoteSource = .watchApp
     @State private var showingSavedToast = false
     @State private var savedNoteDuration: String = ""
+    @State private var showingNotes = false
     
     public init() {}
     
     public var body: some View {
         NavigationStack {
             VStack(spacing: 8) {
-                Spacer(minLength: 6)
+                Spacer(minLength: 16)
 
                 if recorder.isRecording {
                     // Active Recording UI
@@ -127,6 +128,17 @@ public struct WatchMainRecordView: View {
                 .padding(.horizontal, 4)
             }
             .padding(4)
+            .navigationDestination(isPresented: $showingNotes) {
+                WatchNotesListView()
+            }
+            .onAppear {
+                let args = ProcessInfo.processInfo.arguments
+                if args.contains("-voxbriefWatchRecording") {
+                    recorder.setSimulatedRecording(active: true, duration: 18.0, level: 0.7)
+                } else if args.contains("-voxbriefWatchNotes") {
+                    showingNotes = true
+                }
+            }
             .onOpenURL { url in
                 handleDeepLink(url: url)
             }
@@ -162,10 +174,17 @@ public struct WatchMainRecordView: View {
     }
     
     private func handleDeepLink(url: URL) {
-        // Deep link from complication: voxbrief://record?source=watch_complication
         if url.host == "record" {
             let source: NoteSource = url.query?.contains("complication") == true ? .watchComplication : .watchApp
             startRecording(source: source)
+        } else if url.host == "navigate" {
+            let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            let screen = queryItems.first(where: { $0.name == "screen" })?.value
+            if screen == "notes" {
+                showingNotes = true
+            } else if screen == "record" {
+                startRecording(source: .watchApp)
+            }
         }
     }
 }

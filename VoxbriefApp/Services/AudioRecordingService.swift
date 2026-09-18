@@ -69,6 +69,12 @@ public final class AudioRecordingService: NSObject, ObservableObject {
         }
     }
     
+    public func setSimulatedRecording(active: Bool, duration: TimeInterval = 12.4, level: Float = 0.68) {
+        self.isRecording = active
+        self.recordingDuration = duration
+        self.audioLevel = level
+    }
+
     public func stopRecording() -> (noteId: UUID, fileURL: URL, duration: TimeInterval)? {
         guard isRecording, let recorder = audioRecorder, let noteId = currentNoteId, let url = currentAudioURL else {
             return nil
