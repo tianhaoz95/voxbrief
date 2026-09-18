@@ -1,8 +1,13 @@
 name: Release to TestFlight
 
-# Manual trigger only, on purpose: this uploads a real build to App Store
-# Connect. Run it from the Actions tab once you're ready to ship a build.
+# Runs on a published GitHub Release (tag a version, publish the release, this
+# ships it to TestFlight automatically) or on-demand from the Actions tab.
+# Deliberately NOT wired to push/tag events -- this uploads a real build to
+# App Store Connect, so it only ever fires on an explicit release or an
+# explicit manual click.
 on:
+  release:
+    types: [published]
   workflow_dispatch: {}
 
 jobs:
@@ -21,6 +26,25 @@ jobs:
 
       - name: Install XcodeGen
         run: brew install xcodegen
+
+      # The bundled Qwen3-0.6B-4bit on-device LLM (~337MB) is gitignored --
+      # too large for plain git -- so a fresh checkout never has it. It's a
+      # folder-reference resource (see project.yml), so the archive needs it
+      # on disk before xcodegen/xcodebuild run or the app would silently ship
+      # without its always-available bundled model tier.
+      - name: Cache bundled on-device model
+        id: model-cache
+        uses: actions/cache@v4
+        with:
+          path: VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
+          key: qwen3-0.6b-4bit-mlx-community-v1
+
+      - name: Download bundled on-device model (Qwen3-0.6B-4bit)
+        if: steps.model-cache.outputs.cache-hit != 'true'
+        run: |
+          python3 -m pip install --quiet -U "huggingface_hub[cli]"
+          huggingface-cli download mlx-community/Qwen3-0.6B-4bit \
+            --local-dir VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
 
       - name: Write App Store Connect API key
         env:
