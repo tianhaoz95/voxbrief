@@ -42,7 +42,7 @@ jobs:
       - name: Download bundled on-device model (Qwen3-0.6B-4bit)
         if: steps.model-cache.outputs.cache-hit != 'true'
         run: |
-          python3 -m pip install --quiet -U "huggingface_hub[cli]"
+          python3 -m pip install --break-system-packages --quiet -U "huggingface_hub[cli]"
           huggingface-cli download mlx-community/Qwen3-0.6B-4bit \
             --local-dir VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
 
