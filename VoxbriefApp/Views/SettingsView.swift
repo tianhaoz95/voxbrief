@@ -6,6 +6,7 @@ public struct SettingsView: View {
     @AppStorage("local_llm_endpoint_url") private var localLLMUrl: String = "http://127.0.0.1:11434/api/generate"
     @AppStorage("app_appearance") private var appearance: String = "system"
     @StateObject private var llmService = OnDeviceLLMService.shared
+    @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
     @State private var showingSimulationAlert = false
     @State private var simulatedTitle = ""
 
@@ -58,6 +59,22 @@ public struct SettingsView: View {
                             Spacer()
                             Text(activeModelSummary)
                                 .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                Section(
+                    header: Text("Personal Dictionary"),
+                    footer: Text("Add jargon, product names, and people's names the on-device models don't know, so both Stage 1 (speech recognition) and Stage 2 (LLM cleanup) recognize and preserve them.")
+                ) {
+                    NavigationLink {
+                        PersonalDictionaryView(store: dictionaryStore)
+                    } label: {
+                        HStack {
+                            Label("Manage Terms", systemImage: "text.book.closed")
+                            Spacer()
+                            Text("\(dictionaryStore.entries.count)")
+                                .foregroundColor(.secondary)
                         }
                     }
                 }

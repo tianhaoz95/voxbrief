@@ -81,6 +81,13 @@ public final class NoteDetailViewModel: ObservableObject {
         playbackService.play(fileName: fileName)
     }
 
+    /// Plays (or toggles pause/resume on) a specific segment's audio file, for the multi-recording
+    /// list shown when a note has more than one segment. `AudioPlaybackService.play` already
+    /// toggles pause/resume when asked to play whatever's currently loaded.
+    public func togglePlayback(fileName: String) {
+        playbackService.play(fileName: fileName)
+    }
+
     public func seek(to progress: Double) {
         guard let fileName = note.audioFileName else { return }
         if playbackService.currentlyPlayingFileName != fileName {

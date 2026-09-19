@@ -48,6 +48,15 @@ public struct NoteListView: View {
                                     }
                                     .tint(.accentColor)
                                 }
+
+                                if note.status == .ready {
+                                    Button {
+                                        viewModel.beginMerge(source: note)
+                                    } label: {
+                                        Label("Append To…", systemImage: "arrow.triangle.merge")
+                                    }
+                                    .tint(.blue)
+                                }
                             }
                         }
                     }
@@ -130,6 +139,11 @@ public struct NoteListView: View {
             }
             .sheet(isPresented: $viewModel.showingSettings) {
                 SettingsView()
+            }
+            .sheet(item: $viewModel.mergeSourceNote) { source in
+                NoteMergePickerSheet(source: source, candidates: viewModel.mergeCandidates(excluding: source)) { target in
+                    viewModel.confirmMerge(source: source, into: target)
+                }
             }
             .navigationDestination(item: $selectedDetailNote) { note in
                 NoteDetailView(note: note, initialTab: selectedDetailTab)

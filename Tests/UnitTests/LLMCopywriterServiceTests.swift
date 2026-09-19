@@ -122,4 +122,42 @@ final class LLMCopywriterServiceTests: XCTestCase {
         XCTAssertFalse(result.requirements.isEmpty, "Explicit .full mode should still extract requirements")
         XCTAssertTrue(result.cleanedMarkdown.contains("### 🎯 Requirements"), "Explicit .full mode should still restructure into sections")
     }
+
+    // MARK: - Personal Dictionary
+
+    func testDictionaryInstructionBlockIsEmptyForNoEntries() {
+        let block = service.dictionaryInstructionBlock([])
+
+        XCTAssertEqual(block, "")
+    }
+
+    func testDictionaryInstructionBlockContainsEachTerm() {
+        let dictionary = [
+            DictionaryEntry(term: "Voxbrief"),
+            DictionaryEntry(term: "Kubernetes")
+        ]
+
+        let block = service.dictionaryInstructionBlock(dictionary)
+
+        XCTAssertTrue(block.contains("Voxbrief"))
+        XCTAssertTrue(block.contains("Kubernetes"))
+    }
+
+    func testDictionaryInstructionBlockRespectsTermCap() {
+        let dictionary = (1...(LLMCopywriterService.maxDictionaryTermsInPrompt + 10)).map {
+            DictionaryEntry(term: "Term\($0)")
+        }
+
+        let block = service.dictionaryInstructionBlock(dictionary)
+
+        XCTAssertTrue(block.contains("Term1"))
+        XCTAssertFalse(block.contains("Term\(LLMCopywriterService.maxDictionaryTermsInPrompt + 10)"), "Terms beyond the cap should not appear")
+    }
+
+    func testProcessTranscriptDefaultsToNoDictionary() async throws {
+        // Existing call sites (no dictionary argument) must keep compiling and behaving as before.
+        let result = try await service.processTranscript("We need to build the auth flow.")
+
+        XCTAssertFalse(result.requirements.isEmpty)
+    }
 }

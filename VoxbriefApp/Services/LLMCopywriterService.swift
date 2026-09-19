@@ -56,7 +56,9 @@ public struct LLMProcessingResult: Sendable, Codable {
 }
 
 public protocol LLMCopywriterServiceProtocol: Sendable {
-    func processTranscript(_ rawTranscript: String, mode: RewriteMode) async throws -> LLMProcessingResult
+    /// `dictionary` is the user's personal jargon/proper-noun list (see `DictionaryEntry`),
+    /// injected into the LLM prompt as terms to preserve verbatim. Pass `[]` for none.
+    func processTranscript(_ rawTranscript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult
 }
 
 public enum LLMCopywriterError: LocalizedError {
@@ -76,10 +78,11 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     public init() {}
     
     /// Processes a raw speech transcript through Stage 2 LLM cleanup and copywriting.
-    /// `mode` defaults to `.full` (today's behavior) so existing call sites on the concrete
-    /// type don't need to change; callers through `LLMCopywriterServiceProtocol` must pass it
-    /// explicitly since protocol requirements can't carry default argument values.
-    public func processTranscript(_ rawTranscript: String, mode: RewriteMode = .full) async throws -> LLMProcessingResult {
+    /// `mode` defaults to `.full` and `dictionary` defaults to `[]` (today's behavior) so
+    /// existing call sites on the concrete type don't need to change; callers through
+    /// `LLMCopywriterServiceProtocol` must pass both explicitly since protocol requirements
+    /// can't carry default argument values.
+    public func processTranscript(_ rawTranscript: String, mode: RewriteMode = .full, dictionary: [DictionaryEntry] = []) async throws -> LLMProcessingResult {
         let trimmed = rawTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return LLMProcessingResult(
@@ -100,7 +103,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
            let endpointString = UserDefaults.standard.string(forKey: "local_llm_endpoint_url"),
            let endpointURL = URL(string: endpointString) {
             do {
-                return try await callLocalLLMEndpoint(url: endpointURL, transcript: trimmed, mode: mode)
+                return try await callLocalLLMEndpoint(url: endpointURL, transcript: trimmed, mode: mode, dictionary: dictionary)
             } catch {
                 print("[LLMCopywriterService] Local LLM endpoint failed, falling back: \(error)")
             }
@@ -109,7 +112,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         // 2. On-device LLM via MLX Swift -- the bundled Qwen3-0.6B model is always available;
         //    the larger downloaded Qwen3-4B model (see Settings) is used automatically once ready.
         do {
-            return try await processWithOnDeviceLLM(transcript: trimmed, mode: mode)
+            return try await processWithOnDeviceLLM(transcript: trimmed, mode: mode, dictionary: dictionary)
         } catch {
             print("[LLMCopywriterService] On-device LLM failed, falling back to rule-based transformer: \(error)")
         }
@@ -141,16 +144,16 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         var tags: [String]?
     }
 
-    private func processWithOnDeviceLLM(transcript: String, mode: RewriteMode) async throws -> LLMProcessingResult {
+    private func processWithOnDeviceLLM(transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
         switch mode {
         case .full:
-            return try await processWithOnDeviceLLMFull(transcript: transcript)
+            return try await processWithOnDeviceLLMFull(transcript: transcript, dictionary: dictionary)
         case .light:
-            return try await processWithOnDeviceLLMLight(transcript: transcript)
+            return try await processWithOnDeviceLLMLight(transcript: transcript, dictionary: dictionary)
         }
     }
 
-    private func processWithOnDeviceLLMFull(transcript: String) async throws -> LLMProcessingResult {
+    private func processWithOnDeviceLLMFull(transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
         let systemPrompt = """
         You convert a rough spoken voice-memo transcript into structured notes. Respond with ONLY \
         one valid JSON object -- no markdown code fences, no commentary before or after -- using \
@@ -158,7 +161,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         "requirements" (array of strings), "conditions" (array of strings describing sequential \
         steps or if/then logic), "actionItems" (array of strings), "tags" (array of short hashtags \
         starting with #). Use an empty array for any category with nothing to report. Fix grammar \
-        and remove filler words in every string.
+        and remove filler words in every string.\(dictionaryInstructionBlock(dictionary))
         """
 
         let raw = try await OnDeviceLLMService.shared.generate(systemPrompt: systemPrompt, userPrompt: transcript)
@@ -208,7 +211,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         )
     }
 
-    private func processWithOnDeviceLLMLight(transcript: String) async throws -> LLMProcessingResult {
+    private func processWithOnDeviceLLMLight(transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
         let systemPrompt = """
         You lightly proofread a rough spoken voice-memo transcript. Fix only typos, grammar \
         mistakes, and obvious speech-to-text errors, and remove filler words (um, uh, you know, \
@@ -220,7 +223,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         one valid JSON object -- no markdown code fences, \
         no commentary before or after -- using exactly these keys: "title" (string, 8 words or \
         fewer), "summary" (one sentence string), "cleanedText" (string, the full lightly-corrected \
-        transcript as continuous prose), "tags" (array of short hashtags starting with #).
+        transcript as continuous prose), "tags" (array of short hashtags starting with #).\(dictionaryInstructionBlock(dictionary))
         """
 
         let raw = try await OnDeviceLLMService.shared.generate(systemPrompt: systemPrompt, userPrompt: transcript)
@@ -278,6 +281,23 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             return nil
         }
         return String(text[firstBrace...lastBrace])
+    }
+
+    // MARK: - Personal Dictionary Prompt Injection
+
+    /// Smaller than `ASRService.maxVocabularyTerms` since this string enters a small on-device
+    /// model's limited context window on every Stage-2 call, twice per note (.full and .light).
+    static let maxDictionaryTermsInPrompt = 50
+
+    /// Renders the dictionary as a "preserve verbatim" instruction block appended to a system
+    /// prompt. Returns "" for an empty dictionary so callers can unconditionally interpolate it
+    /// without branching. `internal` (not `private`) so it's directly unit-testable.
+    func dictionaryInstructionBlock(_ dictionary: [DictionaryEntry]) -> String {
+        guard !dictionary.isEmpty else { return "" }
+        let terms = dictionary.prefix(Self.maxDictionaryTermsInPrompt).map(\.term).joined(separator: ", ")
+        return "\n\nThe speaker uses these specific proper nouns and jargon terms -- if you see a "
+            + "close variant of one in the transcript, use this exact spelling and capitalization "
+            + "verbatim rather than correcting, translating, or genericizing it: \(terms)."
     }
 
     // MARK: - On-Device NLP & Semantic Transformation Engine
@@ -640,7 +660,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     
     // MARK: - Optional Local LLM (e.g. Ollama / Local Server) Call
     
-    private func callLocalLLMEndpoint(url: URL, transcript: String, mode: RewriteMode) async throws -> LLMProcessingResult {
+    private func callLocalLLMEndpoint(url: URL, transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -653,7 +673,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             You are an on-device executive copywriter. Transform the following raw voice transcript into clean, structured Markdown:
             1. Requirements must be converted into bullet points.
             2. Enumerated conditions must use numbered formatting (1., 2., ...).
-            3. Fix all grammar and typos.
+            3. Fix all grammar and typos.\(dictionaryInstructionBlock(dictionary))
 
             Transcript:
             \(transcript)
@@ -666,7 +686,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             [Inaudible Remark] -- these are the recognizer's own audio-event tags, not spoken \
             words. Keep the original wording, sentence order, and level of detail for everything \
             actually spoken -- do not restructure it into lists or sections, and do not add \
-            commentary. Return only the corrected transcript as plain prose.
+            commentary. Return only the corrected transcript as plain prose.\(dictionaryInstructionBlock(dictionary))
 
             Transcript:
             \(transcript)

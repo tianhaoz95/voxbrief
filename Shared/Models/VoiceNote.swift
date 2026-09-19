@@ -6,22 +6,25 @@ public enum NoteSource: String, Codable, CaseIterable, Sendable {
     case watchLiveActivity = "watch_live_activity"
     case watchApp = "watch_app"
     case phoneApp = "phone_app"
-    
+    case macApp = "mac_app"
+
     public var displayName: String {
         switch self {
         case .watchComplication: return "Watch Complication"
         case .watchLiveActivity: return "Watch Live Activity"
         case .watchApp: return "Apple Watch"
         case .phoneApp: return "iPhone"
+        case .macApp: return "Mac"
         }
     }
-    
+
     public var iconName: String {
         switch self {
         case .watchComplication: return "applewatch.radiowaves.left.and.right"
         case .watchLiveActivity: return "waveform.badge.magnifyingglass"
         case .watchApp: return "applewatch"
         case .phoneApp: return "iphone"
+        case .macApp: return "macbook"
         }
     }
 }
@@ -69,13 +72,45 @@ public enum NoteProcessingStatus: String, Codable, Sendable, CaseIterable {
     }
 }
 
+/// One recording session folded into a `VoiceNote`. A note always has at least one segment once
+/// Stage 1 (ASR) has produced a transcript for it; a plain single-recording note simply has one.
+/// Appending a further recording (see `NoteProcessingPipeline.appendRecording`/`mergeNote`) adds
+/// another segment and re-runs Stage 2 over all of them together, so the LLM always sees the
+/// note's full history rather than just the newest snippet.
+public struct NoteSegment: Codable, Hashable, Sendable, Identifiable {
+    public let id: UUID
+    public let audioFileName: String
+    public let createdAt: Date
+    public let duration: TimeInterval
+    public let source: NoteSource
+    public var rawTranscript: String
+
+    public init(id: UUID, audioFileName: String, createdAt: Date, duration: TimeInterval, source: NoteSource, rawTranscript: String) {
+        self.id = id
+        self.audioFileName = audioFileName
+        self.createdAt = createdAt
+        self.duration = duration
+        self.source = source
+        self.rawTranscript = rawTranscript
+    }
+}
+
 /// Complete Voice Note model containing raw audio metadata, ASR transcript, and LLM-processed note
 public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
     public let id: UUID
     public var createdAt: Date
     public var duration: TimeInterval
     public var audioFileName: String?
-    
+
+    /// Ordered oldest -> newest. Populated once Stage 1 produces this note's first transcript;
+    /// empty for a note still mid-sync/ASR, and for notes persisted before this field existed --
+    /// `init(from:)` below decodes it with `decodeIfPresent(...) ?? []` specifically so old
+    /// `notes_store.json` files missing this key still decode instead of failing outright (a
+    /// synthesized `Decodable` would require the key to be present for a non-Optional property,
+    /// inline default or not). See `NoteProcessingPipeline`'s `legacySegment(from:)` for how call
+    /// sites reconstruct a single segment from the top-level fields when this is empty.
+    public var segments: [NoteSegment] = []
+
     // Extracted and generated content
     public var title: String
     public var summary: String
@@ -113,6 +148,7 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         createdAt: Date = Date(),
         duration: TimeInterval = 0,
         audioFileName: String? = nil,
+        segments: [NoteSegment] = [],
         title: String = "Untitled Note",
         summary: String = "",
         rawTranscript: String = "",
@@ -133,6 +169,7 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         self.createdAt = createdAt
         self.duration = duration
         self.audioFileName = audioFileName
+        self.segments = segments
         self.title = title
         self.summary = summary
         self.rawTranscript = rawTranscript
@@ -148,5 +185,32 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         self.cleanupEngine = cleanupEngine
         self.lightCleanedNote = lightCleanedNote
         self.lightCleanupEngine = lightCleanupEngine
+    }
+
+    /// Hand-written (rather than relying on synthesized `Decodable`) solely so `segments` can use
+    /// `decodeIfPresent(...) ?? []` -- every other field decodes exactly as synthesis would.
+    /// `Encodable`'s `encode(to:)` is still compiler-synthesized as usual.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        duration = try container.decode(TimeInterval.self, forKey: .duration)
+        audioFileName = try container.decodeIfPresent(String.self, forKey: .audioFileName)
+        segments = try container.decodeIfPresent([NoteSegment].self, forKey: .segments) ?? []
+        title = try container.decode(String.self, forKey: .title)
+        summary = try container.decode(String.self, forKey: .summary)
+        rawTranscript = try container.decode(String.self, forKey: .rawTranscript)
+        cleanedNote = try container.decode(String.self, forKey: .cleanedNote)
+        requirements = try container.decode([String].self, forKey: .requirements)
+        conditions = try container.decode([String].self, forKey: .conditions)
+        actionItems = try container.decode([String].self, forKey: .actionItems)
+        tags = try container.decode([String].self, forKey: .tags)
+        status = try container.decode(NoteProcessingStatus.self, forKey: .status)
+        source = try container.decode(NoteSource.self, forKey: .source)
+        isFavorite = try container.decode(Bool.self, forKey: .isFavorite)
+        errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
+        cleanupEngine = try container.decodeIfPresent(String.self, forKey: .cleanupEngine)
+        lightCleanedNote = try container.decodeIfPresent(String.self, forKey: .lightCleanedNote)
+        lightCleanupEngine = try container.decodeIfPresent(String.self, forKey: .lightCleanupEngine)
     }
 }

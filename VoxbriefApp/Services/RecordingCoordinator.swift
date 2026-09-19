@@ -14,6 +14,10 @@ public final class RecordingCoordinator: ObservableObject {
 
     @Published public private(set) var activeNoteId: UUID?
 
+    /// Set by `beginRecording(appendingTo:)`; consumed and cleared by `finishRecording()`, which
+    /// branches into `NoteProcessingPipeline.appendRecording` instead of creating a standalone note.
+    private var appendTargetNoteId: UUID?
+
     public init(
         recordingService: AudioRecordingService = .shared,
         repository: NoteRepository = .shared,
@@ -26,23 +30,45 @@ public final class RecordingCoordinator: ObservableObject {
         self.liveActivity = liveActivity
     }
 
-    public func beginRecording() async throws {
+    /// `appendingTo`, when set, means the recording being started will be folded into that
+    /// existing note (via `appendRecording`) instead of becoming a standalone note once finished.
+    public func beginRecording(appendingTo targetNoteId: UUID? = nil) async throws {
         let noteId = UUID()
         try recordingService.startRecording(for: noteId)
         activeNoteId = noteId
+        appendTargetNoteId = targetNoteId
         liveActivity.start(noteId: noteId, source: "iPhone")
     }
 
-    /// Stops the active recording, persists it, and kicks off the two-stage pipeline.
+    /// Stops the active recording and either kicks off the two-stage pipeline as a new note, or --
+    /// if `beginRecording(appendingTo:)` set a target -- appends it onto that existing note instead.
     @discardableResult
     public func finishRecording() -> VoiceNote? {
         guard let result = recordingService.stopRecording() else { return nil }
+        let audioFileName = "\(result.noteId.uuidString).\(AudioConstants.fileExtension)"
+
+        liveActivity.end()
+        activeNoteId = nil
+
+        if let targetNoteId = appendTargetNoteId {
+            appendTargetNoteId = nil
+            Task {
+                await pipeline.appendRecording(
+                    segmentId: result.noteId,
+                    audioFileName: audioFileName,
+                    duration: result.duration,
+                    source: .phoneApp,
+                    toNoteId: targetNoteId
+                )
+            }
+            return repository.note(withId: targetNoteId)
+        }
 
         let note = VoiceNote(
             id: result.noteId,
             createdAt: Date(),
             duration: result.duration,
-            audioFileName: "\(result.noteId.uuidString).\(AudioConstants.fileExtension)",
+            audioFileName: audioFileName,
             title: "Processing Voice Note...",
             summary: "Extracting transcript and structuring requirements...",
             rawTranscript: "",
@@ -56,9 +82,6 @@ public final class RecordingCoordinator: ObservableObject {
         )
         repository.save(note)
         Task { await pipeline.process(note: note) }
-
-        liveActivity.end()
-        activeNoteId = nil
         return note
     }
 
@@ -66,6 +89,7 @@ public final class RecordingCoordinator: ObservableObject {
         recordingService.cancelRecording()
         liveActivity.end()
         activeNoteId = nil
+        appendTargetNoteId = nil
     }
 
     /// Handles `voxbrief://record?action=stop` from the Live Activity / Dynamic Island link.

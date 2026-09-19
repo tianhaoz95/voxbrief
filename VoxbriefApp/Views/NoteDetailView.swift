@@ -4,6 +4,7 @@ public struct NoteDetailView: View {
     @StateObject private var viewModel: NoteDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var copiedField: CopyField?
+    @State private var showingAddRecording = false
 
     private enum CopyField: Equatable {
         case fullRewrite, lightCleanup, rawTranscript
@@ -26,7 +27,9 @@ public struct NoteDetailView: View {
                     fallbackCleanupBanner
                 }
 
-                if viewModel.hasAudio {
+                if viewModel.note.segments.count > 1 {
+                    recordingsSection
+                } else if viewModel.hasAudio {
                     audioPlayerCard
                 }
 
@@ -58,6 +61,14 @@ public struct NoteDetailView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button {
+                    showingAddRecording = true
+                } label: {
+                    Image(systemName: "waveform.badge.plus")
+                }
+                .disabled(viewModel.note.status.isProcessing)
+                .accessibilityLabel("Add Recording")
+
+                Button {
                     viewModel.toggleFavorite()
                 } label: {
                     Image(systemName: viewModel.note.isFavorite ? "star.fill" : "star")
@@ -87,6 +98,9 @@ public struct NoteDetailView: View {
         }
         .sheet(isPresented: $viewModel.isEditing) {
             editSheet
+        }
+        .sheet(isPresented: $showingAddRecording) {
+            QuickRecordSheet(appendingToNoteId: viewModel.note.id) {}
         }
     }
 
@@ -289,6 +303,51 @@ public struct NoteDetailView: View {
             }
         }
         .padding(14)
+        .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    // MARK: - Recordings Section (multi-segment notes)
+
+    /// Shown instead of `audioPlayerCard` once a note has more than one recording folded into it
+    /// (see "Add Recording" and "Append To…"), so each take stays individually playable rather
+    /// than only exposing whichever one happens to be `note.audioFileName` (the latest).
+    private var recordingsSection: some View {
+        let playback = viewModel.playbackService
+        let sortedSegments = viewModel.note.segments.sorted(by: { $0.createdAt < $1.createdAt })
+
+        return VStack(alignment: .leading, spacing: 12) {
+            sectionHeader(icon: "mic", tint: .accentColor, title: "Recordings (\(sortedSegments.count))")
+
+            VStack(spacing: 10) {
+                ForEach(sortedSegments) { segment in
+                    let isCurrentTrack = playback.currentlyPlayingFileName == segment.audioFileName
+                    let isPlaying = playback.isPlaying && isCurrentTrack
+
+                    HStack(spacing: 12) {
+                        Button {
+                            viewModel.togglePlayback(fileName: segment.audioFileName)
+                        } label: {
+                            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundStyle(Color.accentColor)
+                        }
+                        .buttonStyle(.plain)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(segment.createdAt.relativeOrFormattedString)
+                                .font(.subheadline)
+                                .foregroundStyle(.primary)
+                            Text(segment.duration.formattedDuration)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer(minLength: 0)
+                    }
+                }
+            }
+        }
+        .padding(16)
         .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 

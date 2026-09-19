@@ -7,9 +7,11 @@ public struct QuickRecordSheet: View {
     @State private var hasStarted = false
     @State private var errorMessage: String? = nil
 
+    let appendingToNoteId: UUID?
     let onFinish: () -> Void
 
-    public init(onFinish: @escaping () -> Void) {
+    public init(appendingToNoteId: UUID? = nil, onFinish: @escaping () -> Void) {
+        self.appendingToNoteId = appendingToNoteId
         self.onFinish = onFinish
     }
     
@@ -21,6 +23,12 @@ public struct QuickRecordSheet: View {
                 Text(recordingService.isRecording ? "Listening…" : "Ready to Record")
                     .font(.headline)
                     .foregroundStyle(recordingService.isRecording ? Color.accentColor : .secondary)
+
+                if appendingToNoteId != nil {
+                    Label("Adding to existing note", systemImage: "arrow.triangle.merge")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                }
 
                 Text(recordingService.recordingDuration.formattedDuration)
                     .font(.system(size: 52, weight: .medium, design: .monospaced))
@@ -92,7 +100,7 @@ public struct QuickRecordSheet: View {
             let granted = await recordingService.requestPermission()
             if granted {
                 do {
-                    try await coordinator.beginRecording()
+                    try await coordinator.beginRecording(appendingTo: appendingToNoteId)
                     hasStarted = true
                 } catch {
                     errorMessage = error.localizedDescription
@@ -112,7 +120,7 @@ public struct QuickRecordSheet: View {
         } else {
             Task {
                 do {
-                    try await coordinator.beginRecording()
+                    try await coordinator.beginRecording(appendingTo: appendingToNoteId)
                 } catch {
                     errorMessage = error.localizedDescription
                 }

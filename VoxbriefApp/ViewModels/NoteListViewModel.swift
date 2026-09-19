@@ -10,6 +10,9 @@ public final class NoteListViewModel: ObservableObject {
     @Published public var showingRecordSheet: Bool = false
     @Published public var showingSyncStatus: Bool = false
     @Published public var showingSettings: Bool = false
+
+    /// Non-nil while the "Append To…" picker is up for this note; drives `.sheet(item:)`.
+    @Published public var mergeSourceNote: VoiceNote? = nil
     
     private let repository: NoteRepository
     public let syncService: WatchSyncService
@@ -99,6 +102,23 @@ public final class NoteListViewModel: ObservableObject {
         Task {
             await pipeline.process(note: note)
         }
+    }
+
+    public func beginMerge(source: VoiceNote) {
+        mergeSourceNote = source
+    }
+
+    /// Other `.ready` notes `source` could be appended into -- excludes itself and anything still
+    /// mid-pipeline (nothing to merge from, or an in-flight run `mergeNote` would collide with).
+    public func mergeCandidates(excluding source: VoiceNote) -> [VoiceNote] {
+        repository.notes.filter { $0.id != source.id && $0.status == .ready }
+    }
+
+    public func confirmMerge(source: VoiceNote, into target: VoiceNote) {
+        Task {
+            await pipeline.mergeNote(sourceId: source.id, intoTargetId: target.id)
+        }
+        mergeSourceNote = nil
     }
 
     /// Re-kicks the pipeline for any note still sitting in a non-terminal status. Safe to call

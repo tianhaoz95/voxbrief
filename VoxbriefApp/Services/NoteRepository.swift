@@ -52,12 +52,25 @@ public final class NoteRepository: ObservableObject {
     public func delete(id: UUID) {
         if let index = notes.firstIndex(where: { $0.id == id }) {
             let note = notes[index]
+            var fileNames = Set(note.segments.map(\.audioFileName))
             if let audioFileName = note.audioFileName {
-                audioFileManager.deleteAudioFile(fileName: audioFileName)
+                fileNames.insert(audioFileName)
+            }
+            for fileName in fileNames where !fileName.isEmpty {
+                audioFileManager.deleteAudioFile(fileName: fileName)
             }
             notes.remove(at: index)
             persistNotes()
         }
+    }
+
+    /// Removes a note's record without touching its audio files on disk -- used when merging one
+    /// note's recording(s) into another (`NoteProcessingPipeline.mergeNote`), where the target
+    /// note's `segments` now reference those same files.
+    public func removeRecordOnly(id: UUID) {
+        guard let index = notes.firstIndex(where: { $0.id == id }) else { return }
+        notes.remove(at: index)
+        persistNotes()
     }
     
     public func toggleFavorite(id: UUID) {
