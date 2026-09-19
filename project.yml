@@ -163,6 +163,48 @@ targets:
     frameworks:
       - framework: WidgetKit.framework
 
+  VoxbriefMac:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Shared
+        excludes:
+          # ActivityKit's `ActivityAttributes` (Live Activities) is unavailable on macOS.
+          - "Models/VoiceNoteActivityAttributes.swift"
+      - path: VoxbriefMac
+      # Reused as-is from the iOS app: plain Foundation/WhisperKit/MLX, no UIKit or AVAudioSession,
+      # and already take their dependencies via injectable init params -- see CLAUDE.md.
+      - path: VoxbriefApp/Services/ASRService.swift
+      - path: VoxbriefApp/Services/LLMCopywriterService.swift
+      - path: VoxbriefApp/Services/OnDeviceLLMService.swift
+      - path: VoxbriefApp/Services/NoteProcessingPipeline.swift
+      - path: VoxbriefApp/Services/NoteRepository.swift
+      - path: VoxbriefApp/Services/AudioFileManager.swift
+      - path: VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
+        type: folder
+        buildPhase: resources
+    info:
+      path: VoxbriefMac/App/Info.plist
+      properties:
+        NSMicrophoneUsageDescription: "Voxbrief uses your microphone to capture what you dictate."
+        LSUIElement: true
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.jacksonzhou666.voxbrief.mac
+    dependencies:
+      - package: ArgmaxOSS
+        product: WhisperKit
+      - package: MLXSwiftExamples
+        product: MLXLLM
+      - package: MLXSwiftExamples
+        product: MLXLMCommon
+    frameworks:
+      - framework: AVFoundation.framework
+      - framework: ApplicationServices.framework
+      - framework: CoreGraphics.framework
+
   VoxbriefTests:
     type: bundle.unit-test
     platform: iOS

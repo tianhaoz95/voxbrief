@@ -2,17 +2,25 @@ import Foundation
 
 public final class AudioFileManager: Sendable {
     public static let shared = AudioFileManager()
-    
+
+    /// Overrides where audio files are stored. Only needed on platforms where
+    /// `.documentDirectory` resolves to a real, user-visible folder (e.g. non-sandboxed macOS,
+    /// where it's the user's actual `~/Documents`) and writing app-private audio there would be
+    /// clutter -- iOS leaves this `nil` and keeps its existing sandboxed-Documents behavior.
+    private let baseDirectoryOverride: URL?
+
     private var notesDirectoryURL: URL {
-        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let audioDir = documents.appendingPathComponent(AudioConstants.audioDirectoryName, isDirectory: true)
+        let base = baseDirectoryOverride ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let audioDir = base.appendingPathComponent(AudioConstants.audioDirectoryName, isDirectory: true)
         if !FileManager.default.fileExists(atPath: audioDir.path) {
             try? FileManager.default.createDirectory(at: audioDir, withIntermediateDirectories: true)
         }
         return audioDir
     }
-    
-    public init() {}
+
+    public init(baseDirectoryOverride: URL? = nil) {
+        self.baseDirectoryOverride = baseDirectoryOverride
+    }
     
     /// Returns the absolute file URL for a given audio file name
     public func url(for fileName: String) -> URL {
