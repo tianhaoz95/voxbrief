@@ -65,6 +65,19 @@ public struct SettingsView: View {
                 }
 
                 Section(
+                    header: Text("Voxbrief Keyboard"),
+                    footer: Text("A system-wide keyboard with a Record button: tap it from any app's text field to dictate, clean it up with Voxbrief, then switch back (tap the ‹ Back button in the top-left corner) to paste it in automatically. Enable it in Settings > General > Keyboard > Keyboards > Add New Keyboard, then tap Voxbrief and turn on Allow Full Access (needed so a finished recording can be handed back to the keyboard).")
+                ) {
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        Label("Open Settings", systemImage: "keyboard")
+                    }
+                }
+
+                Section(
                     header: Text("Light Cleanup"),
                     footer: Text("The Light Cleanup tab shows a lightly-proofread, near-verbatim version of the transcript alongside the fully restructured note. It's generated on demand the first time you open that tab, not automatically for every note -- turn it off here to skip it entirely.")
                 ) {

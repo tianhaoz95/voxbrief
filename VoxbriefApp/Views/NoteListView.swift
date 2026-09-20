@@ -6,6 +6,7 @@ public struct NoteListView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedDetailNote: VoiceNote? = nil
     @State private var selectedDetailTab: NoteDetailViewModel.DetailTab = .cleanedNote
+    @State private var showingKeyboardRecordSheet = false
 
     public init() {}
 
@@ -136,6 +137,9 @@ public struct NoteListView: View {
             .sheet(isPresented: $viewModel.showingRecordSheet) {
                 QuickRecordSheet {}
             }
+            .sheet(isPresented: $showingKeyboardRecordSheet) {
+                KeyboardRecordSheet()
+            }
             .sheet(isPresented: $viewModel.showingSyncStatus) {
                 WatchSyncStatusView(syncService: syncService)
             }
@@ -183,6 +187,7 @@ public struct NoteListView: View {
         viewModel.showingRecordSheet = false
         viewModel.showingSyncStatus = false
         viewModel.showingSettings = false
+        showingKeyboardRecordSheet = false
         selectedDetailNote = nil
 
         switch screen {
@@ -200,6 +205,8 @@ public struct NoteListView: View {
             }
         case "record":
             viewModel.showingRecordSheet = true
+        case "keyboardRecord":
+            showingKeyboardRecordSheet = true
         case "settings":
             viewModel.showingSettings = true
         case "sync":

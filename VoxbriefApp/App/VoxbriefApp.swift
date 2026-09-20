@@ -63,6 +63,16 @@ private struct RootView: View {
             let action = params["action"]
             if action == "stop" {
                 RecordingCoordinator.shared.handleStopDeepLink()
+            } else if params["source"] == "keyboard" {
+                // Opened by VoxbriefKeyboard's record button (see KeyboardView) -- routes to a
+                // dedicated flow (KeyboardRecordSheet) that, unlike the normal record sheet, waits
+                // for processing to finish and hands the result to the keyboard via
+                // KeyboardHandoff instead of just returning to the note list.
+                NotificationCenter.default.post(
+                    name: .voxbriefNavigate,
+                    object: nil,
+                    userInfo: ["screen": "keyboardRecord"]
+                )
             } else {
                 NotificationCenter.default.post(
                     name: .voxbriefNavigate,
