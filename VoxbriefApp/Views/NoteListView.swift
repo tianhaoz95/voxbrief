@@ -59,6 +59,7 @@ public struct NoteListView: View {
                                     .tint(.blue)
                                 }
                             }
+                            .listRowSeparator(.hidden)
                         }
                     }
                     .listStyle(.plain)

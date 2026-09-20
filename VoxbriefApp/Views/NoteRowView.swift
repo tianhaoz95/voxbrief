@@ -41,7 +41,7 @@ public struct NoteRowView: View {
             .font(.caption)
             .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 5)
+        .padding(.vertical, 10)
     }
 
     private var shortProcessingLabel: String {
