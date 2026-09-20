@@ -216,6 +216,7 @@ targets:
       path: VoxbriefMac/Entitlements.plist
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.jacksonzhou666.voxbrief.mac
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - package: ArgmaxOSS
         product: WhisperKit

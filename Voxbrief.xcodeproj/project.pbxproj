@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0473F467D03D78330B7B0432 /* DictionaryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B46B0AD5BCBCB6851AAE2DC /* DictionaryEntry.swift */; };
+		0648566D2589D472F0413762 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBCCE4CBCC64C9FC561BE96C /* Assets.xcassets */; };
 		07E7D0A5CFA489DB1EBFA7D1 /* GlobalHotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DA59D4AB6880238B419BA0 /* GlobalHotkeyManager.swift */; };
 		0AD043C3BB7E0B09A1667977 /* NoteListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A722022C9E282A8840CA734E /* NoteListViewModelTests.swift */; };
 		0B587A31DFB9C2203516E112 /* NoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04388B08F3A85CF017C8018 /* NoteRepository.swift */; };
@@ -246,6 +247,7 @@
 		C68109B867643A9EC95BA83A /* NotesBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesBrowserView.swift; sourceTree = "<group>"; };
 		C8EE276FCE431704528A2B82 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		C9E355E590054B01A75FB779 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CBCCE4CBCC64C9FC561BE96C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CEAD3B4021131DA58668E5C9 /* ASRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASRService.swift; sourceTree = "<group>"; };
 		D04388B08F3A85CF017C8018 /* NoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRepository.swift; sourceTree = "<group>"; };
 		D0F20D0BCE0BE7D3E7E931A7 /* FormattingExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattingExtensions.swift; sourceTree = "<group>"; };
@@ -354,6 +356,7 @@
 			isa = PBXGroup;
 			children = (
 				6DA9F67438EA854896653001 /* App */,
+				CF5D0FCC51583C9050E8ED44 /* Resources */,
 				600B554AF0D9BD10E293CB8A /* Services */,
 				6C7F02C2027C5D651853279E /* Views */,
 			);
@@ -517,6 +520,14 @@
 				2657ABEEE26CAC4BC36968D1 /* VoxbriefWidgets.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CF5D0FCC51583C9050E8ED44 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CBCCE4CBCC64C9FC561BE96C /* Assets.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		D160600220B0A52BD5DF10E9 /* App */ = {
@@ -777,6 +788,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0648566D2589D472F0413762 /* Assets.xcassets in Resources */,
 				1CF161E6CA0FC639CF42CE63 /* Qwen3-0.6B-4bit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

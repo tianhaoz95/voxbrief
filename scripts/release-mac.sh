@@ -17,9 +17,8 @@
 # overrides). Notarization credentials: see scripts/sign-desktop.sh's header -- this script only
 # checks they resolve before spending several minutes building.
 #
-# VoxbriefMac has no app icon asset yet (cosmetic only -- unlike release_testflight.sh's iOS
-# App Store check, Developer ID/notarization doesn't require one) -- add
-# VoxbriefMac/Resources/Assets.xcassets/AppIcon.appiconset before shipping this for real.
+# App icon: VoxbriefMac/Resources/Assets.xcassets/AppIcon.appiconset, derived from the iOS/watchOS
+# brand icon via scripts/generate_mac_icon.py -- re-run that if the source icon ever changes.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
