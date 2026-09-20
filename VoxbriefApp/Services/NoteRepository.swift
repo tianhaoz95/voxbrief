@@ -4,11 +4,12 @@ import Combine
 @MainActor
 public final class NoteRepository: ObservableObject {
     public static let shared = NoteRepository()
-    
+
     @Published public private(set) var notes: [VoiceNote] = []
-    
+
     private let storageURL: URL
     private let audioFileManager: AudioFileManager
+    private let persistenceWriter = NotePersistenceWriter()
     
     public init(audioFileManager: AudioFileManager = .shared, customStorageURL: URL? = nil) {
         self.audioFileManager = audioFileManager
@@ -82,9 +83,9 @@ public final class NoteRepository: ObservableObject {
     public func note(withId id: UUID) -> VoiceNote? {
         return notes.first(where: { $0.id == id })
     }
-    
+
     // MARK: - Persistence
-    
+
     private func loadNotes() {
         guard FileManager.default.fileExists(atPath: storageURL.path) else { return }
         do {
@@ -97,17 +98,25 @@ public final class NoteRepository: ObservableObject {
             print("[NoteRepository] Failed to load notes: \(error)")
         }
     }
-    
+
+    /// `@Published notes` is always updated synchronously above, on the main actor, so the UI
+    /// reacts immediately -- only the disk write is deferred. Hands a value-type snapshot to
+    /// `NotePersistenceWriter` (a separate actor) so the JSON encode and the atomic file write --
+    /// both genuinely blocking work, and the encode re-serializes *every* note, not just the one
+    /// that changed -- never run on the main thread. `save`/`updateStatus`/etc. can fire several
+    /// of these in quick succession for a single note's pipeline (status transitions, then the
+    /// final save); the writer coalesces bursts like that into whichever snapshot is current by
+    /// the time it's actually able to write, rather than doing one full-array write per call.
     private func persistNotes() {
-        do {
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            encoder.dateEncodingStrategy = .iso8601
-            let data = try encoder.encode(notes)
-            try data.write(to: storageURL, options: .atomic)
-        } catch {
-            print("[NoteRepository] Failed to persist notes: \(error)")
-        }
+        let snapshot = notes
+        Task { await persistenceWriter.schedule(snapshot, to: storageURL) }
+    }
+
+    /// Waits for any in-flight/coalesced background write to finish. Not needed by normal app
+    /// code (the in-memory `notes`/`@Published` state is always current synchronously) -- exposed
+    /// for tests that need on-disk content to be deterministic rather than polled/slept for.
+    public func waitForPendingPersistence() async {
+        await persistenceWriter.waitUntilIdle()
     }
     
     // MARK: - Sample Data
@@ -309,5 +318,45 @@ public final class NoteRepository: ObservableObject {
         
         self.notes = [sample1, sample2, sample3, sample4]
         persistNotes()
+    }
+}
+
+/// Serializes `NoteRepository`'s disk writes onto their own actor (so the JSON encode + atomic
+/// write never run on the main thread) and coalesces bursts of rapid saves into a single write of
+/// whichever snapshot is current once a write actually starts -- an intermediate snapshot that
+/// gets superseded before its turn is simply skipped rather than separately encoded and written.
+private actor NotePersistenceWriter {
+    private var pendingSnapshot: [VoiceNote]?
+    private var drainTask: Task<Void, Never>?
+
+    func schedule(_ snapshot: [VoiceNote], to url: URL) {
+        pendingSnapshot = snapshot
+        guard drainTask == nil else { return }
+        drainTask = Task { await self.drain(to: url) }
+    }
+
+    /// Exposed only for `NoteRepository.waitForPendingPersistence()` (tests, mainly).
+    func waitUntilIdle() async {
+        await drainTask?.value
+    }
+
+    private func drain(to url: URL) async {
+        while let snapshot = pendingSnapshot {
+            pendingSnapshot = nil
+            Self.write(snapshot, to: url)
+        }
+        drainTask = nil
+    }
+
+    private static func write(_ notes: [VoiceNote], to url: URL) {
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(notes)
+            try data.write(to: url, options: .atomic)
+        } catch {
+            print("[NoteRepository] Failed to persist notes: \(error)")
+        }
     }
 }

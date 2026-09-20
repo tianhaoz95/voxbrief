@@ -64,6 +64,35 @@ final class NoteRepositoryTests: XCTestCase {
         XCTAssertNil(repository.note(withId: note.id))
     }
 
+    /// Regression test for the pull-to-refresh frame-drop bug: `persistNotes()` used to
+    /// JSON-encode the entire notes array and write it to disk synchronously on the main actor,
+    /// on every single save/updateStatus call. It's now handed off to a background actor
+    /// (NotePersistenceWriter) that coalesces bursts of rapid saves.
+    func testInMemoryStateIsSynchronousEvenBeforeDiskWriteCompletes() {
+        let noteId = UUID()
+        // No `await` between these -- if in-memory state depended on the disk write completing,
+        // this would still show a stale title.
+        for i in 0..<5 {
+            repository.save(VoiceNote(id: noteId, title: "Version \(i)", status: .ready))
+        }
+        XCTAssertEqual(repository.note(withId: noteId)?.title, "Version 4")
+    }
+
+    func testRapidSuccessiveSavesCoalesceToOnlyTheLatestStateOnDisk() async throws {
+        let noteId = UUID()
+        for i in 0..<5 {
+            repository.save(VoiceNote(id: noteId, title: "Version \(i)", status: .ready))
+        }
+
+        await repository.waitForPendingPersistence()
+
+        let data = try Data(contentsOf: tempStorageURL)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let persisted = try decoder.decode([VoiceNote].self, from: data)
+        XCTAssertEqual(persisted.first(where: { $0.id == noteId })?.title, "Version 4", "Only the final state should ever reach disk once pending writes drain")
+    }
+
     /// `VoiceNote.segments` was added after notes had already been persisted to disk; its inline
     /// `= []` default must let the synthesized `Decodable` fall back to empty for JSON missing the
     /// key entirely, rather than failing to decode a user's existing `notes_store.json`.
