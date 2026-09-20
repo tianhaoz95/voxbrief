@@ -10,6 +10,7 @@ struct PreferencesView: View {
     @AppStorage("local_llm_endpoint_url") private var localLLMUrl: String = "http://127.0.0.1:11434/api/generate"
     @AppStorage("launch_at_login") private var launchAtLoginStored: Bool = false
     @AppStorage("auto_check_for_updates") private var autoCheckForUpdates: Bool = true
+    @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
 
     @ObservedObject var accessibility: AccessibilityPermissionManager
     @StateObject private var llmService = OnDeviceLLMService.shared
@@ -61,6 +62,14 @@ struct PreferencesView: View {
             }
 
             Section {
+                Toggle("Enable Light Cleanup", isOn: $lightCleanupEnabled)
+            } header: {
+                Text("Light Cleanup")
+            } footer: {
+                Text("The Light Cleanup tab shows a lightly-proofread, near-verbatim version of the transcript alongside the fully restructured note. It's generated on demand the first time you open that tab, not automatically for every note -- turn it off to skip it entirely.")
+            }
+
+            Section {
                 LabeledContent(OnDeviceLLMService.smallModelDisplayName) {
                     Text("\(OnDeviceLLMService.smallModelParameterCount) · bundled")
                         .foregroundStyle(.secondary)
@@ -93,7 +102,7 @@ struct PreferencesView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 620)
+        .frame(width: 480, height: 680)
         .task {
             if autoCheckForUpdates, updateChecker.state == .idle {
                 await updateChecker.checkNow()

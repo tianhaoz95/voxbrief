@@ -9,6 +9,7 @@ public final class NoteDetailViewModel: ObservableObject {
     @Published public var isEditing: Bool = false
     @Published public var editedTitle: String = ""
     @Published public var editedCleanedNote: String = ""
+    @Published public private(set) var isGeneratingLightCleanup: Bool = false
     
     public enum DetailTab: String, CaseIterable, Identifiable {
         case cleanedNote = "Full Rewrite"
@@ -17,6 +18,12 @@ public final class NoteDetailViewModel: ObservableObject {
         case pipeline = "2-Stage Pipeline"
 
         public var id: String { rawValue }
+
+        /// Every tab except `.lightCleanup` when the light-rewrite feature is turned off in
+        /// Settings/Preferences -- see `NoteProcessingPipeline.isLightCleanupEnabled`.
+        public static var visible: [DetailTab] {
+            NoteProcessingPipeline.isLightCleanupEnabled ? allCases : allCases.filter { $0 != .lightCleanup }
+        }
 
         /// SF Symbol shown in the segmented tab bar; `rawValue` is used as its accessibility
         /// label instead.
@@ -97,6 +104,21 @@ public final class NoteDetailViewModel: ObservableObject {
         playbackService.seek(to: progress)
     }
     
+    /// Triggers Stage 2's "light" rewrite the first time something actually needs to display it
+    /// (see `NoteDetailView`'s light cleanup tab) -- a no-op if it's off in Settings, already
+    /// generated, not yet generatable (note isn't `.ready`), or already in flight.
+    public func ensureLightCleanupGenerated() {
+        guard NoteProcessingPipeline.isLightCleanupEnabled,
+              note.status == .ready,
+              note.lightCleanedNote == nil,
+              !isGeneratingLightCleanup else { return }
+        isGeneratingLightCleanup = true
+        Task {
+            await pipeline.generateLightCleanup(noteId: note.id)
+            isGeneratingLightCleanup = false
+        }
+    }
+
     public func reprocessNote() {
         isReprocessing = true
         Task {

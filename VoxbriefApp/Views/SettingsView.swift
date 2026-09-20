@@ -5,6 +5,7 @@ public struct SettingsView: View {
     @AppStorage("use_local_llm_endpoint") private var useLocalLLM: Bool = false
     @AppStorage("local_llm_endpoint_url") private var localLLMUrl: String = "http://127.0.0.1:11434/api/generate"
     @AppStorage("app_appearance") private var appearance: String = "system"
+    @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
     @StateObject private var llmService = OnDeviceLLMService.shared
     @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
     @State private var showingSimulationAlert = false
@@ -61,6 +62,13 @@ public struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                }
+
+                Section(
+                    header: Text("Light Cleanup"),
+                    footer: Text("The Light Cleanup tab shows a lightly-proofread, near-verbatim version of the transcript alongside the fully restructured note. It's generated on demand the first time you open that tab, not automatically for every note -- turn it off here to skip it entirely.")
+                ) {
+                    Toggle("Enable Light Cleanup", isOn: $lightCleanupEnabled)
                 }
 
                 Section(

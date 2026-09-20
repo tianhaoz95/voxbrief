@@ -88,16 +88,16 @@ final class NoteProcessingPipelineTests: XCTestCase {
         XCTAssertEqual(Set(mockASR.receivedVocabulary), Set(["Voxbrief", "Kubernetes"]))
     }
 
-    func testProcessPassesDictionaryToBothLLMCalls() async {
+    func testProcessOnlyRunsTheFullRewriteNotLight() async {
         let note = VoiceNote(id: UUID(), audioFileName: "recording.m4a", status: .syncing)
         repository.save(note)
 
         await pipeline.process(note: note)
 
-        XCTAssertEqual(mockLLM.receivedDictionaries.count, 2, "Both .full and .light calls should receive the dictionary")
-        for dictionary in mockLLM.receivedDictionaries {
-            XCTAssertEqual(Set(dictionary.map(\.term)), Set(["Voxbrief", "Kubernetes"]))
-        }
+        // The light rewrite is never generated eagerly -- see generateLightCleanup.
+        XCTAssertEqual(mockLLM.receivedDictionaries.count, 1, "process() should only run the .full Stage 2 pass")
+        XCTAssertEqual(Set(mockLLM.receivedDictionaries[0].map(\.term)), Set(["Voxbrief", "Kubernetes"]))
+        XCTAssertNil(repository.note(withId: note.id)?.lightCleanedNote)
     }
 
     func testProcessAppliesDeterministicCorrectionBeforeStage2() async {
@@ -118,8 +118,72 @@ final class NoteProcessingPipelineTests: XCTestCase {
         await pipeline.reprocessWithLLM(noteId: note.id)
 
         XCTAssertTrue(mockASR.receivedVocabulary.isEmpty, "reprocessWithLLM should never call ASR")
-        XCTAssertEqual(mockLLM.receivedDictionaries.count, 2)
+        XCTAssertEqual(mockLLM.receivedDictionaries.count, 1, "reprocessWithLLM should only run the .full Stage 2 pass")
         XCTAssertEqual(mockLLM.receivedTranscripts.first, "Voxbrief needs a fix.", "Dictionary correction should retroactively apply to the stored transcript")
+    }
+
+    func testReprocessWithLLMInvalidatesAStaleLightCleanup() async {
+        let note = VoiceNote(id: UUID(), rawTranscript: "fox brief needs a fix.", status: .ready, lightCleanedNote: "stale text", lightCleanupEngine: "mock")
+        repository.save(note)
+
+        await pipeline.reprocessWithLLM(noteId: note.id)
+
+        let updated = repository.note(withId: note.id)
+        XCTAssertNil(updated?.lightCleanedNote, "A transcript change should invalidate the old light rewrite rather than leave stale text")
+        XCTAssertNil(updated?.lightCleanupEngine)
+    }
+
+    // MARK: - Lazy light cleanup
+
+    func testGenerateLightCleanupIsANoOpUntilCalledExplicitly() async {
+        let note = VoiceNote(id: UUID(), audioFileName: "recording.m4a", status: .syncing)
+        repository.save(note)
+        await pipeline.process(note: note)
+        XCTAssertNil(repository.note(withId: note.id)?.lightCleanedNote)
+
+        await pipeline.generateLightCleanup(noteId: note.id)
+
+        let updated = repository.note(withId: note.id)
+        XCTAssertNotNil(updated?.lightCleanedNote)
+        XCTAssertEqual(updated?.lightCleanupEngine, "mock")
+        XCTAssertEqual(mockLLM.receivedDictionaries.count, 2, "the process() full pass, then this explicit .light call")
+    }
+
+    func testGenerateLightCleanupDoesNothingWhenNoteIsNotReady() async {
+        let note = VoiceNote(id: UUID(), status: .transcribingASR)
+        repository.save(note)
+
+        await pipeline.generateLightCleanup(noteId: note.id)
+
+        XCTAssertNil(repository.note(withId: note.id)?.lightCleanedNote)
+        XCTAssertTrue(mockLLM.receivedDictionaries.isEmpty)
+    }
+
+    func testGenerateLightCleanupDoesNothingWhenAlreadyGenerated() async {
+        let note = VoiceNote(id: UUID(), rawTranscript: "already have a transcript.", status: .ready, lightCleanedNote: "already generated", lightCleanupEngine: "mock")
+        repository.save(note)
+
+        await pipeline.generateLightCleanup(noteId: note.id)
+
+        XCTAssertEqual(repository.note(withId: note.id)?.lightCleanedNote, "already generated")
+        XCTAssertTrue(mockLLM.receivedDictionaries.isEmpty, "should not re-generate an already-present light rewrite")
+    }
+
+    func testGenerateLightCleanupRespectsTheDisabledSetting() async {
+        let previous = UserDefaults.standard.object(forKey: NoteProcessingPipeline.lightCleanupEnabledKey)
+        UserDefaults.standard.set(false, forKey: NoteProcessingPipeline.lightCleanupEnabledKey)
+        defer {
+            if let previous { UserDefaults.standard.set(previous, forKey: NoteProcessingPipeline.lightCleanupEnabledKey) }
+            else { UserDefaults.standard.removeObject(forKey: NoteProcessingPipeline.lightCleanupEnabledKey) }
+        }
+
+        let note = VoiceNote(id: UUID(), rawTranscript: "some transcript.", status: .ready)
+        repository.save(note)
+
+        await pipeline.generateLightCleanup(noteId: note.id)
+
+        XCTAssertNil(repository.note(withId: note.id)?.lightCleanedNote)
+        XCTAssertTrue(mockLLM.receivedDictionaries.isEmpty, "should not call the LLM at all when the setting is off")
     }
 
     // MARK: - Append / Merge (multi-segment notes)

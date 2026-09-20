@@ -50,7 +50,7 @@ public struct NoteDetailView: View {
                 }
 
                 Picker("View Mode", selection: $viewModel.selectedTab) {
-                    ForEach(NoteDetailViewModel.DetailTab.allCases) { tab in
+                    ForEach(NoteDetailViewModel.DetailTab.visible) { tab in
                         Image(systemName: tab.iconName)
                             .accessibilityLabel(tab.rawValue)
                             .tag(tab)
@@ -123,6 +123,16 @@ public struct NoteDetailView: View {
             #elseif os(macOS)
             MacAddRecordingSheet(noteId: viewModel.note.id)
             #endif
+        }
+        .onAppear {
+            if viewModel.selectedTab == .lightCleanup {
+                viewModel.ensureLightCleanupGenerated()
+            }
+        }
+        .onChange(of: viewModel.selectedTab) { _, newTab in
+            if newTab == .lightCleanup {
+                viewModel.ensureLightCleanupGenerated()
+            }
         }
     }
 
@@ -433,8 +443,26 @@ public struct NoteDetailView: View {
             if let lightNote = viewModel.note.lightCleanedNote, !lightNote.isEmpty {
                 MarkdownLiteText(lightNote)
                     .foregroundStyle(.primary)
+            } else if viewModel.isGeneratingLightCleanup {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text("Generating light cleanup…")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                }
+            } else if viewModel.note.status == .ready {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Light cleanup hasn't been generated for this note yet.")
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                    Button("Generate Light Cleanup") {
+                        viewModel.ensureLightCleanupGenerated()
+                    }
+                    .font(.subheadline.weight(.semibold))
+                }
             } else {
-                Text("Light cleanup isn't available for this note yet. Reprocessing will generate it.")
+                Text("Light cleanup will be available once this note finishes processing.")
                     .font(.body)
                     .foregroundStyle(.secondary)
             }

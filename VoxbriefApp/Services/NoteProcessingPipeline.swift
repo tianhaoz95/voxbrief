@@ -16,6 +16,17 @@ public final class NoteProcessingPipeline: ObservableObject {
     /// retry, a pull-to-refresh, and the original sync-triggered run could otherwise overlap.
     private var inFlightNoteIds: Set<UUID> = []
 
+    /// User-facing opt-out (Settings / Preferences) for the Stage 2 "light" rewrite. Even when
+    /// this is on, the light pass is never run eagerly -- see `generateLightCleanup`, which is
+    /// the only thing that ever generates it, called lazily when something actually needs to
+    /// display it. Defaults to on (matches this feature's behavior before the setting existed).
+    public static let lightCleanupEnabledKey = "light_cleanup_enabled"
+    /// `nonisolated` since it only touches `UserDefaults` (thread-safe) -- referenced from
+    /// `NoteDetailViewModel.DetailTab`, a nested but non-actor-isolated type.
+    public nonisolated static var isLightCleanupEnabled: Bool {
+        (UserDefaults.standard.object(forKey: lightCleanupEnabledKey) as? Bool) ?? true
+    }
+
     public init(
         asrService: ASRServiceProtocol = ASRService.shared,
         llmService: LLMCopywriterServiceProtocol = LLMCopywriterService.shared,
@@ -58,13 +69,14 @@ public final class NoteProcessingPipeline: ObservableObject {
             let asrTranscript = try await asrService.transcribeAudio(at: audioURL, vocabulary: dictionaryEntries.map(\.term))
             let rawTranscript = DictionaryCorrector.apply(to: asrTranscript, entries: dictionaryEntries)
 
-            // Stage 2: On-device LLM cleanup / copywriting -- runs both rewrite styles
-            // concurrently; the light pass is best-effort and never fails the note.
+            // Stage 2: On-device LLM cleanup / copywriting. Only the "full" structured rewrite
+            // runs here -- the "light" rewrite is never generated eagerly (it used to run
+            // concurrently with this one on every single capture, which on a bundled on-device
+            // model quietly doubled the Stage 2 GPU work behind every note). See
+            // `generateLightCleanup`, called lazily the first time something actually needs to
+            // display it.
             repository.updateStatus(for: note.id, status: .cleaningLLM)
-            async let fullResultAsync = llmService.processTranscript(rawTranscript, mode: .full, dictionary: dictionaryEntries)
-            async let lightResultAsync = llmService.processTranscript(rawTranscript, mode: .light, dictionary: dictionaryEntries)
-            let llmResult = try await fullResultAsync
-            let lightResult = try? await lightResultAsync
+            let llmResult = try await llmService.processTranscript(rawTranscript, mode: .full, dictionary: dictionaryEntries)
 
             // Build completed note
             var updatedNote = note
@@ -89,8 +101,9 @@ public final class NoteProcessingPipeline: ObservableObject {
             updatedNote.status = .ready
             updatedNote.errorMessage = nil
             updatedNote.cleanupEngine = llmResult.engine
-            updatedNote.lightCleanedNote = lightResult?.cleanedMarkdown
-            updatedNote.lightCleanupEngine = lightResult?.engine
+            // Deliberately left nil -- see generateLightCleanup, called lazily on demand.
+            updatedNote.lightCleanedNote = nil
+            updatedNote.lightCleanupEngine = nil
 
             repository.save(updatedNote)
             
@@ -202,8 +215,13 @@ public final class NoteProcessingPipeline: ObservableObject {
 
     /// Rebuilds `rawTranscript` as the concatenation of every segment (re-applying dictionary
     /// correction to each, so a newly-added dictionary alias retroactively fixes older segments
-    /// too), then re-runs both Stage 2 rewrite styles over that combined text and saves the
+    /// too), then re-runs the "full" Stage 2 rewrite over that combined text and saves the
     /// result. Does not touch `activeProcessingCount`/`inFlightNoteIds` -- callers own that.
+    ///
+    /// Any previously-generated light rewrite is invalidated (set back to nil) rather than
+    /// regenerated here -- the transcript just changed underneath it, so the old light text would
+    /// be stale, and regenerating it eagerly would defeat the point of it being lazy. It
+    /// regenerates the next time something actually displays it (see `generateLightCleanup`).
     private func reprocessStage2(for noteId: UUID) async {
         guard var note = repository.note(withId: noteId) else { return }
         let dictionaryEntries = dictionaryStore.entries
@@ -219,10 +237,7 @@ public final class NoteProcessingPipeline: ObservableObject {
 
         repository.updateStatus(for: noteId, status: .cleaningLLM)
         do {
-            async let fullResultAsync = llmService.processTranscript(mergedTranscript, mode: .full, dictionary: dictionaryEntries)
-            async let lightResultAsync = llmService.processTranscript(mergedTranscript, mode: .light, dictionary: dictionaryEntries)
-            let llmResult = try await fullResultAsync
-            let lightResult = try? await lightResultAsync
+            let llmResult = try await llmService.processTranscript(mergedTranscript, mode: .full, dictionary: dictionaryEntries)
             note.title = llmResult.title
             note.summary = llmResult.summary
             note.cleanedNote = llmResult.cleanedMarkdown
@@ -233,11 +248,47 @@ public final class NoteProcessingPipeline: ObservableObject {
             note.status = .ready
             note.errorMessage = nil
             note.cleanupEngine = llmResult.engine
-            note.lightCleanedNote = lightResult?.cleanedMarkdown
-            note.lightCleanupEngine = lightResult?.engine
+            note.lightCleanedNote = nil
+            note.lightCleanupEngine = nil
             repository.save(note)
         } catch {
             repository.updateStatus(for: noteId, status: .failed, errorMessage: error.localizedDescription)
+        }
+    }
+
+    /// Generates Stage 2's "light" rewrite on demand. Unlike the full rewrite, this is never run
+    /// eagerly by `process`/`appendRecording`/`mergeNote`/`reprocessWithLLM` -- it's deferred
+    /// until something actually needs to display it (see `NoteDetailViewModel.
+    /// ensureLightCleanupGenerated`), since a note's full structured rewrite is what gets read far
+    /// more often, and the on-device model only has one GPU command queue to share: running both
+    /// eagerly on every capture paid for two full generations even for notes whose light tab a
+    /// user might never open. A no-op if the setting is off, the note isn't ready yet, or a light
+    /// rewrite already exists (call `reprocessWithLLM`/edit the note to invalidate it first).
+    public func generateLightCleanup(noteId: UUID) async {
+        guard Self.isLightCleanupEnabled,
+              let note = repository.note(withId: noteId),
+              note.status == .ready,
+              note.lightCleanedNote == nil,
+              !inFlightNoteIds.contains(noteId) else { return }
+
+        inFlightNoteIds.insert(noteId)
+        activeProcessingCount += 1
+        defer {
+            inFlightNoteIds.remove(noteId)
+            activeProcessingCount -= 1
+        }
+
+        do {
+            let lightResult = try await llmService.processTranscript(note.rawTranscript, mode: .light, dictionary: dictionaryStore.entries)
+            guard var updated = repository.note(withId: noteId) else { return }
+            updated.lightCleanedNote = lightResult.cleanedMarkdown
+            updated.lightCleanupEngine = lightResult.engine
+            repository.save(updated)
+        } catch {
+            // Best-effort: leave lightCleanedNote nil so the UI can offer to retry, without
+            // touching the note's overall status -- a failed light pass shouldn't read as the
+            // whole note having failed.
+            print("[NoteProcessingPipeline] Light cleanup generation failed for note \(noteId): \(error)")
         }
     }
 
