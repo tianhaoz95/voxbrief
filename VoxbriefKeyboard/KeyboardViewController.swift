@@ -123,6 +123,13 @@ public final class KeyboardViewController: UIInputViewController {
         let foundApplication = openViaResponderChain(url)
         log.append("chain=\(foundApplication ? "found+performed" : "no UIApplication")")
 
+        // A third technique: SwiftUI's own OpenURLAction, obtained from a fresh EnvironmentValues
+        // rather than through extensionContext or UIApplication directly. Reported (Itsuki,
+        // "When ExtensionContext.Open Does NOT Open My App!", Apr 2026) to succeed in exactly
+        // this "extensionContext.open silently returns false from an extension" scenario.
+        EnvironmentValues().openURL(url)
+        log.append("swiftUIOpenURL=called")
+
         diagnostics = log.joined(separator: " ")
         hostingController?.rootView = makeKeyboardView()
 
