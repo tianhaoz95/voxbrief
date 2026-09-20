@@ -19,6 +19,7 @@ public final class CaptureCoordinator: ObservableObject {
 
     @Published public private(set) var state: State = .idle
     public var audioLevel: Float { recorder.audioLevel }
+    public var recordingDuration: TimeInterval { recorder.recordingDuration }
 
     private let recorder: MacAudioRecorderService
     private let repository: NoteRepository
@@ -29,6 +30,12 @@ public final class CaptureCoordinator: ObservableObject {
     /// a cancelled/superseded capture can tell it's stale and skip pasting or updating state.
     private var generation = 0
     private var processingTask: Task<Void, Never>?
+
+    /// Set by `beginCapture(appendingTo:)`; consumed by `completeCapture()`, which then appends the
+    /// recording onto that existing note (via `NoteProcessingPipeline.appendRecording`) instead of
+    /// creating a standalone note and pasting into the focused app. This is how the Notes browser's
+    /// "Add Recording" action shares the same recorder/state machine as the global-hotkey flow.
+    private var appendTargetNoteId: UUID?
 
     public init(
         recorder: MacAudioRecorderService,
@@ -42,9 +49,13 @@ public final class CaptureCoordinator: ObservableObject {
         self.pasteInjector = pasteInjector
     }
 
-    public func beginCapture() {
+    /// `appendingTo`, when set, means this recording will be folded into that existing note (via
+    /// `NoteProcessingPipeline.appendRecording`) once it finishes, instead of becoming a new note
+    /// that gets pasted into the previously-focused app.
+    public func beginCapture(appendingTo targetNoteId: UUID? = nil) {
         guard state == .idle else { return }
         generation += 1
+        appendTargetNoteId = targetNoteId
         do {
             try recorder.startRecording()
             state = .listening
@@ -59,6 +70,30 @@ public final class CaptureCoordinator: ObservableObject {
         state = .processing
 
         let currentGeneration = generation
+        let appendTargetNoteId = self.appendTargetNoteId
+        self.appendTargetNoteId = nil
+
+        if let appendTargetNoteId {
+            processingTask = Task { [pipeline, repository] in
+                await pipeline.appendRecording(
+                    segmentId: result.noteId,
+                    audioFileName: "\(result.noteId.uuidString).\(AudioConstants.fileExtension)",
+                    duration: result.duration,
+                    source: .macApp,
+                    toNoteId: appendTargetNoteId
+                )
+                guard self.generation == currentGeneration else { return }
+                guard let updated = repository.note(withId: appendTargetNoteId), updated.status == .ready else {
+                    self.state = .failed(repository.note(withId: appendTargetNoteId)?.errorMessage ?? "Processing failed.")
+                    self.scheduleReturnToIdle()
+                    return
+                }
+                self.state = .success
+                self.scheduleReturnToIdle()
+            }
+            return
+        }
+
         processingTask = Task { [pipeline, repository, pasteInjector] in
             let draft = VoiceNote(
                 id: result.noteId,
@@ -98,6 +133,7 @@ public final class CaptureCoordinator: ObservableObject {
 
     public func cancelCapture() {
         generation += 1
+        appendTargetNoteId = nil
         processingTask?.cancel()
         processingTask = nil
         switch state {

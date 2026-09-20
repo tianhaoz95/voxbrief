@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct NoteListView: View {
     @StateObject private var viewModel = NoteListViewModel()
+    @StateObject private var syncService = WatchSyncService.shared
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedDetailNote: VoiceNote? = nil
     @State private var selectedDetailTab: NoteDetailViewModel.DetailTab = .cleanedNote
@@ -75,7 +76,7 @@ public struct NoteListView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "applewatch")
-                            if viewModel.syncService.isReachable {
+                            if syncService.isReachable {
                                 Circle()
                                     .fill(Color.green)
                                     .frame(width: 6, height: 6)
@@ -135,7 +136,7 @@ public struct NoteListView: View {
                 QuickRecordSheet {}
             }
             .sheet(isPresented: $viewModel.showingSyncStatus) {
-                WatchSyncStatusView(syncService: viewModel.syncService)
+                WatchSyncStatusView(syncService: syncService)
             }
             .sheet(isPresented: $viewModel.showingSettings) {
                 SettingsView()
@@ -218,7 +219,7 @@ public struct NoteListView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
-                Text(viewModel.syncService.latestSyncMessage)
+                Text(syncService.latestSyncMessage)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)

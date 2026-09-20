@@ -15,18 +15,20 @@ public final class NoteListViewModel: ObservableObject {
     @Published public var mergeSourceNote: VoiceNote? = nil
     
     private let repository: NoteRepository
-    public let syncService: WatchSyncService
     public let pipeline: NoteProcessingPipeline
-    
+
     private var cancellables = Set<AnyCancellable>()
-    
+
+    // Note: watch sync status used to be a `WatchSyncService` dependency here. It's been moved to
+    // iOS's `NoteListView` owning its own `WatchSyncService.shared` directly instead, since this
+    // view model is now shared with `VoxbriefMac`'s Notes browser (see project.yml) where it's not
+    // meaningful (no Watch pairing on plain macOS), and it was only ever a UI-only concern anyway,
+    // not note-filtering logic.
     public init(
         repository: NoteRepository = .shared,
-        syncService: WatchSyncService = .shared,
         pipeline: NoteProcessingPipeline = .shared
     ) {
         self.repository = repository
-        self.syncService = syncService
         self.pipeline = pipeline
         
         // Forward changes from repository

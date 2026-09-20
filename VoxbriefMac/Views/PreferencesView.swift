@@ -9,9 +9,14 @@ struct PreferencesView: View {
     @AppStorage("use_local_llm_endpoint") private var useLocalLLM: Bool = false
     @AppStorage("local_llm_endpoint_url") private var localLLMUrl: String = "http://127.0.0.1:11434/api/generate"
     @AppStorage("launch_at_login") private var launchAtLoginStored: Bool = false
+    @AppStorage("auto_check_for_updates") private var autoCheckForUpdates: Bool = true
 
     @ObservedObject var accessibility: AccessibilityPermissionManager
     @StateObject private var llmService = OnDeviceLLMService.shared
+    @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
+    @StateObject private var updateChecker = UpdateChecker.shared
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.openURL) private var openURL
 
     private static let byteFormatter: ByteCountFormatter = {
         let formatter = ByteCountFormatter()
@@ -66,9 +71,80 @@ struct PreferencesView: View {
             } footer: {
                 Text("The small model ships with the app and always works offline. Download the larger model for meaningfully better cleanup quality.")
             }
+
+            Section(
+                header: Text("Personal Dictionary"),
+                footer: Text("Add jargon, product names, and people's names the on-device models don't know, so both Stage 1 (speech recognition) and Stage 2 (LLM cleanup) recognize and preserve them.")
+            ) {
+                Button {
+                    openWindow(id: "dictionary")
+                } label: {
+                    LabeledContent("Manage Terms") {
+                        Text("\(dictionaryStore.entries.count)")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
+            Section(header: Text("Updates")) {
+                Toggle("Automatically Check for Updates", isOn: $autoCheckForUpdates)
+                updateStatusRow
+            }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 460)
+        .frame(width: 480, height: 620)
+        .task {
+            if autoCheckForUpdates, updateChecker.state == .idle {
+                await updateChecker.checkNow()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var updateStatusRow: some View {
+        switch updateChecker.state {
+        case .idle, .checking:
+            HStack {
+                Text("Checking for updates…")
+                    .foregroundStyle(.secondary)
+                Spacer()
+                ProgressView()
+                    .controlSize(.small)
+            }
+        case .upToDate:
+            LabeledContent("Status") {
+                Label("Up to Date", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            }
+            Button("Check for Updates") {
+                Task { await updateChecker.checkNow() }
+            }
+        case .updateAvailable(let update):
+            VStack(alignment: .leading, spacing: 6) {
+                LabeledContent("Status") {
+                    Label("Version \(update.version) Available", systemImage: "arrow.down.circle.fill")
+                        .foregroundStyle(.blue)
+                }
+                HStack {
+                    Button("Download") { openURL(update.downloadURL) }
+                    Button("Release Notes") { openURL(update.releasePageURL) }
+                }
+            }
+        case .failed(let message):
+            VStack(alignment: .leading, spacing: 4) {
+                LabeledContent("Status") {
+                    Label("Check Failed", systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                }
+                Text(message)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button("Retry") {
+                    Task { await updateChecker.checkNow() }
+                }
+            }
+        }
     }
 
     private var launchAtLoginBinding: Binding<Bool> {

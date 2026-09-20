@@ -39,9 +39,11 @@ public final class AudioPlaybackService: NSObject, ObservableObject {
         }
         
         do {
+            #if os(iOS)
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
             try AVAudioSession.sharedInstance().setActive(true)
-            
+            #endif
+
             let player = try AVAudioPlayer(contentsOf: fileURL)
             player.delegate = self
             player.prepareToPlay()
@@ -81,7 +83,9 @@ public final class AudioPlaybackService: NSObject, ObservableObject {
         currentlyPlayingFileName = nil
         timer?.invalidate()
         timer = nil
+        #if os(iOS)
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        #endif
     }
     
     public func seek(to progress: Double) {

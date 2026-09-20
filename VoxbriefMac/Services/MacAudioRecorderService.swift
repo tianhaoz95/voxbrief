@@ -8,6 +8,7 @@ import Foundation
 public final class MacAudioRecorderService: ObservableObject {
     @Published public private(set) var isRecording: Bool = false
     @Published public private(set) var audioLevel: Float = 0.0
+    @Published public private(set) var recordingDuration: TimeInterval = 0.0
 
     private var audioRecorder: AVAudioRecorder?
     private var timer: Timer?
@@ -38,6 +39,7 @@ public final class MacAudioRecorderService: ObservableObject {
 
         audioRecorder = recorder
         isRecording = true
+        recordingDuration = 0
 
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
@@ -47,6 +49,7 @@ public final class MacAudioRecorderService: ObservableObject {
                 let power = recorder.averagePower(forChannel: 0)
                 let normalized = max(0.0, min(1.0, (power + 60.0) / 60.0))
                 self.audioLevel = normalized
+                self.recordingDuration = recorder.currentTime
             }
         }
     }
@@ -64,6 +67,7 @@ public final class MacAudioRecorderService: ObservableObject {
         isRecording = false
         audioRecorder = nil
         audioLevel = 0
+        recordingDuration = 0
 
         return (noteId, url, duration)
     }
@@ -78,6 +82,7 @@ public final class MacAudioRecorderService: ObservableObject {
         isRecording = false
         audioRecorder = nil
         audioLevel = 0
+        recordingDuration = 0
         currentNoteId = nil
         currentAudioURL = nil
     }

@@ -10,8 +10,24 @@ public struct NoteDetailView: View {
         case fullRewrite, lightCleanup, rawTranscript
     }
 
-    public init(note: VoiceNote, initialTab: NoteDetailViewModel.DetailTab = .cleanedNote) {
-        _viewModel = StateObject(wrappedValue: NoteDetailViewModel(note: note, initialTab: initialTab))
+    /// `repository`/`pipeline`/`playbackService` default to the iOS app's `.shared` singletons.
+    /// `VoxbriefMac`'s Notes browser passes its own instances explicitly instead (see
+    /// `NotesBrowserView`), since the Mac app's note history and audio storage are intentionally
+    /// separate from those singletons' default locations.
+    public init(
+        note: VoiceNote,
+        initialTab: NoteDetailViewModel.DetailTab = .cleanedNote,
+        repository: NoteRepository = .shared,
+        pipeline: NoteProcessingPipeline = .shared,
+        playbackService: AudioPlaybackService = .shared
+    ) {
+        _viewModel = StateObject(wrappedValue: NoteDetailViewModel(
+            note: note,
+            initialTab: initialTab,
+            repository: repository,
+            pipeline: pipeline,
+            playbackService: playbackService
+        ))
     }
 
     public var body: some View {
@@ -55,11 +71,13 @@ public struct NoteDetailView: View {
             }
             .padding()
         }
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Color.appGroupedBackground)
         .navigationTitle("")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .primaryAction) {
                 Button {
                     showingAddRecording = true
                 } label: {
@@ -100,7 +118,11 @@ public struct NoteDetailView: View {
             editSheet
         }
         .sheet(isPresented: $showingAddRecording) {
+            #if os(iOS)
             QuickRecordSheet(appendingToNoteId: viewModel.note.id) {}
+            #elseif os(macOS)
+            MacAddRecordingSheet(noteId: viewModel.note.id)
+            #endif
         }
     }
 
@@ -138,7 +160,7 @@ public struct NoteDetailView: View {
                                 .font(.caption.weight(.medium))
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
-                                .background(Color(UIColor.tertiarySystemFill), in: Capsule())
+                                .background(Color.appTertiaryFill, in: Capsule())
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -232,7 +254,9 @@ public struct NoteDetailView: View {
                 }
             }
             .navigationTitle("Edit Note")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -280,7 +304,7 @@ public struct NoteDetailView: View {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Capsule()
-                            .fill(Color(UIColor.tertiarySystemFill))
+                            .fill(Color.appTertiaryFill)
                             .frame(height: 4)
 
                         let progress = isCurrentTrack && playback.duration > 0 ? (playback.currentTime / playback.duration) : 0.0
@@ -303,7 +327,7 @@ public struct NoteDetailView: View {
             }
         }
         .padding(14)
-        .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: - Recordings Section (multi-segment notes)
@@ -348,7 +372,7 @@ public struct NoteDetailView: View {
             }
         }
         .padding(16)
-        .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: - Cleaned Note Section
@@ -383,7 +407,7 @@ public struct NoteDetailView: View {
                     .foregroundStyle(.primary)
             }
             .padding(16)
-            .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
     }
 
@@ -416,7 +440,7 @@ public struct NoteDetailView: View {
             }
         }
         .padding(16)
-        .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private enum ItemMarker {
@@ -425,7 +449,7 @@ public struct NoteDetailView: View {
 
     private func copyButton(text: String, field: CopyField) -> some View {
         Button {
-            UIPasteboard.general.string = text
+            PlatformPasteboard.copy(text)
             withAnimation(.easeInOut(duration: 0.15)) {
                 copiedField = field
             }
@@ -478,7 +502,7 @@ public struct NoteDetailView: View {
             }
         }
         .padding(16)
-        .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     @ViewBuilder
@@ -518,7 +542,7 @@ public struct NoteDetailView: View {
                 .foregroundStyle(.secondary)
         }
         .padding(16)
-        .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     // MARK: - 2-Stage Pipeline Diagnostics Section
@@ -609,7 +633,7 @@ public struct NoteDetailView: View {
 
     private func connectorLine(filled: Bool) -> some View {
         Rectangle()
-            .fill(filled ? Color.green : Color(UIColor.tertiarySystemFill))
+            .fill(filled ? Color.green : Color.appTertiaryFill)
             .frame(width: 2, height: 16)
             .padding(.leading, 27)
             .animation(.easeInOut(duration: 0.3), value: filled)
@@ -651,14 +675,14 @@ public struct NoteDetailView: View {
             Spacer(minLength: 0)
         }
         .padding(14)
-        .background(Color(UIColor.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 
     private func stepColor(_ state: PipelineStepState) -> Color {
         switch state {
         case .done: return .green
         case .active: return .accentColor
-        case .pending: return Color(UIColor.tertiarySystemFill)
+        case .pending: return Color.appTertiaryFill
         }
     }
 }

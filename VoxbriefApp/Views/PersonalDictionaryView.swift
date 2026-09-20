@@ -40,7 +40,9 @@ public struct PersonalDictionaryView: View {
             }
         }
         .navigationTitle("Personal Dictionary")
+        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {

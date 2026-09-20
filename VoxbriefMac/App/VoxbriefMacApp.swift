@@ -7,7 +7,11 @@ struct VoxbriefMacApp: App {
     @StateObject private var repository: NoteRepository
     @StateObject private var recorder: MacAudioRecorderService
     @StateObject private var coordinator: CaptureCoordinator
+    @StateObject private var updateChecker = UpdateChecker.shared
 
+    private let pipeline: NoteProcessingPipeline
+    private let playbackService: AudioPlaybackService
+    private let dictionaryStore = PersonalDictionaryStore.shared
     private let hotkeyManager = GlobalHotkeyManager()
     private let overlayController: OverlayWindowController
 
@@ -33,21 +37,36 @@ struct VoxbriefMacApp: App {
         _repository = StateObject(wrappedValue: repository)
         _recorder = StateObject(wrappedValue: recorder)
         _coordinator = StateObject(wrappedValue: coordinator)
+        self.pipeline = pipeline
+        self.playbackService = AudioPlaybackService(audioFileManager: audioFileManager)
         overlayController = OverlayWindowController(coordinator: coordinator, recorder: recorder)
 
         hotkeyManager.onBothCommandKeysPressed = { [weak coordinator] in
             coordinator?.beginCapture()
         }
+
+        if UserDefaults.standard.object(forKey: "auto_check_for_updates") as? Bool ?? true {
+            Task { await UpdateChecker.shared.checkNow() }
+        }
     }
 
     var body: some Scene {
         MenuBarExtra("Voxbrief", systemImage: menuBarSymbolName) {
-            MenuBarContentView(accessibility: accessibility, coordinator: coordinator, hotkeyManager: hotkeyManager)
+            MenuBarContentView(accessibility: accessibility, coordinator: coordinator, hotkeyManager: hotkeyManager, updateChecker: updateChecker)
         }
         .menuBarExtraStyle(.menu)
 
-        Window("Capture History", id: "history") {
-            HistoryView(repository: repository)
+        Window("Voxbrief Notes", id: "notes") {
+            NotesBrowserView(repository: repository, pipeline: pipeline, playbackService: playbackService)
+                .environmentObject(coordinator)
+                .environmentObject(recorder)
+        }
+
+        Window("Personal Dictionary", id: "dictionary") {
+            NavigationStack {
+                PersonalDictionaryView(store: dictionaryStore)
+            }
+            .frame(width: 420, height: 480)
         }
 
         Settings {
@@ -74,20 +93,29 @@ private struct MenuBarContentView: View {
     @ObservedObject var accessibility: AccessibilityPermissionManager
     @ObservedObject var coordinator: CaptureCoordinator
     let hotkeyManager: GlobalHotkeyManager
+    @ObservedObject var updateChecker: UpdateChecker
 
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         Group {
             if accessibility.isTrusted {
                 Text("Press both ⌘ keys to capture")
-                Button("Capture History…") { openWindow(id: "history") }
+                Button("Open Notes…") { openWindow(id: "notes") }
             } else {
                 Button("Grant Accessibility Access…") {
                     accessibility.requestPrompt()
                     accessibility.openSystemSettings()
                 }
                 Text("Required for the global hotkey and paste.")
+            }
+
+            if case .updateAvailable(let update) = updateChecker.state {
+                Divider()
+                Button("Update Available (v\(update.version))…") {
+                    openURL(update.downloadURL)
+                }
             }
 
             Divider()

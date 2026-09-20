@@ -49,7 +49,9 @@ public struct DictionaryEntryEditView: View {
                 }
             }
             .navigationTitle(existingEntry == nil ? "Add Term" : "Edit Term")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

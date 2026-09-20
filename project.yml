@@ -173,6 +173,10 @@ targets:
           # ActivityKit's `ActivityAttributes` (Live Activities) is unavailable on macOS.
           - "Models/VoiceNoteActivityAttributes.swift"
       - path: VoxbriefMac
+        excludes:
+          # Codesign input (see entitlements.path below and scripts/sign-desktop.sh), not app data
+          # -- without this XcodeGen also adds it to Copy Bundle Resources.
+          - "Entitlements.plist"
       # Reused as-is from the iOS app: plain Foundation/WhisperKit/MLX, no UIKit or AVAudioSession,
       # and already take their dependencies via injectable init params -- see CLAUDE.md.
       - path: VoxbriefApp/Services/ASRService.swift
@@ -181,6 +185,23 @@ targets:
       - path: VoxbriefApp/Services/NoteProcessingPipeline.swift
       - path: VoxbriefApp/Services/NoteRepository.swift
       - path: VoxbriefApp/Services/AudioFileManager.swift
+      - path: VoxbriefApp/Services/DictionaryCorrector.swift
+      - path: VoxbriefApp/Services/PersonalDictionaryStore.swift
+      - path: VoxbriefApp/Services/AudioPlaybackService.swift
+      - path: VoxbriefApp/Models
+      # Shared SwiftUI (feature parity with the iOS app, see CLAUDE.md's "macOS auto-update" /
+      # desktop-parity notes): these are the same view/viewmodel files the iOS app uses, guarded
+      # with `#if os(iOS)`/`#if os(macOS)` internally wherever they touch a platform-specific API
+      # (UIColor/NSColor, UIPasteboard/NSPasteboard, WatchConnectivity, navigationBarTitleDisplayMode).
+      - path: VoxbriefApp/Extensions/PlatformUI.swift
+      - path: VoxbriefApp/ViewModels/NoteListViewModel.swift
+      - path: VoxbriefApp/ViewModels/NoteDetailViewModel.swift
+      - path: VoxbriefApp/Views/NoteRowView.swift
+      - path: VoxbriefApp/Views/NoteDetailView.swift
+      - path: VoxbriefApp/Views/NoteMergePickerSheet.swift
+      - path: VoxbriefApp/Views/MarkdownLiteText.swift
+      - path: VoxbriefApp/Views/PersonalDictionaryView.swift
+      - path: VoxbriefApp/Views/DictionaryEntryEditView.swift
       - path: VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
         type: folder
         buildPhase: resources
@@ -191,6 +212,8 @@ targets:
         LSUIElement: true
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+    entitlements:
+      path: VoxbriefMac/Entitlements.plist
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.jacksonzhou666.voxbrief.mac
     dependencies:
