@@ -26,6 +26,12 @@ public final class KeyboardViewController: UIInputViewController {
     /// Identifies the most recent `openVoxbrief()` call so a stale timer or completion handler
     /// from an earlier tap can't clobber state for a newer one (or one that already succeeded).
     private var openAttemptToken = UUID()
+    /// Temporary, on-screen diagnostic trail for `openVoxbrief()` -- both known techniques for a
+    /// keyboard extension to open its host app are reported (by other apps that do it, and by
+    /// Apple's own docs for `extensionContext.open`) to actually work, so a categorical "this
+    /// isn't possible" conclusion was wrong; there's a specific, fixable reason it isn't working
+    /// *here*, and this narrows down which step. Remove once that's found -- see KeyboardView.
+    private var diagnostics: String?
 
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -70,6 +76,7 @@ public final class KeyboardViewController: UIInputViewController {
         KeyboardView(
             hasFullAccess: hasFullAccess,
             openFailed: lastOpenAttemptFailed,
+            diagnostics: diagnostics,
             onKey: { [weak self] key in self?.handle(key) },
             onRecord: { [weak self] in self?.openVoxbrief() },
             onNextKeyboard: { [weak self] in self?.advanceToNextInputMode() }
@@ -106,30 +113,52 @@ public final class KeyboardViewController: UIInputViewController {
     private func openVoxbrief() {
         guard let url = URL(string: "voxbrief://record?source=keyboard") else { return }
         lastOpenAttemptFailed = false
-        hostingController?.rootView = makeKeyboardView()
 
         let token = UUID()
         openAttemptToken = token
 
-        openViaResponderChain(url)
-        extensionContext?.open(url, completionHandler: nil)
+        var log = [String]()
+        log.append("ctx=\(extensionContext == nil ? "nil" : "present")")
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+        let foundApplication = openViaResponderChain(url)
+        log.append("chain=\(foundApplication ? "found+performed" : "no UIApplication")")
+
+        diagnostics = log.joined(separator: " ")
+        hostingController?.rootView = makeKeyboardView()
+
+        extensionContext?.open(url) { [weak self] success in
+            DispatchQueue.main.async {
+                guard let self, self.openAttemptToken == token else { return }
+                log.append("open()=\(success)")
+                self.diagnostics = log.joined(separator: " ")
+                self.hostingController?.rootView = self.makeKeyboardView()
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
             guard let self, self.openAttemptToken == token, self.hasFullAccess else { return }
             self.lastOpenAttemptFailed = true
+            log.append("still here @1.2s")
+            self.diagnostics = log.joined(separator: " ")
             self.hostingController?.rootView = self.makeKeyboardView()
         }
     }
 
-    private func openViaResponderChain(_ url: URL) {
+    /// Returns whether a `UIApplication` instance was actually found while walking the chain --
+    /// independent of whether `perform(openURL:)` on it did anything, this alone tells us
+    /// whether the extension's responder chain leads to a real UIApplication at all on this
+    /// iOS version/device, which existing reports of this technique disagree on.
+    @discardableResult
+    private func openViaResponderChain(_ url: URL) -> Bool {
         var responder: UIResponder? = self
         while let current = responder {
             if let application = current as? UIApplication {
                 application.perform(#selector(UIApplication.openURL(_:)), with: url)
-                return
+                return true
             }
             responder = current.next
         }
+        return false
     }
 
     /// A no-op (returns immediately) unless Full Access is granted -- `KeyboardHandoff` needs the

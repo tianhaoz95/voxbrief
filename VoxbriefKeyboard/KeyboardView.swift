@@ -24,6 +24,10 @@ struct KeyboardView: View {
     /// True when the last tap of the Record bar tried to open Voxbrief and neither opening
     /// technique worked, despite Full Access being on -- see `KeyboardViewController.openVoxbrief`.
     let openFailed: Bool
+    /// Temporary diagnostic trail from the last Record tap (see `KeyboardViewController`'s
+    /// `diagnostics`) -- shown on-screen since there's no other way to see what happened on a
+    /// device this can't be debugged from directly. Remove once the open failure is understood.
+    let diagnostics: String?
     let onKey: (KeyboardKey) -> Void
     let onRecord: () -> Void
     let onNextKeyboard: () -> Void
@@ -93,6 +97,13 @@ struct KeyboardView: View {
                 Text("Couldn't open Voxbrief. Try again, or check Full Access in Settings.")
                     .font(.caption2)
                     .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+            }
+
+            if let diagnostics {
+                Text(diagnostics)
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
         }
