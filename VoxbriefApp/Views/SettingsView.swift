@@ -2,6 +2,7 @@ import SwiftUI
 
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("use_local_llm_endpoint") private var useLocalLLM: Bool = false
     @AppStorage("local_llm_endpoint_url") private var localLLMUrl: String = "http://127.0.0.1:11434/api/generate"
     @AppStorage("app_appearance") private var appearance: String = "system"
@@ -10,6 +11,7 @@ public struct SettingsView: View {
     @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
     @State private var showingSimulationAlert = false
     @State private var simulatedTitle = ""
+    @State private var keyboardStatus: KeyboardSetupStatus = .notAdded
 
     private static let byteFormatter: ByteCountFormatter = {
         let formatter = ByteCountFormatter()
@@ -66,14 +68,27 @@ public struct SettingsView: View {
 
                 Section(
                     header: Text("Voxbrief Keyboard"),
-                    footer: Text("A system-wide keyboard with a Record button: tap it from any app's text field to dictate, clean it up with Voxbrief, then switch back (tap the ‹ Back button in the top-left corner) to paste it in automatically. Enable it in Settings > General > Keyboard > Keyboards > Add New Keyboard, then tap Voxbrief and turn on Allow Full Access (needed so a finished recording can be handed back to the keyboard).")
+                    footer: Text(keyboardStatusFooter)
                 ) {
                     Button {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
                             UIApplication.shared.open(url)
                         }
                     } label: {
-                        Label("Open Settings", systemImage: "keyboard")
+                        HStack(spacing: 12) {
+                            keyboardStatusIcon
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(keyboardStatusTitle)
+                                    .foregroundStyle(.primary)
+                                Text("Tap to open Settings")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
                     }
                 }
 
@@ -191,6 +206,53 @@ public struct SettingsView: View {
             } message: {
                 Text("Simulated memo '\(simulatedTitle)' has been added and processed through Stage 1 ASR and Stage 2 LLM cleanup.")
             }
+            .onAppear {
+                keyboardStatus = KeyboardSetupStatus.current
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                // Refreshes after the user goes to Settings.app to add the keyboard / grant Full
+                // Access and comes back -- this sheet stays alive the whole time (backgrounding
+                // the app doesn't dismiss it), so re-checking only on .onAppear would miss that.
+                if newPhase == .active {
+                    keyboardStatus = KeyboardSetupStatus.current
+                }
+            }
+        }
+    }
+
+    // MARK: - Voxbrief Keyboard Status
+
+    private var keyboardStatusTitle: String {
+        switch keyboardStatus {
+        case .notAdded: return "Add Voxbrief as a Keyboard"
+        case .addedFullAccessUnconfirmed: return "Enable Full Access"
+        case .ready: return "Voxbrief Keyboard Ready"
+        }
+    }
+
+    private var keyboardStatusFooter: String {
+        switch keyboardStatus {
+        case .notAdded:
+            return "Settings > General > Keyboard > Keyboards > Add New Keyboard > Voxbrief."
+        case .addedFullAccessUnconfirmed:
+            return "Voxbrief is added as a keyboard. In Settings > General > Keyboard > Keyboards, tap Voxbrief and turn on Allow Full Access -- needed so a finished recording can be handed back to the keyboard to paste in. This status updates the next time you actually switch to the Voxbrief keyboard."
+        case .ready:
+            return "Voxbrief is added as a keyboard with Full Access granted. Switch to it from any text field's globe key, then tap Record."
+        }
+    }
+
+    @ViewBuilder
+    private var keyboardStatusIcon: some View {
+        switch keyboardStatus {
+        case .notAdded:
+            Image(systemName: "keyboard")
+                .foregroundStyle(.red)
+        case .addedFullAccessUnconfirmed:
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+        case .ready:
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
         }
     }
 

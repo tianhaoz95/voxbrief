@@ -106,6 +106,7 @@
 		C8ABA9BEC2112569C5505238 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = F12B540EED6866922E9E23CF /* MLXLLM */; };
 		C9CF200D94495FFBAEA7FA37 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E0BDCC158250481339E11 /* AudioConstants.swift */; };
 		CB36FED367B66F0719E37778 /* VoxbriefMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F61EA36A51AF152AC8E9882D /* VoxbriefMacApp.swift */; };
+		CC8A8294AA9C21B91FA4CB8C /* KeyboardSetupStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C774501050A357DEB4FA1AA /* KeyboardSetupStatus.swift */; };
 		CDFA9F1211A2F2E5993DD218 /* CaptureCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917D0366004B01DE5CC2CEA7 /* CaptureCoordinator.swift */; };
 		CF522D7A437072483BE0EF9A /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */; };
 		D2192BBB74F331C695132976 /* ASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEAD3B4021131DA58668E5C9 /* ASRService.swift */; };
@@ -247,6 +248,7 @@
 		7BB5149C264CEC3EE04592CE /* VoxbriefTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoxbriefTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		805582BA92BDC768F983C370 /* AudioFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileManager.swift; sourceTree = "<group>"; };
 		85FA4EC385ED9D0FC96F7955 /* NoteDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailViewModel.swift; sourceTree = "<group>"; };
+		8C774501050A357DEB4FA1AA /* KeyboardSetupStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardSetupStatus.swift; sourceTree = "<group>"; };
 		917D0366004B01DE5CC2CEA7 /* CaptureCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureCoordinator.swift; sourceTree = "<group>"; };
 		959851115743BB9596288C80 /* VoxbriefWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoxbriefWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AB4E8DC194919B938B0739 /* PersonalDictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalDictionaryStoreTests.swift; sourceTree = "<group>"; };
@@ -332,6 +334,7 @@
 				17618C9F07139808472E6688 /* AudioPlaybackService.swift */,
 				6E37077EC9E2F16A4D7C2E54 /* AudioRecordingService.swift */,
 				61F11F8A2D3B21ECC69ECA27 /* DictionaryCorrector.swift */,
+				8C774501050A357DEB4FA1AA /* KeyboardSetupStatus.swift */,
 				DFEB07D6090DC24A5902E9AE /* LiveActivityManager.swift */,
 				AD147AE1BD15A3E6E9E9EA8C /* LLMCopywriterService.swift */,
 				1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */,
@@ -962,6 +965,7 @@
 				15B55313D15D673F92B12C6B /* FormattingExtensions.swift in Sources */,
 				C62F31CCF5357A78F21C47A5 /* KeyboardHandoff.swift in Sources */,
 				786A6E2CADE1460308135F30 /* KeyboardRecordSheet.swift in Sources */,
+				CC8A8294AA9C21B91FA4CB8C /* KeyboardSetupStatus.swift in Sources */,
 				97423C8D59C66715E3817F3A /* LLMCopywriterService.swift in Sources */,
 				D99F810CE255C259E1726018 /* LiveActivityManager.swift in Sources */,
 				8EFFC638DE223E39D228C688 /* MarkdownLiteText.swift in Sources */,

@@ -35,4 +35,27 @@ public enum KeyboardHandoff {
         defaults.removeObject(forKey: pendingTextKey)
         return text
     }
+
+    // MARK: - Setup status (read by the main app's Settings screen -- see KeyboardSetupStatus)
+
+    private static let fullAccessConfirmedKey = "keyboard_full_access_confirmed"
+
+    /// Called by the keyboard extension every time it becomes active with `hasFullAccess == true`.
+    /// This is the only way the main app can ever learn Full Access was granted --
+    /// `UIInputViewController.hasFullAccess` is readable only from inside the extension itself.
+    /// Only ever writes `true`; when access isn't granted this is simply never called, and the
+    /// write likely wouldn't reach the shared container in that case anyway (see the type's doc
+    /// comment on `defaults`).
+    public static func reportFullAccessGranted() {
+        defaults?.set(true, forKey: fullAccessConfirmedKey)
+    }
+
+    /// Best-effort and one-directional: `true` once the keyboard has confirmed Full Access at
+    /// least once (the last time it actually ran); `false` both when it's genuinely not granted
+    /// *and* when the keyboard has simply never run yet -- there's no way to tell those two apart
+    /// from the main app. Can also go stale if the user grants Full Access, then later revokes it
+    /// without the keyboard running again in between; there's no negative signal to catch that.
+    public static func isFullAccessConfirmed() -> Bool {
+        defaults?.bool(forKey: fullAccessConfirmedKey) ?? false
+    }
 }
