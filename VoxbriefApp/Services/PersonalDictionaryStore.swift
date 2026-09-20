@@ -28,13 +28,13 @@ public final class PersonalDictionaryStore: ObservableObject {
     // MARK: - CRUD Operations
 
     @discardableResult
-    public func add(term: String, aliases: [String] = []) -> DictionaryEntry? {
+    public func add(term: String, aliases: [String] = [], contextHint: String? = nil) -> DictionaryEntry? {
         let trimmedTerm = term.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTerm.isEmpty else { return nil }
         let cleanedAliases = aliases
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        let entry = DictionaryEntry(term: trimmedTerm, aliases: cleanedAliases)
+        let entry = DictionaryEntry(term: trimmedTerm, aliases: cleanedAliases, contextHint: Self.cleanedHint(contextHint))
         entries.append(entry)
         sortAndPersist()
         return entry
@@ -47,9 +47,17 @@ public final class PersonalDictionaryStore: ObservableObject {
         updated.aliases = entry.aliases
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
+        updated.contextHint = Self.cleanedHint(entry.contextHint)
         guard !updated.term.isEmpty else { return }
         entries[index] = updated
         sortAndPersist()
+    }
+
+    /// Trims whitespace and collapses an all-blank hint to `nil`, so an empty text field never
+    /// gets persisted as a hint that's just whitespace.
+    private static func cleanedHint(_ hint: String?) -> String? {
+        guard let trimmed = hint?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else { return nil }
+        return trimmed
     }
 
     public func delete(id: UUID) {

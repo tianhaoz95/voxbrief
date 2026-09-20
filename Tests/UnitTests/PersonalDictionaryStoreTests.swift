@@ -40,6 +40,14 @@ final class PersonalDictionaryStoreTests: XCTestCase {
         XCTAssertEqual(store.entries.first?.aliases, ["koob-ernetties"])
     }
 
+    func testAddTrimsContextHintAndTreatsBlankAsNil() {
+        let withHint = store.add(term: "Voxbrief", contextHint: "  our project's codename  ")
+        let withBlankHint = store.add(term: "Kubernetes", contextHint: "   ")
+
+        XCTAssertEqual(withHint?.contextHint, "our project's codename")
+        XCTAssertNil(withBlankHint?.contextHint)
+    }
+
     func testUpdateModifiesExistingEntry() {
         let entry = store.add(term: "Voxbrief")!
 
@@ -88,6 +96,30 @@ final class PersonalDictionaryStoreTests: XCTestCase {
         store.add(term: "banana")
 
         XCTAssertEqual(store.entries.map(\.term), ["Apple", "banana", "zebra"])
+    }
+
+    /// `DictionaryEntry.contextHint` was added after entries had already been persisted to disk.
+    /// Being `Optional` (unlike `VoiceNote.segments`, which needed a hand-written `init(from:)`),
+    /// the synthesized `Decodable` should already fall back to `nil` for JSON missing the key.
+    func testLoadsLegacyEntryJSONMissingContextHintField() {
+        let entryId = UUID()
+        let legacyJSON = """
+        [
+          {
+            "id": "\(entryId.uuidString)",
+            "term": "Voxbrief",
+            "aliases": ["fox brief"],
+            "createdAt": "2026-01-01T00:00:00Z"
+          }
+        ]
+        """
+        try! legacyJSON.write(to: tempStorageURL, atomically: true, encoding: .utf8)
+
+        let legacyStore = PersonalDictionaryStore(customStorageURL: tempStorageURL)
+
+        XCTAssertEqual(legacyStore.entries.count, 1)
+        XCTAssertEqual(legacyStore.entries.first?.term, "Voxbrief")
+        XCTAssertNil(legacyStore.entries.first?.contextHint)
     }
 
     func testPersistenceAcrossFreshStoreInstance() {

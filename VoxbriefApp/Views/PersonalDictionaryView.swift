@@ -32,6 +32,12 @@ public struct PersonalDictionaryView: View {
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
+                                if let hint = entry.contextHint, !hint.isEmpty {
+                                    Text(hint)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .italic()
+                                }
                             }
                         }
                     }

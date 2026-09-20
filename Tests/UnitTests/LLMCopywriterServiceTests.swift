@@ -143,6 +143,27 @@ final class LLMCopywriterServiceTests: XCTestCase {
         XCTAssertTrue(block.contains("Kubernetes"))
     }
 
+    func testDictionaryInstructionBlockIncludesContextHintWhenPresent() {
+        let dictionary = [
+            DictionaryEntry(term: "Voxbrief", contextHint: "our project's codename"),
+            DictionaryEntry(term: "Kubernetes")
+        ]
+
+        let block = service.dictionaryInstructionBlock(dictionary)
+
+        XCTAssertTrue(block.contains("Voxbrief (our project's codename)"), "An entry with a hint should render as \"term (hint)\"")
+        XCTAssertTrue(block.contains("Kubernetes"))
+        XCTAssertFalse(block.contains("Kubernetes ("), "An entry with no hint should render as a bare term")
+    }
+
+    func testDictionaryInstructionBlockTrimsWhitespaceOnlyHint() {
+        let dictionary = [DictionaryEntry(term: "Voxbrief", contextHint: "   ")]
+
+        let block = service.dictionaryInstructionBlock(dictionary)
+
+        XCTAssertFalse(block.contains("Voxbrief ("), "A whitespace-only hint should be treated as no hint")
+    }
+
     func testDictionaryInstructionBlockRespectsTermCap() {
         let dictionary = (1...(LLMCopywriterService.maxDictionaryTermsInPrompt + 10)).map {
             DictionaryEntry(term: "Term\($0)")

@@ -286,18 +286,31 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     // MARK: - Personal Dictionary Prompt Injection
 
     /// Smaller than `ASRService.maxVocabularyTerms` since this string enters a small on-device
-    /// model's limited context window on every Stage-2 call, twice per note (.full and .light).
+    /// model's limited context window on every Stage-2 call (the .full pass eagerly, the .light
+    /// pass whenever `NoteProcessingPipeline.generateLightCleanup` runs it on demand).
     static let maxDictionaryTermsInPrompt = 50
 
     /// Renders the dictionary as a "preserve verbatim" instruction block appended to a system
-    /// prompt. Returns "" for an empty dictionary so callers can unconditionally interpolate it
-    /// without branching. `internal` (not `private`) so it's directly unit-testable.
+    /// prompt. An entry with a `contextHint` renders as `term (hint)`, so the model has enough to
+    /// judge whether an ambiguous or unfamiliar-looking mention actually fits the surrounding
+    /// sentence rather than just matching spelling -- entries without one (most terms) render as
+    /// a bare term, same as before this existed. Returns "" for an empty dictionary so callers can
+    /// unconditionally interpolate it without branching. `internal` (not `private`) so it's
+    /// directly unit-testable.
     func dictionaryInstructionBlock(_ dictionary: [DictionaryEntry]) -> String {
         guard !dictionary.isEmpty else { return "" }
-        let terms = dictionary.prefix(Self.maxDictionaryTermsInPrompt).map(\.term).joined(separator: ", ")
+        let rendered = dictionary.prefix(Self.maxDictionaryTermsInPrompt).map { entry -> String in
+            if let hint = entry.contextHint?.trimmingCharacters(in: .whitespacesAndNewlines), !hint.isEmpty {
+                return "\(entry.term) (\(hint))"
+            }
+            return entry.term
+        }.joined(separator: ", ")
         return "\n\nThe speaker uses these specific proper nouns and jargon terms -- if you see a "
             + "close variant of one in the transcript, use this exact spelling and capitalization "
-            + "verbatim rather than correcting, translating, or genericizing it: \(terms)."
+            + "verbatim rather than correcting, translating, or genericizing it. A parenthetical "
+            + "after a term describes what it actually is -- use it to judge whether a given "
+            + "mention really matches that term instead of forcing every superficially similar "
+            + "word to become it: \(rendered)."
     }
 
     // MARK: - On-Device NLP & Semantic Transformation Engine

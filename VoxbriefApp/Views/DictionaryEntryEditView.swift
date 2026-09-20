@@ -9,12 +9,14 @@ public struct DictionaryEntryEditView: View {
 
     @State private var term: String
     @State private var aliasesText: String
+    @State private var contextHint: String
 
     public init(store: PersonalDictionaryStore, entry: DictionaryEntry?) {
         self.store = store
         self.existingEntry = entry
         _term = State(initialValue: entry?.term ?? "")
         _aliasesText = State(initialValue: entry?.aliases.joined(separator: ", ") ?? "")
+        _contextHint = State(initialValue: entry?.contextHint ?? "")
     }
 
     private var trimmedTerm: String {
@@ -35,6 +37,13 @@ public struct DictionaryEntryEditView: View {
                 ) {
                     TextField("e.g. fox brief, vox brief", text: $aliasesText)
                         .autocorrectionDisabled()
+                }
+
+                Section(
+                    header: Text("What Is This? (optional)"),
+                    footer: Text("A short description helps the LLM tell whether a mention actually fits -- e.g. \"our project's codename\" or \"a teammate's name, not a typo\" -- instead of just matching spelling. Most terms don't need one.")
+                ) {
+                    TextField("e.g. our project's codename", text: $contextHint)
                 }
 
                 if existingEntry != nil {
@@ -73,9 +82,10 @@ public struct DictionaryEntryEditView: View {
         if var entry = existingEntry {
             entry.term = trimmedTerm
             entry.aliases = aliases
+            entry.contextHint = contextHint
             store.update(entry)
         } else {
-            store.add(term: trimmedTerm, aliases: aliases)
+            store.add(term: trimmedTerm, aliases: aliases, contextHint: contextHint)
         }
     }
 }
