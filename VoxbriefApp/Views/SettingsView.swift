@@ -225,7 +225,7 @@ public struct SettingsView: View {
     private var keyboardStatusTitle: String {
         switch keyboardStatus {
         case .notAdded: return "Add Voxbrief as a Keyboard"
-        case .addedFullAccessUnconfirmed: return "Enable Full Access"
+        case .addedFullAccessUnconfirmed: return "Confirm Full Access"
         case .ready: return "Voxbrief Keyboard Ready"
         }
     }
@@ -235,7 +235,11 @@ public struct SettingsView: View {
         case .notAdded:
             return "Settings > General > Keyboard > Keyboards > Add New Keyboard > Voxbrief."
         case .addedFullAccessUnconfirmed:
-            return "Voxbrief is added as a keyboard. In Settings > General > Keyboard > Keyboards, tap Voxbrief and turn on Allow Full Access -- needed so a finished recording can be handed back to the keyboard to paste in. This status updates the next time you actually switch to the Voxbrief keyboard."
+            // Deliberately doesn't say "you haven't turned this on" -- there's no API for this
+            // app to check that directly (see KeyboardSetupStatus), so this state also covers
+            // the case where Full Access genuinely is already on but Voxbrief hasn't detected it
+            // yet, which only happens the next time the keyboard itself runs.
+            return "Voxbrief is added as a keyboard, but this app can't yet confirm Full Access is on -- that's a separate switch from just adding the keyboard. If you haven't already, turn it on in Settings > General > Keyboard > Keyboards > Voxbrief > Allow Full Access. Either way, switch to the Voxbrief keyboard in any text field once (tap the globe key) to update this status."
         case .ready:
             return "Voxbrief is added as a keyboard with Full Access granted. Switch to it from any text field's globe key, then tap Record."
         }
@@ -248,7 +252,7 @@ public struct SettingsView: View {
             Image(systemName: "keyboard")
                 .foregroundStyle(.red)
         case .addedFullAccessUnconfirmed:
-            Image(systemName: "exclamationmark.triangle.fill")
+            Image(systemName: "questionmark.circle.fill")
                 .foregroundStyle(.orange)
         case .ready:
             Image(systemName: "checkmark.circle.fill")

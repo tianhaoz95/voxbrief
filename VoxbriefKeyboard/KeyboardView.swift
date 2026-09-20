@@ -21,6 +21,9 @@ private enum KeyboardPage {
 /// switch keyboards for normal typing," not matching the system keyboard's polish.
 struct KeyboardView: View {
     let hasFullAccess: Bool
+    /// True when the last tap of the Record bar tried to open Voxbrief and neither opening
+    /// technique worked, despite Full Access being on -- see `KeyboardViewController.openVoxbrief`.
+    let openFailed: Bool
     let onKey: (KeyboardKey) -> Void
     let onRecord: () -> Void
     let onNextKeyboard: () -> Void
@@ -74,16 +77,25 @@ struct KeyboardView: View {
     }
 
     private var recordBar: some View {
-        Button(action: onRecord) {
-            Label(
-                hasFullAccess ? "Record with Voxbrief" : "Record (enable Full Access in Settings)",
-                systemImage: "mic.fill"
-            )
-            .font(.subheadline.weight(.semibold))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
+        VStack(spacing: 2) {
+            Button(action: onRecord) {
+                Label(
+                    hasFullAccess ? "Record with Voxbrief" : "Record (enable Full Access in Settings)",
+                    systemImage: "mic.fill"
+                )
+                .font(.subheadline.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+            }
+            .buttonStyle(.borderedProminent)
+
+            if openFailed {
+                Text("Couldn't open Voxbrief. Try again, or check Full Access in Settings.")
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+            }
         }
-        .buttonStyle(.borderedProminent)
         .padding(.horizontal, 2)
     }
 
