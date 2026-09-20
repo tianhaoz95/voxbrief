@@ -8,6 +8,7 @@ fileprivate final class MockASRService: ASRServiceProtocol {
     var transcriptQueue: [String] = []
     private(set) var receivedVocabulary: [String] = []
     private(set) var receivedAudioURLs: [URL] = []
+    private(set) var warmUpCallCount = 0
 
     func transcribeAudio(at fileURL: URL, vocabulary: [String]) async throws -> String {
         receivedVocabulary = vocabulary
@@ -17,11 +18,16 @@ fileprivate final class MockASRService: ASRServiceProtocol {
         }
         return stubTranscript
     }
+
+    func warmUp() async {
+        warmUpCallCount += 1
+    }
 }
 
 fileprivate final class MockLLMCopywriterService: LLMCopywriterServiceProtocol, @unchecked Sendable {
     private(set) var receivedDictionaries: [[DictionaryEntry]] = []
     private(set) var receivedTranscripts: [String] = []
+    private(set) var warmUpCallCount = 0
 
     func processTranscript(_ rawTranscript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
         receivedDictionaries.append(dictionary)
@@ -36,6 +42,10 @@ fileprivate final class MockLLMCopywriterService: LLMCopywriterServiceProtocol, 
             tags: [],
             engine: "mock"
         )
+    }
+
+    func warmUp() async {
+        warmUpCallCount += 1
     }
 }
 
@@ -256,5 +266,17 @@ final class NoteProcessingPipelineTests: XCTestCase {
 
         XCTAssertNotNil(repository.note(withId: unprocessedSource.id), "An unprocessed source shouldn't be consumed by a merge")
         XCTAssertEqual(repository.note(withId: target.id)?.segments.count ?? 0, 0, "Target shouldn't change when the merge is rejected")
+    }
+
+    // MARK: - Cold-load warm-up
+
+    func testWarmUpStartsBothServicesWarmUpConcurrently() async {
+        await pipeline.warmUp().value
+
+        XCTAssertEqual(mockASR.warmUpCallCount, 1)
+        XCTAssertEqual(mockLLM.warmUpCallCount, 1)
+        // warmUp() must never touch the actual transcription/generation path.
+        XCTAssertTrue(mockASR.receivedAudioURLs.isEmpty)
+        XCTAssertTrue(mockLLM.receivedTranscripts.isEmpty)
     }
 }

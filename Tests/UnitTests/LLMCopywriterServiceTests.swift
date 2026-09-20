@@ -125,6 +125,15 @@ final class LLMCopywriterServiceTests: XCTestCase {
 
     // MARK: - Personal Dictionary
 
+    // MARK: - Cold-load warm-up
+
+    func testWarmUpCompletesWithoutThrowing() async {
+        // On the Simulator (where this test runs), OnDeviceLLMService.isSupportedOnThisDevice is
+        // false, so this exercises the "safe no-op" path -- the real on-device warm-up path is
+        // exercised on-device only, same as generate() itself (see CLAUDE.md).
+        await service.warmUp()
+    }
+
     func testDictionaryInstructionBlockIsEmptyForNoEntries() {
         let block = service.dictionaryInstructionBlock([])
 

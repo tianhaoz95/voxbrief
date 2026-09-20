@@ -6,6 +6,15 @@ public protocol ASRServiceProtocol: Sendable {
     /// decoder toward recognizing, via Whisper's standard "initial prompt" mechanism. Pass `[]`
     /// for no bias.
     func transcribeAudio(at fileURL: URL, vocabulary: [String]) async throws -> String
+
+    /// Best-effort: starts loading the underlying model now (if not already loaded/loading)
+    /// rather than waiting for the first real `transcribeAudio` call to pay that cost. Errors are
+    /// swallowed -- a real call will surface them properly if loading still fails by the time it
+    /// actually needs the model. A no-op is a valid, always-safe implementation (e.g. for a test
+    /// double). See `NoteProcessingPipeline.warmUp`, which starts (but never awaits) this the
+    /// moment a recording begins, so it races however long the user is talking instead of
+    /// blocking the stop-recording path with a cold load.
+    func warmUp() async
 }
 
 public enum ASRError: LocalizedError, Sendable {
@@ -60,6 +69,10 @@ public actor ASRService: ASRServiceProtocol {
 
     /// Transcribes an audio file at the given local file URL. `vocabulary` (personal-dictionary
     /// terms) biases decoding toward recognizing them correctly; pass `[]` for no bias.
+    public func warmUp() async {
+        _ = try? await loadedPipe()
+    }
+
     public func transcribeAudio(at fileURL: URL, vocabulary: [String] = []) async throws -> String {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             throw ASRError.fileNotFound

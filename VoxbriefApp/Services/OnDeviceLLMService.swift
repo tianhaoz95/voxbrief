@@ -154,6 +154,16 @@ public final class OnDeviceLLMService: ObservableObject {
 
     // MARK: - Generation
 
+    /// Best-effort: loads whichever model would actually serve the next `generate()` call now,
+    /// rather than paying that cost inline on first real use. A no-op on the Simulator (same as
+    /// `generate()`) and if the large model is already `.ready` (already resident once
+    /// downloaded, nothing more to load). Errors are swallowed -- a real `generate()` call will
+    /// surface them properly if loading still fails.
+    public func warmUp() async {
+        guard Self.isSupportedOnThisDevice else { return }
+        _ = try? await bestAvailableContainer()
+    }
+
     /// Generates text using the best available model: the downloaded large model if ready,
     /// otherwise the bundled small model (always available, no setup required).
     public func generate(systemPrompt: String, userPrompt: String, maxTokens: Int = 1024) async throws -> String {

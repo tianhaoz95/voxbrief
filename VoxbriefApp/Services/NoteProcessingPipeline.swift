@@ -40,7 +40,23 @@ public final class NoteProcessingPipeline: ObservableObject {
         self.audioFileManager = audioFileManager
         self.dictionaryStore = dictionaryStore
     }
-    
+
+    /// Starts warming Stage 1 (ASR) and Stage 2 (on-device LLM) the moment a recording begins,
+    /// so a call already in flight by the time the user stops talking doesn't pay a full cold-load
+    /// cost inline with that note's processing. Fire-and-forget by design: callers
+    /// (`RecordingCoordinator.beginRecording`/`CaptureCoordinator.beginCapture`) call this without
+    /// awaiting it, racing it against however long the recording lasts; errors are swallowed by
+    /// the underlying services' own `warmUp()` implementations, which are always safe no-ops if
+    /// something isn't applicable (Ollama routing, Simulator, already warm).
+    @discardableResult
+    public func warmUp() -> Task<Void, Never> {
+        Task { [asrService, llmService] in
+            async let asr: Void = asrService.warmUp()
+            async let llm: Void = llmService.warmUp()
+            _ = await (asr, llm)
+        }
+    }
+
     /// Executes the two-stage processing pipeline for a given voice note
     public func process(note: VoiceNote) async {
         guard !inFlightNoteIds.contains(note.id) else { return }

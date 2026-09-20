@@ -59,6 +59,12 @@ public protocol LLMCopywriterServiceProtocol: Sendable {
     /// `dictionary` is the user's personal jargon/proper-noun list (see `DictionaryEntry`),
     /// injected into the LLM prompt as terms to preserve verbatim. Pass `[]` for none.
     func processTranscript(_ rawTranscript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult
+
+    /// Best-effort: starts loading whichever engine would actually serve the next call now,
+    /// rather than paying that cost inline on first real use. A no-op is a valid, always-safe
+    /// implementation (e.g. for a test double, or when routed to Ollama/ineligible for on-device).
+    /// See `NoteProcessingPipeline.warmUp`.
+    func warmUp() async
 }
 
 public enum LLMCopywriterError: LocalizedError {
@@ -76,7 +82,16 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     public static let shared = LLMCopywriterService()
     
     public init() {}
-    
+
+    /// Best-effort: warms the on-device model (see `OnDeviceLLMService.warmUp`) so a call already
+    /// in flight by the time `processTranscript` actually runs doesn't pay a cold-load cost. A
+    /// no-op when routed to the Ollama endpoint instead (nothing on-device to warm) or when
+    /// on-device models aren't supported on this device (e.g. the Simulator).
+    public func warmUp() async {
+        guard !UserDefaults.standard.bool(forKey: "use_local_llm_endpoint") else { return }
+        await OnDeviceLLMService.shared.warmUp()
+    }
+
     /// Processes a raw speech transcript through Stage 2 LLM cleanup and copywriting.
     /// `mode` defaults to `.full` and `dictionary` defaults to `[]` (today's behavior) so
     /// existing call sites on the concrete type don't need to change; callers through

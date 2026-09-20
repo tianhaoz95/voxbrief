@@ -59,6 +59,7 @@ public final class CaptureCoordinator: ObservableObject {
         do {
             try recorder.startRecording()
             state = .listening
+            pipeline.warmUp()
         } catch {
             state = .failed(error.localizedDescription)
             scheduleReturnToIdle()

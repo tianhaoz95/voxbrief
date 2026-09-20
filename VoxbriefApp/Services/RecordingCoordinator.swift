@@ -38,6 +38,7 @@ public final class RecordingCoordinator: ObservableObject {
         activeNoteId = noteId
         appendTargetNoteId = targetNoteId
         liveActivity.start(noteId: noteId, source: "iPhone")
+        pipeline.warmUp()
     }
 
     /// Stops the active recording and either kicks off the two-stage pipeline as a new note, or --
