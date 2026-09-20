@@ -23,6 +23,9 @@ import SwiftUI
 public final class KeyboardViewController: UIInputViewController {
     private var hostingController: UIHostingController<KeyboardView>?
     private var lastOpenAttemptFailed = false
+    /// Identifies the most recent `openVoxbrief()` call so a stale timer or completion handler
+    /// from an earlier tap can't clobber state for a newer one (or one that already succeeded).
+    private var openAttemptToken = UUID()
 
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +35,7 @@ public final class KeyboardViewController: UIInputViewController {
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         lastOpenAttemptFailed = false
+        openAttemptToken = UUID()
         hostingController?.rootView = makeKeyboardView()
         if hasFullAccess {
             // The only way the main app's Settings screen can ever learn this -- see
@@ -85,51 +89,47 @@ public final class KeyboardViewController: UIInputViewController {
         }
     }
 
-    /// Tries the officially documented `extensionContext?.open(_:completionHandler:)` first --
-    /// it self-reports success/failure via its completion handler, which the responder-chain
-    /// trick below can't do. Both techniques require "Allow Full Access"; if that isn't granted
-    /// they fail the same silent way, which is correct OS policy, not a bug in either one. If
-    /// `open` reports failure (or has no extension context to call it on, which happens if this
-    /// is ever invoked before the extension is fully attached), falls back to walking the
-    /// responder chain to the host app's real `UIApplication` instance and invoking the
-    /// deprecated `openURL(_:)` via `perform(_:with:)` -- a technique some keyboard extensions
-    /// need instead, apparently varying by iOS version/device. Either way, if nothing actually
-    /// worked, that's surfaced in the keyboard's own UI (`KeyboardView`'s `openFailed`) instead
-    /// of leaving the user staring at a button that visibly did nothing.
+    /// Fires *both* known techniques immediately, rather than trying one and waiting to hear
+    /// back before falling back to the other: `extensionContext?.open(_:completionHandler:)`'s
+    /// completion handler is documented, and reproduces here, to sometimes never be called at
+    /// all from a custom keyboard extension -- gating the responder-chain fallback on that
+    /// callback (the previous approach) meant it silently never ran either. Both techniques
+    /// require "Allow Full Access"; if that isn't granted they fail the same silent way, which
+    /// is correct OS policy, not a bug in either one.
+    ///
+    /// There's no reliable positive signal that either one actually worked -- if one did, iOS
+    /// switches away to Voxbrief and this extension is normally suspended well before anything
+    /// below would notice. So this uses the inverse: if we're still here, foregrounded and
+    /// responding, a second later, neither attempt opened anything, and that's surfaced in the
+    /// keyboard's own UI (`KeyboardView`'s `openFailed`) instead of leaving the user staring at
+    /// a button that visibly did nothing.
     private func openVoxbrief() {
         guard let url = URL(string: "voxbrief://record?source=keyboard") else { return }
         lastOpenAttemptFailed = false
-        guard let extensionContext else {
-            reportOpenResult(succeeded: openViaResponderChain(url))
-            return
-        }
-        extensionContext.open(url) { [weak self] success in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.reportOpenResult(succeeded: success || self.openViaResponderChain(url))
-            }
+        hostingController?.rootView = makeKeyboardView()
+
+        let token = UUID()
+        openAttemptToken = token
+
+        openViaResponderChain(url)
+        extensionContext?.open(url, completionHandler: nil)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self, self.openAttemptToken == token, self.hasFullAccess else { return }
+            self.lastOpenAttemptFailed = true
+            self.hostingController?.rootView = self.makeKeyboardView()
         }
     }
 
-    @discardableResult
-    private func openViaResponderChain(_ url: URL) -> Bool {
+    private func openViaResponderChain(_ url: URL) {
         var responder: UIResponder? = self
         while let current = responder {
             if let application = current as? UIApplication {
                 application.perform(#selector(UIApplication.openURL(_:)), with: url)
-                return true
+                return
             }
             responder = current.next
         }
-        return false
-    }
-
-    private func reportOpenResult(succeeded: Bool) {
-        // Only worth flagging when Full Access is actually on -- otherwise the Record label
-        // already explains why nothing happened, and this would just be a redundant, scarier
-        // second warning about the same known cause.
-        lastOpenAttemptFailed = hasFullAccess && !succeeded
-        hostingController?.rootView = makeKeyboardView()
     }
 
     /// A no-op (returns immediately) unless Full Access is granted -- `KeyboardHandoff` needs the
