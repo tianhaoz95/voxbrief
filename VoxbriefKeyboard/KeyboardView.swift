@@ -87,22 +87,28 @@ struct KeyboardView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                // .buttonStyle(.borderedProminent) draws its own default system chrome behind
-                // the accent color, which shows up as a mismatched gray backdrop against this
-                // keyboard's flat systemGray5 background -- match every other key here instead
-                // (see keyButton/backspaceKey/bottomRow) with a plain background + shape.
-                .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 6))
             }
             .buttonStyle(.plain)
+            // .buttonStyle(.borderedProminent) drew its own default system chrome behind the
+            // accent color, mismatched against this keyboard's flat background. Applying the
+            // background/shape/inset to the Button itself (not just its Label's inner content)
+            // and clipping explicitly, rather than relying on an ancestor's ambient horizontal
+            // padding to inset it, keeps this self-contained -- this extension's keyboard-service
+            // hosting context (UIInputViewController, not a normal in-app view controller) was
+            // seen to sometimes let a Label-only background bleed to the true view edges with
+            // square corners despite matching code working fine in a normal app screen.
+            .background(Color.accentColor)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .padding(.horizontal, 2)
 
             if openFailed {
                 Text("Couldn't open Voxbrief. Try again, or check Full Access in Settings.")
                     .font(.caption2)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
+                    .padding(.horizontal, 2)
             }
         }
-        .padding(.horizontal, 2)
     }
 
     private func keyButton(_ displayText: String, inserting rawLetter: String) -> some View {
