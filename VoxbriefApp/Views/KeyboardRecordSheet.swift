@@ -9,6 +9,16 @@ import SwiftUI
 ///
 /// iOS has no public API for this app to force that switch itself -- see CLAUDE.md's notes on why
 /// the "jump back" step stays a manual tap for the foreseeable future.
+///
+/// `processingView` deliberately does NOT invite the user to switch away early, even though
+/// `RecordingCoordinator`'s background task would let the pipeline survive it. That was tried
+/// (an earlier version said "you can switch back now") and caused two problems, not one: leaving
+/// while the on-device LLM (Stage 2) was actively generating crashed the whole app (a real
+/// TestFlight crash -- see `OnDeviceLLMService`'s doc comment), and leaving before Stage 2 even
+/// started silently downgraded the note to the plainer rule-based cleanup instead of the LLM one.
+/// The fallback path stays as a safety net for an involuntary interruption (a phone call, the
+/// screen locking, etc.), not something to route the common case through just to save a few
+/// seconds of waiting -- on-device LLM quality is the point of this app.
 public struct KeyboardRecordSheet: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var recordingService = AudioRecordingService.shared
@@ -141,7 +151,14 @@ public struct KeyboardRecordSheet: View {
             Text("Cleaning up your recording…")
                 .font(.headline)
                 .foregroundStyle(.secondary)
-            Text("You can switch back now -- Voxbrief will keep working, and you'll get a notification when it's ready to paste.")
+            // Deliberately does NOT invite switching away here. The on-device LLM (Stage 2) can
+            // only safely run while this app is in the foreground -- see OnDeviceLLMService's
+            // doc comment on the real crash this caused. Leaving mid-generation risks a crash;
+            // leaving before it starts silently downgrades this note to the plainer rule-based
+            // cleanup instead of the LLM one. Neither is something to invite as the common case
+            // just to save a few seconds -- the background-task/Live Activity protection stays
+            // as a safety net for an *involuntary* interruption (a call, etc.), not an invitation.
+            Text("This usually only takes a few seconds -- keeping Voxbrief open gets you the better on-device LLM cleanup instead of a plainer fallback.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
