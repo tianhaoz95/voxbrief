@@ -258,7 +258,15 @@ public final class OnDeviceLLMService: ObservableObject {
         maxTokens: Int
     ) async throws -> String {
         let chat: [Chat.Message] = [.system(systemPrompt), .user(userPrompt)]
-        let userInput = UserInput(chat: chat)
+        // Qwen3's chat template defaults to "thinking mode" -- it opens its own <think>...</think>
+        // block and reasons before answering unless told not to -- which silently ate the entire
+        // 24-token budget of the template-classification call before it ever reached the actual
+        // `{"template": ...}` answer, making classification fall back to the default template on
+        // almost every call. `enable_thinking: false` is a template-rendering variable read
+        // directly by Qwen3's chat template (see LLMUserInputProcessor forwarding
+        // `additionalContext` to `tokenizer.applyChatTemplate`), not a generation parameter --
+        // there's no equivalent on `GenerateParameters`.
+        let userInput = UserInput(chat: chat, additionalContext: ["enable_thinking": false])
         let parameters = GenerateParameters(maxTokens: maxTokens, temperature: 0.3)
 
         return try await container.perform { (context: ModelContext) -> String in

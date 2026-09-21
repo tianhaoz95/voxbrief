@@ -95,6 +95,7 @@ extension NoteTemplate {
         static let designDoc = UUID(uuidString: "8C6E3D1A-9B9A-4E2A-9A9E-4A6E3F5C1A10")!
         static let email = UUID(uuidString: "3F2A7E9C-1D4B-4C8E-9C7D-2B5A6E1F4D22")!
         static let shortTweet = UUID(uuidString: "5A1C9E4F-6D2B-4A7E-8F3C-7E9D2A4B6C33")!
+        static let taskList = UUID(uuidString: "0F2D3D28-3643-43F7-8E1F-5093C245A2C0")!
         static let generalNotes = UUID(uuidString: "D4E7B2A9-3C6F-4D1E-9A8B-1F5C3E7A9D44")!
     }
 
@@ -140,6 +141,21 @@ extension NoteTemplate {
         isBuiltIn: true
     )
 
+    /// A flat dump of to-dos with no other structure -- distinct from Design Doc's `actionItems`
+    /// section, which is one part of a larger requirements/conditions/action-items note. Exists
+    /// so a transcript that's just "call the dentist, buy milk, book flights" gets a clean
+    /// standalone checklist instead of being force-fit into Design Doc (empty requirements/
+    /// conditions sections) or flattened into General Notes prose.
+    public static let taskList = NoteTemplate(
+        id: BuiltInID.taskList,
+        name: "Task List",
+        summary: "A flat list of to-dos or tasks to get done -- no requirements, conditions, recipient, or narrative, just standalone action items.",
+        sections: [
+            TemplateSection(fieldKey: "tasks", title: "✅ Tasks", instructions: "Each distinct to-do or task mentioned in the transcript, as its own item.", style: .checklist)
+        ],
+        isBuiltIn: true
+    )
+
     /// The safe catch-all: free-form prose, no forced structure. Used both as a selectable
     /// template and as `fallbackDefault` -- deliberately *not* Design Doc, so a transcript the
     /// classifier can't confidently place doesn't get force-fit into a rigid schema anyway,
@@ -154,7 +170,7 @@ extension NoteTemplate {
         isBuiltIn: true
     )
 
-    public static let builtIns: [NoteTemplate] = [designDoc, email, shortTweet, generalNotes]
+    public static let builtIns: [NoteTemplate] = [designDoc, email, shortTweet, taskList, generalNotes]
 
     /// Used when template classification fails outright (unparsable response) or returns a name
     /// that doesn't match any known template.

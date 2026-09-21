@@ -107,7 +107,7 @@ final class TemplateStoreTests: XCTestCase {
 
         // Nothing to assert on customTemplates changing (it was already empty) -- this mainly
         // proves the call doesn't crash or affect NoteTemplate.builtIns.
-        XCTAssertEqual(NoteTemplate.builtIns.count, 4)
+        XCTAssertEqual(NoteTemplate.builtIns.count, 5)
     }
 
     func testDeleteAtOffsetsOnlyAffectsCustom() {

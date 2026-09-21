@@ -254,9 +254,16 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     /// `dictionaryInstructionBlock`'s existing precedent.
     func buildClassificationSystemPrompt(templates: [NoteTemplate]) -> String {
         let listing = templates.map { "- \"\($0.name)\": \($0.summary)" }.joined(separator: "\n")
+        let fallbackName = NoteTemplate.fallbackDefault.name
         return """
-        You choose which note-taking template best fits a spoken voice-memo transcript. Available templates:
+        You choose which note-taking template best fits a spoken voice-memo transcript. Pick the \
+        single most specific template that matches -- do not default to "\(fallbackName)" just \
+        because you're unsure; look for concrete signals like "email"/"send"/"write to" for an \
+        email, a short public announcement for a tweet, or requirements/steps/action items for a \
+        design doc. Available templates:
         \(listing)
+        Only choose "\(fallbackName)" if the transcript truly matches none of the more specific \
+        templates above.
         Respond with ONLY one valid JSON object -- no markdown code fences, no commentary before \
         or after -- using exactly this key: "template" (string, the exact name of the best-fitting \
         template from the list above).
