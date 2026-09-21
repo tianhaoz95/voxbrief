@@ -31,6 +31,7 @@
 		29A7E9237247703B7C122B19 /* WatchSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF568BAA055854561F1C46D7 /* WatchSyncServiceTests.swift */; };
 		2D4CF8A23ED4AE84CB00AE5B /* WatchSyncStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE056827F75E2A918AABC197 /* WatchSyncStatusView.swift */; };
 		2EE6397EB9199A3EFDFE3F97 /* MacAddRecordingSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9ABAAFC8C134B12CC78DDF2 /* MacAddRecordingSheet.swift */; };
+		323928B1ACEEF960BF7791FA /* NoteCompletionNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B60172558E506D5CCB8962 /* NoteCompletionNotifier.swift */; };
 		34A5560EA93CB6451772516B /* NoteProcessingPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 692D6EB7A748E001F15872BD /* NoteProcessingPipelineTests.swift */; };
 		36FCFED4761E494C449A67EF /* SyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 196C6F6CC1AAC7FF5E616A8D /* SyncPayload.swift */; };
 		385DAF7EA122261732E3B57D /* NoteProcessingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */; };
@@ -220,6 +221,7 @@
 		31C3CF9D1D01A0040528A669 /* WatchMainRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMainRecordView.swift; sourceTree = "<group>"; };
 		38326DAFB38C97F2FF11D41B /* KeyboardHandoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardHandoff.swift; sourceTree = "<group>"; };
 		406D633D5C4879AF1E20107B /* NoteListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteListView.swift; sourceTree = "<group>"; };
+		41B60172558E506D5CCB8962 /* NoteCompletionNotifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteCompletionNotifier.swift; sourceTree = "<group>"; };
 		43B54E6F4FF7B03C6D263908 /* NoteMergePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteMergePickerSheet.swift; sourceTree = "<group>"; };
 		4564AD89AD5E44A1D2DBBA4A /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNoteActivityAttributes.swift; sourceTree = "<group>"; };
@@ -337,6 +339,7 @@
 				8C774501050A357DEB4FA1AA /* KeyboardSetupStatus.swift */,
 				DFEB07D6090DC24A5902E9AE /* LiveActivityManager.swift */,
 				AD147AE1BD15A3E6E9E9EA8C /* LLMCopywriterService.swift */,
+				41B60172558E506D5CCB8962 /* NoteCompletionNotifier.swift */,
 				1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */,
 				D04388B08F3A85CF017C8018 /* NoteRepository.swift */,
 				C41C69644021D649EBA14B88 /* OnDeviceLLMService.swift */,
@@ -969,6 +972,7 @@
 				97423C8D59C66715E3817F3A /* LLMCopywriterService.swift in Sources */,
 				D99F810CE255C259E1726018 /* LiveActivityManager.swift in Sources */,
 				8EFFC638DE223E39D228C688 /* MarkdownLiteText.swift in Sources */,
+				323928B1ACEEF960BF7791FA /* NoteCompletionNotifier.swift in Sources */,
 				A43DE437BF1B5614D5BAB5E7 /* NoteDetailView.swift in Sources */,
 				F39F847D156570E22EC28858 /* NoteDetailViewModel.swift in Sources */,
 				0B5921AC2A3160AAF042406A /* NoteListView.swift in Sources */,

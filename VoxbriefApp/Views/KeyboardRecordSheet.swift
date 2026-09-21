@@ -51,7 +51,10 @@ public struct KeyboardRecordSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(phase == .readyToPaste ? "Done" : "Cancel") {
+                    // "Cancel" only actually cancels anything during .recording -- once stopped,
+                    // processing is already committed and protected in the background (see
+                    // RecordingCoordinator), so this just dismisses the sheet from here on.
+                    Button(phase == .recording ? "Cancel" : "Close") {
                         if phase == .recording, recordingService.isRecording {
                             coordinator.cancelRecording()
                         }
@@ -124,6 +127,11 @@ public struct KeyboardRecordSheet: View {
             Text("Cleaning up your recording…")
                 .font(.headline)
                 .foregroundStyle(.secondary)
+            Text("You can switch back now -- Voxbrief will keep working, and you'll get a notification when it's ready to paste.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
     }
 
@@ -136,7 +144,7 @@ public struct KeyboardRecordSheet: View {
                 .foregroundStyle(.green)
             Text("Ready to paste")
                 .font(.title2.bold())
-            Text("Switch back to where you were typing -- tap the **‹ Back** button in the top-left corner -- and Voxbrief Keyboard will paste this in automatically.")
+            Text("Switch back to where you were typing -- tap the **‹ Back** button in the top-left corner -- and Voxbrief Keyboard will paste this in automatically. It's also on your clipboard, so a normal paste works with any keyboard.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -191,21 +199,29 @@ public struct KeyboardRecordSheet: View {
     }
 
     /// Polls the repository until Stage 1+2 finish (`finishRecording()` already kicked off
-    /// `pipeline.process(note:)`), then generates the light rewrite specifically for this flow --
-    /// a near-verbatim proofread reads far better pasted into a chat/note than the fully
-    /// restructured Markdown the full rewrite produces -- before handing the result to the
-    /// keyboard.
+    /// `pipeline.process(note:)`, protected by a background task so this survives the user
+    /// switching away -- see `RecordingCoordinator`), then generates the light rewrite
+    /// specifically for this flow -- a near-verbatim proofread reads far better pasted into a
+    /// chat/note than the fully restructured Markdown the full rewrite produces -- before handing
+    /// the result to the keyboard.
     private func waitForResultAndHandOff(noteId: UUID) async {
         while true {
             if let note = repository.note(withId: noteId) {
                 if note.status == .ready {
                     await pipeline.generateLightCleanup(noteId: noteId)
                     let finalNote = repository.note(withId: noteId) ?? note
-                    KeyboardHandoff.setPendingPaste(Self.bestPasteText(for: finalNote))
+                    let text = Self.bestPasteText(for: finalNote)
+                    KeyboardHandoff.setPendingPaste(text)
+                    // Also copies to the system clipboard -- if the user pastes with whatever
+                    // keyboard happens to be active, they don't have to switch specifically back
+                    // to Voxbrief Keyboard just for the auto-insert to fire.
+                    UIPasteboard.general.string = text
+                    NoteCompletionNotifier.notifyReady()
                     phase = .readyToPaste
                     return
                 } else if note.status == .failed {
                     errorMessage = note.errorMessage ?? "Processing failed."
+                    NoteCompletionNotifier.notifyFailed()
                     phase = .failed
                     return
                 }
