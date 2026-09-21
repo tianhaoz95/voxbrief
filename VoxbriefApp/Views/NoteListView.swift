@@ -6,7 +6,16 @@ public struct NoteListView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedDetailNote: VoiceNote? = nil
     @State private var selectedDetailTab: NoteDetailViewModel.DetailTab = .cleanedNote
-    @State private var showingKeyboardRecordSheet = false
+    /// `.sheet(item:)`, not `.sheet(isPresented:)` -- a second "keyboardRecord" deep link while
+    /// the sheet from a previous keyboard-triggered recording is still up (e.g. the user left via
+    /// the system back arrow instead of tapping Close, so it was never actually dismissed) needs
+    /// to force a genuinely fresh `KeyboardRecordSheet`, not just leave the stale one from last
+    /// time on screen. A bool toggled false-then-true in the same synchronous call (as
+    /// `applyNavigation` does) never observably changes from `.sheet(isPresented:)`'s point of
+    /// view, so the old sheet (and its already-`.readyToPaste` @State) never gets torn down. A
+    /// fresh, distinct id on every trigger guarantees SwiftUI always treats it as a new
+    /// presentation instead.
+    @State private var keyboardRecordTrigger: KeyboardRecordTrigger?
 
     public init() {}
 
@@ -137,7 +146,7 @@ public struct NoteListView: View {
             .sheet(isPresented: $viewModel.showingRecordSheet) {
                 QuickRecordSheet {}
             }
-            .sheet(isPresented: $showingKeyboardRecordSheet) {
+            .sheet(item: $keyboardRecordTrigger) { _ in
                 KeyboardRecordSheet()
             }
             .sheet(isPresented: $viewModel.showingSyncStatus) {
@@ -187,7 +196,7 @@ public struct NoteListView: View {
         viewModel.showingRecordSheet = false
         viewModel.showingSyncStatus = false
         viewModel.showingSettings = false
-        showingKeyboardRecordSheet = false
+        keyboardRecordTrigger = nil
         selectedDetailNote = nil
 
         switch screen {
@@ -206,7 +215,7 @@ public struct NoteListView: View {
         case "record":
             viewModel.showingRecordSheet = true
         case "keyboardRecord":
-            showingKeyboardRecordSheet = true
+            keyboardRecordTrigger = KeyboardRecordTrigger()
         case "settings":
             viewModel.showingSettings = true
         case "sync":
@@ -306,4 +315,12 @@ public struct NoteListView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+}
+
+/// A fresh, distinct instance is created on every `voxbrief://record?source=keyboard` deep link
+/// (see `NoteListView.applyNavigation`) specifically so `.sheet(item:)` always presents a brand
+/// new `KeyboardRecordSheet`, even if one from a previous keyboard-triggered recording was
+/// somehow still up.
+private struct KeyboardRecordTrigger: Identifiable {
+    let id = UUID()
 }
