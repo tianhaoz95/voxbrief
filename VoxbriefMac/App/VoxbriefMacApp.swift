@@ -105,8 +105,7 @@ private struct MenuBarContentView: View {
                 Button("Open Notes…") { openWindow(id: "notes") }
             } else {
                 Button("Grant Accessibility Access…") {
-                    accessibility.requestPrompt()
-                    accessibility.openSystemSettings()
+                    accessibility.requestAccessOrOpenSettings()
                 }
                 Text("Required for the global hotkey and paste.")
             }

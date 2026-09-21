@@ -44,7 +44,7 @@ struct PreferencesView: View {
                 permissionRow(
                     title: "Accessibility",
                     isGranted: accessibility.isTrusted,
-                    onFix: accessibility.isTrusted ? nil : { accessibility.requestPrompt(); accessibility.openSystemSettings() }
+                    onFix: accessibility.isTrusted ? nil : { accessibility.requestAccessOrOpenSettings() }
                 )
             }
 
