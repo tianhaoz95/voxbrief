@@ -73,7 +73,18 @@ struct OverlayView: View {
                 }
             }
             .buttonStyle(.bordered)
-        case .idle, .success, .failed:
+        case .failed:
+            // Otherwise this HUD has zero interactive controls and the user's only way out is a
+            // hardcoded 1.6s timer (`CaptureCoordinator.scheduleReturnToIdle`) -- if anything ever
+            // delays or skips that (e.g. a superseding capture bumping `generation` without itself
+            // reaching idle), there is no way to dismiss it by hand.
+            Button(role: .cancel) {
+                coordinator.cancelCapture()
+            } label: {
+                Label("Dismiss", systemImage: "xmark")
+            }
+            .buttonStyle(.bordered)
+        case .idle, .success:
             EmptyView()
         }
     }

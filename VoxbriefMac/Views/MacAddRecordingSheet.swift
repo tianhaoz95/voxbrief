@@ -49,7 +49,14 @@ struct MacAddRecordingSheet: View {
             .keyboardShortcut(.cancelAction)
         }
         .padding(24)
-        .frame(width: 360, height: 360)
+        // Fixed width only -- NOT a fixed height. The content (headline + duration + the 187pt-tall
+        // `CaptureWaveformView` + footnote + the optional permission-failure banner + Cancel button,
+        // with 28pt spacing between each) needs ~520-590pt depending on whether the failure banner is
+        // showing, well past a naive 360pt. SwiftUI does not clip a VStack that overflows a fixed
+        // `.frame(height:)` -- it silently renders past the window's bottom edge, which was pushing
+        // the Cancel button off-window entirely: present in the view tree, but below the visible sheet
+        // and unclickable. Letting height size to content is what actually keeps Cancel reachable.
+        .frame(width: 360)
         .onAppear { coordinator.beginCapture(appendingTo: noteId) }
         .onChange(of: coordinator.state) { _, newState in
             if newState == .success {
