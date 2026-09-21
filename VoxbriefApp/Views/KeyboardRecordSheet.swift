@@ -116,6 +116,12 @@ public struct KeyboardRecordSheet: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
+            Text("Heads up: iOS hides the **‹ Back** button in the top-left after a bit. If it's gone when you're done, just switch apps manually (hold the home indicator, or double-click Home) -- your note will be waiting on the clipboard either way.")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
             if let errorMessage {
                 Text(errorMessage)
                     .font(.caption)

@@ -77,6 +77,12 @@ public final class KeyboardViewController: UIInputViewController {
     }
 
     private func handle(_ key: KeyboardKey) {
+        // The dedicated API for a custom keyboard's key-tap feedback (click sound + light haptic
+        // on supported hardware) -- unlike UIImpactFeedbackGenerator/UISelectionFeedbackGenerator,
+        // this works without Full Access, since most users never grant it and Apple designed this
+        // specifically so third-party keyboards aren't stuck silent by default. Respects the
+        // user's own Settings > Sounds > Keyboard Clicks preference automatically.
+        UIDevice.current.playInputClick()
         switch key {
         case .character(let text):
             textDocumentProxy.insertText(text)

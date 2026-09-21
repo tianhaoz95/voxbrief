@@ -129,6 +129,7 @@ struct KeyboardView: View {
 
     private var shiftKey: some View {
         Button {
+            UIDevice.current.playInputClick()
             isShifted.toggle()
         } label: {
             Image(systemName: isShifted ? "shift.fill" : "shift")
@@ -152,6 +153,7 @@ struct KeyboardView: View {
     private var bottomRow: some View {
         HStack(spacing: 6) {
             Button {
+                UIDevice.current.playInputClick()
                 page = (page == .letters) ? .numbers : .letters
             } label: {
                 Text(page == .letters ? "123" : "ABC")
@@ -161,7 +163,10 @@ struct KeyboardView: View {
             }
             .buttonStyle(.plain)
 
-            Button(action: onNextKeyboard) {
+            Button {
+                UIDevice.current.playInputClick()
+                onNextKeyboard()
+            } label: {
                 Image(systemName: "globe")
                     .frame(width: 40, height: 42)
                     .background(Color(UIColor.systemGray3), in: RoundedRectangle(cornerRadius: 6))
