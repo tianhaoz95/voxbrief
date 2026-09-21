@@ -27,11 +27,18 @@ fileprivate final class MockASRService: ASRServiceProtocol {
 fileprivate final class MockLLMCopywriterService: LLMCopywriterServiceProtocol, @unchecked Sendable {
     private(set) var receivedDictionaries: [[DictionaryEntry]] = []
     private(set) var receivedTranscripts: [String] = []
+    private(set) var receivedTemplates: [[NoteTemplate]] = []
     private(set) var warmUpCallCount = 0
+    /// Set by a test to make `process(note:)`/`reprocessStage2` copy specific template fields
+    /// onto the resulting note, for asserting the pipeline threads them through correctly.
+    var stubSections: [TemplateSectionContent] = []
+    var stubTemplateId: UUID?
+    var stubTemplateName: String = ""
 
-    func processTranscript(_ rawTranscript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+    func processTranscript(_ rawTranscript: String, mode: RewriteMode, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
         receivedDictionaries.append(dictionary)
         receivedTranscripts.append(rawTranscript)
+        receivedTemplates.append(templates)
         return LLMProcessingResult(
             title: "Mock Title",
             summary: "Mock Summary",
@@ -40,7 +47,10 @@ fileprivate final class MockLLMCopywriterService: LLMCopywriterServiceProtocol, 
             actionItems: [],
             cleanedMarkdown: "mock markdown",
             tags: [],
-            engine: "mock"
+            engine: "mock",
+            sections: stubSections,
+            templateId: stubTemplateId,
+            templateName: stubTemplateName
         )
     }
 
@@ -56,16 +66,19 @@ final class NoteProcessingPipelineTests: XCTestCase {
     fileprivate var mockLLM: MockLLMCopywriterService!
     var repository: NoteRepository!
     var dictionaryStore: PersonalDictionaryStore!
+    var templateStore: TemplateStore!
     var pipeline: NoteProcessingPipeline!
 
     var repositoryStorageURL: URL!
     var dictionaryStorageURL: URL!
+    var templateStorageURL: URL!
 
     override func setUp() {
         super.setUp()
         let tempDir = FileManager.default.temporaryDirectory
         repositoryStorageURL = tempDir.appendingPathComponent("test_pipeline_notes_\(UUID().uuidString).json")
         dictionaryStorageURL = tempDir.appendingPathComponent("test_pipeline_dictionary_\(UUID().uuidString).json")
+        templateStorageURL = tempDir.appendingPathComponent("test_pipeline_templates_\(UUID().uuidString).json")
 
         mockASR = MockASRService()
         mockLLM = MockLLMCopywriterService()
@@ -73,19 +86,22 @@ final class NoteProcessingPipelineTests: XCTestCase {
         dictionaryStore = PersonalDictionaryStore(customStorageURL: dictionaryStorageURL)
         dictionaryStore.add(term: "Voxbrief", aliases: ["fox brief"])
         dictionaryStore.add(term: "Kubernetes")
+        templateStore = TemplateStore(customStorageURL: templateStorageURL)
 
         pipeline = NoteProcessingPipeline(
             asrService: mockASR,
             llmService: mockLLM,
             repository: repository,
             audioFileManager: AudioFileManager(),
-            dictionaryStore: dictionaryStore
+            dictionaryStore: dictionaryStore,
+            templateStore: templateStore
         )
     }
 
     override func tearDown() {
         try? FileManager.default.removeItem(at: repositoryStorageURL)
         try? FileManager.default.removeItem(at: dictionaryStorageURL)
+        try? FileManager.default.removeItem(at: templateStorageURL)
         super.tearDown()
     }
 
@@ -96,6 +112,24 @@ final class NoteProcessingPipelineTests: XCTestCase {
         await pipeline.process(note: note)
 
         XCTAssertEqual(Set(mockASR.receivedVocabulary), Set(["Voxbrief", "Kubernetes"]))
+    }
+
+    func testProcessCopiesTemplateFieldsFromLLMResultOntoTheNote() async {
+        let templateId = UUID()
+        mockLLM.stubSections = [TemplateSectionContent(title: "Subject", style: .paragraph, items: ["Team sync notes"])]
+        mockLLM.stubTemplateId = templateId
+        mockLLM.stubTemplateName = "Email"
+
+        let note = VoiceNote(id: UUID(), audioFileName: "recording.m4a", status: .syncing)
+        repository.save(note)
+
+        await pipeline.process(note: note)
+
+        let saved = repository.note(withId: note.id)
+        XCTAssertEqual(saved?.templateSections, mockLLM.stubSections)
+        XCTAssertEqual(saved?.templateId, templateId)
+        XCTAssertEqual(saved?.templateName, "Email")
+        XCTAssertEqual(mockLLM.receivedTemplates.last?.count, templateStore.allTemplates.count, "process() should pass the full available template set")
     }
 
     func testProcessOnlyRunsTheFullRewriteNotLight() async {

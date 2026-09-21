@@ -190,4 +190,151 @@ final class LLMCopywriterServiceTests: XCTestCase {
 
         XCTAssertFalse(result.requirements.isEmpty)
     }
+
+    // MARK: - Multi-template classification & generation
+    //
+    // `processTranscript` never reaches `processWithOnDeviceLLMFull` itself on the Simulator
+    // (where these tests run) -- OnDeviceLLMService.isSupportedOnThisDevice is false there, so
+    // every test above actually exercises the rule-based fallback. These helpers are tested
+    // directly instead, as small, pure, data-in/data-out functions independent of
+    // OnDeviceLLMService.shared.generate -- the same reasoning dictionaryInstructionBlock's own
+    // `internal` visibility already established.
+
+    func testResolveTemplateExactNameMatch() {
+        let raw = "{\"template\": \"Email\"}"
+        let resolved = service.resolveTemplate(fromClassificationRaw: raw, candidates: NoteTemplate.builtIns, fallback: NoteTemplate.generalNotes)
+
+        XCTAssertEqual(resolved.id, NoteTemplate.email.id)
+    }
+
+    func testResolveTemplateCaseInsensitiveMatch() {
+        let raw = "{\"template\": \"short tweet\"}"
+        let resolved = service.resolveTemplate(fromClassificationRaw: raw, candidates: NoteTemplate.builtIns, fallback: NoteTemplate.generalNotes)
+
+        XCTAssertEqual(resolved.id, NoteTemplate.shortTweet.id)
+    }
+
+    func testResolveTemplateFallsBackOnUnknownName() {
+        let raw = "{\"template\": \"Something Made Up\"}"
+        let resolved = service.resolveTemplate(fromClassificationRaw: raw, candidates: NoteTemplate.builtIns, fallback: NoteTemplate.generalNotes)
+
+        XCTAssertEqual(resolved.id, NoteTemplate.generalNotes.id)
+    }
+
+    func testResolveTemplateFallsBackOnUnparsableResponse() {
+        let raw = "not json at all"
+        let resolved = service.resolveTemplate(fromClassificationRaw: raw, candidates: NoteTemplate.builtIns, fallback: NoteTemplate.generalNotes)
+
+        XCTAssertEqual(resolved.id, NoteTemplate.generalNotes.id)
+    }
+
+    func testBuildClassificationSystemPromptListsEveryTemplate() {
+        let prompt = service.buildClassificationSystemPrompt(templates: NoteTemplate.builtIns)
+
+        for template in NoteTemplate.builtIns {
+            XCTAssertTrue(prompt.contains(template.name), "Prompt should list \(template.name)")
+            XCTAssertTrue(prompt.contains(template.summary), "Prompt should list \(template.name)'s summary")
+        }
+    }
+
+    func testBuildGenerationSystemPromptContainsSectionFieldKeysAndInstructions() {
+        let prompt = service.buildGenerationSystemPrompt(template: NoteTemplate.email, dictionary: [])
+
+        XCTAssertTrue(prompt.contains("\"subject\""))
+        XCTAssertTrue(prompt.contains("\"body\""))
+        XCTAssertTrue(prompt.contains(NoteTemplate.email.sections[0].instructions))
+    }
+
+    func testBuildGenerationSystemPromptIncludesDictionaryBlockWhenNonEmpty() {
+        let dictionary = [DictionaryEntry(term: "Voxbrief")]
+        let prompt = service.buildGenerationSystemPrompt(template: NoteTemplate.generalNotes, dictionary: dictionary)
+
+        XCTAssertTrue(prompt.contains("Voxbrief"))
+    }
+
+    func testParseGenerationResponseExtractsArraySections() throws {
+        let raw = """
+        {"title": "Ship the feature", "summary": "A quick update", "requirements": ["Ship it"], "conditions": [], "actionItems": [], "tags": ["#Tasks"]}
+        """
+        let parsed = try service.parseGenerationResponse(raw, template: NoteTemplate.designDoc)
+
+        XCTAssertEqual(parsed.title, "Ship the feature")
+        XCTAssertEqual(parsed.summary, "A quick update")
+        XCTAssertEqual(parsed.tags, ["#Tasks"])
+        XCTAssertEqual(parsed.sections.first(where: { $0.title == NoteTemplate.designDoc.sections[0].title })?.items, ["Ship it"])
+    }
+
+    func testParseGenerationResponseAcceptsBareStringForParagraphSection() throws {
+        let raw = """
+        {"title": "Quick note", "summary": "A quick note", "notes": "Just a single paragraph of prose.", "tags": []}
+        """
+        let parsed = try service.parseGenerationResponse(raw, template: NoteTemplate.generalNotes)
+
+        XCTAssertEqual(parsed.sections.first?.items, ["Just a single paragraph of prose."])
+    }
+
+    func testParseGenerationResponseDefaultsMissingSectionToEmpty() throws {
+        let raw = """
+        {"title": "Quick note", "summary": "A quick note", "tags": []}
+        """
+        let parsed = try service.parseGenerationResponse(raw, template: NoteTemplate.generalNotes)
+
+        XCTAssertEqual(parsed.sections.first?.items, [])
+    }
+
+    func testParseGenerationResponseThrowsOnUnparsableText() {
+        XCTAssertThrowsError(try service.parseGenerationResponse("not json at all", template: NoteTemplate.generalNotes))
+    }
+
+    func testAssembleMarkdownRendersEachSectionStyleCorrectly() {
+        let sections = [
+            TemplateSectionContent(title: "Bullets", style: .bullet, items: ["One", "Two"]),
+            TemplateSectionContent(title: "Numbers", style: .numbered, items: ["One", "Two"]),
+            TemplateSectionContent(title: "Checks", style: .checklist, items: ["One"]),
+            TemplateSectionContent(title: "Prose", style: .paragraph, items: ["One sentence."])
+        ]
+        let markdown = service.assembleMarkdown(title: "Title", summary: "Summary", sections: sections)
+
+        XCTAssertTrue(markdown.contains("- One\n- Two"))
+        XCTAssertTrue(markdown.contains("1. One\n2. Two"))
+        XCTAssertTrue(markdown.contains("- [ ] One"))
+        XCTAssertTrue(markdown.contains("One sentence."))
+    }
+
+    /// Regression pin: a Design-Doc-shaped `sections` array must still produce byte-identical
+    /// markdown to what the old fixed three-block `assembleMarkdown` produced.
+    func testAssembleMarkdownDesignDocShapeMatchesOriginalFormat() {
+        let sections = [
+            TemplateSectionContent(title: NoteTemplate.designDoc.sections[0].title, style: .bullet, items: ["Ship it"]),
+            TemplateSectionContent(title: NoteTemplate.designDoc.sections[1].title, style: .numbered, items: ["If X then Y"]),
+            TemplateSectionContent(title: NoteTemplate.designDoc.sections[2].title, style: .checklist, items: ["Follow up"])
+        ]
+        let markdown = service.assembleMarkdown(title: "Title", summary: "Summary", sections: sections)
+
+        XCTAssertTrue(markdown.contains("### 🎯 Requirements\n- Ship it"))
+        XCTAssertTrue(markdown.contains("### 🔢 Enumerated Conditions & Workflow\n1. If X then Y"))
+        XCTAssertTrue(markdown.contains("### ✅ Action Items\n- [ ] Follow up"))
+    }
+
+    func testLegacyFieldsDerivesArraysFromDesignDocSections() {
+        let sections = [
+            TemplateSectionContent(title: NoteTemplate.designDoc.sections[0].title, style: .bullet, items: ["Req A"]),
+            TemplateSectionContent(title: NoteTemplate.designDoc.sections[1].title, style: .numbered, items: ["Cond A"]),
+            TemplateSectionContent(title: NoteTemplate.designDoc.sections[2].title, style: .checklist, items: ["Action A"])
+        ]
+        let (requirements, conditions, actionItems) = LLMCopywriterService.legacyFields(from: sections)
+
+        XCTAssertEqual(requirements, ["Req A"])
+        XCTAssertEqual(conditions, ["Cond A"])
+        XCTAssertEqual(actionItems, ["Action A"])
+    }
+
+    func testLegacyFieldsEmptyForNonDesignDocSections() {
+        let sections = [TemplateSectionContent(title: "Body", style: .paragraph, items: ["Some email body."])]
+        let (requirements, conditions, actionItems) = LLMCopywriterService.legacyFields(from: sections)
+
+        XCTAssertEqual(requirements, [])
+        XCTAssertEqual(conditions, [])
+        XCTAssertEqual(actionItems, [])
+    }
 }

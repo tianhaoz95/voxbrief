@@ -9,6 +9,7 @@ public struct SettingsView: View {
     @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
     @StateObject private var llmService = OnDeviceLLMService.shared
     @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
+    @StateObject private var templateStore = TemplateStore.shared
     @State private var showingSimulationAlert = false
     @State private var simulatedTitle = ""
     @State private var keyboardStatus: KeyboardSetupStatus = .notAdded
@@ -110,6 +111,22 @@ public struct SettingsView: View {
                             Label("Manage Terms", systemImage: "text.book.closed")
                             Spacer()
                             Text("\(dictionaryStore.entries.count)")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
+                Section(
+                    header: Text("Templates"),
+                    footer: Text("Voxbrief automatically picks the best-fitting template (Design Doc, Email, Short Tweet, General Notes, or one of your own) for each note's Stage 2 rewrite. Add your own to teach it a new format.")
+                ) {
+                    NavigationLink {
+                        TemplatesView(store: templateStore)
+                    } label: {
+                        HStack {
+                            Label("Manage Templates", systemImage: "doc.text")
+                            Spacer()
+                            Text("\(templateStore.allTemplates.count)")
                                 .foregroundColor(.secondary)
                         }
                     }

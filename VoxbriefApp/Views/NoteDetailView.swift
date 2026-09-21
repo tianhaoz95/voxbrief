@@ -389,16 +389,14 @@ public struct NoteDetailView: View {
 
     private var cleanedNoteSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if !viewModel.note.requirements.isEmpty {
-                infoCard(icon: "target", tint: .purple, title: "Requirements", items: viewModel.note.requirements, marker: .bullet)
-            }
-
-            if !viewModel.note.conditions.isEmpty {
-                infoCard(icon: "list.number", tint: .orange, title: "Conditions & Flow", items: viewModel.note.conditions, marker: .number)
-            }
-
-            if !viewModel.note.actionItems.isEmpty {
-                infoCard(icon: "checkmark", tint: .green, title: "Action Items", items: viewModel.note.actionItems, marker: .checkbox)
+            ForEach(Array(viewModel.note.effectiveTemplateSections.enumerated()), id: \.offset) { _, section in
+                infoCard(
+                    icon: icon(for: section.style),
+                    tint: tint(for: section.style),
+                    title: section.title,
+                    items: section.items,
+                    marker: marker(for: section.style)
+                )
             }
 
             VStack(alignment: .leading, spacing: 12) {
@@ -472,7 +470,40 @@ public struct NoteDetailView: View {
     }
 
     private enum ItemMarker {
-        case bullet, number, checkbox
+        case bullet, number, checkbox, plain
+    }
+
+    /// Maps a `TemplateSectionStyle` (from `viewModel.note.effectiveTemplateSections`) to this
+    /// view's own icon/tint/marker scheme -- kept as a separate small mapping rather than storing
+    /// icon/tint/marker directly on `TemplateSectionContent`, since those are presentation
+    /// concerns specific to this one view, not part of what Stage 2 actually generates. The
+    /// Design Doc template's three sections map to exactly the icons/tints/markers this view used
+    /// before multi-template support existed, so its visual output is unchanged.
+    private func icon(for style: TemplateSectionStyle) -> String {
+        switch style {
+        case .bullet: return "target"
+        case .numbered: return "list.number"
+        case .checklist: return "checkmark"
+        case .paragraph: return "text.alignleft"
+        }
+    }
+
+    private func tint(for style: TemplateSectionStyle) -> Color {
+        switch style {
+        case .bullet: return .purple
+        case .numbered: return .orange
+        case .checklist: return .green
+        case .paragraph: return .blue
+        }
+    }
+
+    private func marker(for style: TemplateSectionStyle) -> ItemMarker {
+        switch style {
+        case .bullet: return .bullet
+        case .numbered: return .number
+        case .checklist: return .checkbox
+        case .paragraph: return .plain
+        }
     }
 
     private func copyButton(text: String, field: CopyField) -> some View {
@@ -552,6 +583,8 @@ public struct NoteDetailView: View {
                 .font(.system(size: 15))
                 .foregroundStyle(tint)
                 .padding(.top, 1)
+        case .plain:
+            EmptyView()
         }
     }
 

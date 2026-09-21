@@ -27,12 +27,23 @@ public enum RewriteMode: Sendable {
 public struct LLMProcessingResult: Sendable, Codable {
     public let title: String
     public let summary: String
+    /// Legacy fields kept for backward compatibility (search, `NoteDetailView`'s pre-multi-
+    /// template rendering path) -- for the `.full` mode's on-device/Ollama paths these are now
+    /// derived from `sections` by matching the Design Doc template's fixed section titles, so
+    /// they're only ever non-empty when that specific template was chosen. Rule-based `.full`
+    /// output (`transformLocally`) always uses Design Doc, so these stay populated exactly as
+    /// before for that path.
     public let requirements: [String]
     public let conditions: [String]
     public let actionItems: [String]
     public let cleanedMarkdown: String
     public let tags: [String]
     public let engine: String
+    /// General-purpose structured content for whichever `NoteTemplate` was used -- empty for
+    /// `.light` mode (no template concept) and for any caller not yet updated to pass templates.
+    public let sections: [TemplateSectionContent]
+    public let templateId: UUID?
+    public let templateName: String
 
     public init(
         title: String,
@@ -42,7 +53,10 @@ public struct LLMProcessingResult: Sendable, Codable {
         actionItems: [String],
         cleanedMarkdown: String,
         tags: [String],
-        engine: String
+        engine: String,
+        sections: [TemplateSectionContent] = [],
+        templateId: UUID? = nil,
+        templateName: String = ""
     ) {
         self.title = title
         self.summary = summary
@@ -52,13 +66,19 @@ public struct LLMProcessingResult: Sendable, Codable {
         self.cleanedMarkdown = cleanedMarkdown
         self.tags = tags
         self.engine = engine
+        self.sections = sections
+        self.templateId = templateId
+        self.templateName = templateName
     }
 }
 
 public protocol LLMCopywriterServiceProtocol: Sendable {
     /// `dictionary` is the user's personal jargon/proper-noun list (see `DictionaryEntry`),
     /// injected into the LLM prompt as terms to preserve verbatim. Pass `[]` for none.
-    func processTranscript(_ rawTranscript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult
+    /// `templates` is the available set of output templates (built-in + user-defined, see
+    /// `NoteTemplate`/`TemplateStore`) the LLM picks from for `.full` mode -- ignored by `.light`
+    /// mode, and treated as `NoteTemplate.builtIns` if passed empty.
+    func processTranscript(_ rawTranscript: String, mode: RewriteMode, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult
 
     /// Best-effort: starts loading whichever engine would actually serve the next call now,
     /// rather than paying that cost inline on first real use. A no-op is a valid, always-safe
@@ -93,11 +113,11 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     }
 
     /// Processes a raw speech transcript through Stage 2 LLM cleanup and copywriting.
-    /// `mode` defaults to `.full` and `dictionary` defaults to `[]` (today's behavior) so
-    /// existing call sites on the concrete type don't need to change; callers through
-    /// `LLMCopywriterServiceProtocol` must pass both explicitly since protocol requirements
-    /// can't carry default argument values.
-    public func processTranscript(_ rawTranscript: String, mode: RewriteMode = .full, dictionary: [DictionaryEntry] = []) async throws -> LLMProcessingResult {
+    /// `mode` defaults to `.full`, `dictionary`/`templates` default to `[]` (today's behavior,
+    /// plus "use the built-in templates" for `templates`) so existing call sites on the concrete
+    /// type don't need to change; callers through `LLMCopywriterServiceProtocol` must pass all
+    /// three explicitly since protocol requirements can't carry default argument values.
+    public func processTranscript(_ rawTranscript: String, mode: RewriteMode = .full, dictionary: [DictionaryEntry] = [], templates: [NoteTemplate] = []) async throws -> LLMProcessingResult {
         let trimmed = rawTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return LLMProcessingResult(
@@ -118,7 +138,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
            let endpointString = UserDefaults.standard.string(forKey: "local_llm_endpoint_url"),
            let endpointURL = URL(string: endpointString) {
             do {
-                return try await callLocalLLMEndpoint(url: endpointURL, transcript: trimmed, mode: mode, dictionary: dictionary)
+                return try await callLocalLLMEndpoint(url: endpointURL, transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
             } catch {
                 print("[LLMCopywriterService] Local LLM endpoint failed, falling back: \(error)")
             }
@@ -127,7 +147,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         // 2. On-device LLM via MLX Swift -- the bundled Qwen3-0.6B model is always available;
         //    the larger downloaded Qwen3-4B model (see Settings) is used automatically once ready.
         do {
-            return try await processWithOnDeviceLLM(transcript: trimmed, mode: mode, dictionary: dictionary)
+            return try await processWithOnDeviceLLM(transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
         } catch {
             print("[LLMCopywriterService] On-device LLM failed, falling back to rule-based transformer: \(error)")
         }
@@ -143,15 +163,6 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
 
     // MARK: - On-Device LLM (MLX Swift + Qwen3)
 
-    private struct OnDeviceLLMJSONResult: Decodable {
-        var title: String?
-        var summary: String?
-        var requirements: [String]?
-        var conditions: [String]?
-        var actionItems: [String]?
-        var tags: [String]?
-    }
-
     private struct OnDeviceLLMLightJSONResult: Decodable {
         var title: String?
         var summary: String?
@@ -159,60 +170,55 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         var tags: [String]?
     }
 
-    private func processWithOnDeviceLLM(transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+    private func processWithOnDeviceLLM(transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
         switch mode {
         case .full:
-            return try await processWithOnDeviceLLMFull(transcript: transcript, dictionary: dictionary)
+            return try await processWithOnDeviceLLMFull(transcript: transcript, dictionary: dictionary, templates: templates)
         case .light:
             return try await processWithOnDeviceLLMLight(transcript: transcript, dictionary: dictionary)
         }
     }
 
-    private func processWithOnDeviceLLMFull(transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
-        let systemPrompt = """
-        You convert a rough spoken voice-memo transcript into structured notes. Respond with ONLY \
-        one valid JSON object -- no markdown code fences, no commentary before or after -- using \
-        exactly these keys: "title" (string, 8 words or fewer), "summary" (one sentence string), \
-        "requirements" (array of strings), "conditions" (array of strings describing sequential \
-        steps or if/then logic), "actionItems" (array of strings), "tags" (array of short hashtags \
-        starting with #). Use an empty array for any category with nothing to report. Fix grammar \
-        and remove filler words in every string.\(dictionaryInstructionBlock(dictionary))
-        """
+    /// Two on-device calls instead of one: first classify which template best fits this
+    /// transcript (a short completion -- cheap even though it's a second round trip, since
+    /// `OnDeviceLLMService` caches the loaded model after first use, so this only costs a second
+    /// generation pass, not a cold load), then generate content using only that one template's
+    /// schema. Deliberately not a single combined prompt: asking a small on-device model to hold
+    /// every template's schema in context simultaneously and self-select is exactly the kind of
+    /// capacity strain multi-template support needs to avoid.
+    private func processWithOnDeviceLLMFull(transcript: String, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
+        let availableTemplates = templates.isEmpty ? NoteTemplate.builtIns : templates
 
-        let raw = try await OnDeviceLLMService.shared.generate(systemPrompt: systemPrompt, userPrompt: transcript)
+        let classificationRaw = try await OnDeviceLLMService.shared.generate(
+            systemPrompt: buildClassificationSystemPrompt(templates: availableTemplates),
+            userPrompt: transcript,
+            maxTokens: 24
+        )
+        let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: NoteTemplate.fallbackDefault)
 
-        guard let jsonSubstring = Self.extractJSONObject(from: raw) else {
-            throw LLMCopywriterError.unparsableResponse
-        }
-        let decoded = try JSONDecoder().decode(OnDeviceLLMJSONResult.self, from: Data(jsonSubstring.utf8))
+        let generationRaw = try await OnDeviceLLMService.shared.generate(
+            systemPrompt: buildGenerationSystemPrompt(template: chosenTemplate, dictionary: dictionary),
+            userPrompt: transcript
+        )
+        let parsed = try parseGenerationResponse(generationRaw, template: chosenTemplate)
 
         let title: String
-        if let candidate = decoded.title?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+        if let candidate = parsed.title?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
             title = candidate
         } else {
             title = generateTitle(from: splitIntoSentences(sanitizeSpeechTranscript(transcript)), raw: transcript)
         }
 
         let summary: String
-        if let candidate = decoded.summary?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+        if let candidate = parsed.summary?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
             summary = candidate
         } else {
             summary = "Voice memo captured and structured on-device."
         }
 
-        let requirements = decoded.requirements ?? []
-        let conditions = decoded.conditions ?? []
-        let actionItems = decoded.actionItems ?? []
-        let tags = (decoded.tags?.isEmpty == false) ? decoded.tags! : extractTags(from: transcript)
-
-        let markdown = assembleMarkdown(
-            title: title,
-            summary: summary,
-            requirements: requirements,
-            conditions: conditions,
-            actionItems: actionItems,
-            generalPoints: []
-        )
+        let tags = (parsed.tags?.isEmpty == false) ? parsed.tags! : extractTags(from: transcript)
+        let (requirements, conditions, actionItems) = Self.legacyFields(from: parsed.sections)
+        let markdown = assembleMarkdown(title: title, summary: summary, sections: parsed.sections)
 
         return LLMProcessingResult(
             title: title,
@@ -222,8 +228,125 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             actionItems: actionItems,
             cleanedMarkdown: markdown,
             tags: tags,
-            engine: CleanupEngineLabel.onDeviceLLM(model: await OnDeviceLLMService.shared.activeModelDisplayName)
+            engine: CleanupEngineLabel.onDeviceLLM(model: await OnDeviceLLMService.shared.activeModelDisplayName),
+            sections: parsed.sections,
+            templateId: chosenTemplate.id,
+            templateName: chosenTemplate.name
         )
+    }
+
+    // MARK: - Multi-template classification & generation
+
+    private struct TemplateClassificationJSON: Decodable {
+        var template: String?
+    }
+
+    private struct GenerationUniversalFields: Decodable {
+        var title: String?
+        var summary: String?
+        var tags: [String]?
+    }
+
+    /// Builds the system prompt for step A (classify): lists every available template's name and
+    /// summary, asks for only `{"template": "<exact name>"}` in response -- a short, single-
+    /// purpose completion, deliberately simpler than asking the model to also generate content
+    /// in the same call. `internal` (not `private`) so it's directly unit-testable, matching
+    /// `dictionaryInstructionBlock`'s existing precedent.
+    func buildClassificationSystemPrompt(templates: [NoteTemplate]) -> String {
+        let listing = templates.map { "- \"\($0.name)\": \($0.summary)" }.joined(separator: "\n")
+        return """
+        You choose which note-taking template best fits a spoken voice-memo transcript. Available templates:
+        \(listing)
+        Respond with ONLY one valid JSON object -- no markdown code fences, no commentary before \
+        or after -- using exactly this key: "template" (string, the exact name of the best-fitting \
+        template from the list above).
+        """
+    }
+
+    /// Resolves step A's raw model output into one of `candidates`, falling back to `fallback` if
+    /// the response can't be parsed or doesn't match any known template by name (case-
+    /// insensitive). `internal` for direct unit testing, no LLM call involved.
+    func resolveTemplate(fromClassificationRaw raw: String, candidates: [NoteTemplate], fallback: NoteTemplate) -> NoteTemplate {
+        guard let jsonSubstring = Self.extractJSONObject(from: raw),
+              let decoded = try? JSONDecoder().decode(TemplateClassificationJSON.self, from: Data(jsonSubstring.utf8)),
+              let name = decoded.template?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty else {
+            return fallback
+        }
+        return candidates.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) ?? fallback
+    }
+
+    /// Builds the system prompt for step B (generate): universal `title`/`summary`/`tags` keys
+    /// always present, plus one key per `template.sections` (keyed by `fieldKey`, guided by
+    /// `instructions`) -- a direct generalization of what used to be a hardcoded 4-key prompt.
+    /// `internal` for direct unit testing.
+    func buildGenerationSystemPrompt(template: NoteTemplate, dictionary: [DictionaryEntry]) -> String {
+        let sectionLines = template.sections.map { section -> String in
+            let trimmedInstructions = section.instructions.trimmingCharacters(in: .whitespacesAndNewlines)
+            let instructions = trimmedInstructions.isEmpty ? "Free-form content relevant to this section." : trimmedInstructions
+            switch section.style {
+            case .paragraph:
+                return "\"\(section.fieldKey)\" (string: \(instructions))"
+            case .bullet, .numbered, .checklist:
+                return "\"\(section.fieldKey)\" (array of strings: \(instructions))"
+            }
+        }.joined(separator: ", ")
+
+        return """
+        You convert a rough spoken voice-memo transcript into structured notes using the \
+        "\(template.name)" format. Respond with ONLY one valid JSON object -- no markdown code \
+        fences, no commentary before or after -- using exactly these keys: "title" (string, 8 \
+        words or fewer), "summary" (one sentence string), \(sectionLines), "tags" (array of short \
+        hashtags starting with #). Use an empty array or empty string for any category with \
+        nothing to report. Fix grammar and remove filler words in every \
+        string.\(dictionaryInstructionBlock(dictionary))
+        """
+    }
+
+    /// Parses step B's raw model output. Universal fields decode via a small `Decodable` type,
+    /// but each template section's own field can't (its key isn't known at compile time), so
+    /// this reads the same JSON via `JSONSerialization` instead and looks each one up by
+    /// `fieldKey` -- the same style `callLocalLLMEndpoint` already uses for its own request/
+    /// response handling, so no new decoding idiom is introduced. Accepts either an array of
+    /// strings or a bare string per section (a small model may emit either shape for what's
+    /// conceptually "one blob of prose" in a `.paragraph`-style section). Throws only if the
+    /// outer JSON object itself can't be extracted at all; a missing/malformed individual
+    /// section degrades to an empty array rather than failing the whole response. `internal`
+    /// for direct unit testing.
+    func parseGenerationResponse(_ raw: String, template: NoteTemplate) throws -> (title: String?, summary: String?, tags: [String]?, sections: [TemplateSectionContent]) {
+        guard let jsonSubstring = Self.extractJSONObject(from: raw) else {
+            throw LLMCopywriterError.unparsableResponse
+        }
+        let jsonData = Data(jsonSubstring.utf8)
+        let universal = try? JSONDecoder().decode(GenerationUniversalFields.self, from: jsonData)
+        let rawObject = (try? JSONSerialization.jsonObject(with: jsonData)) as? [String: Any]
+
+        let sections: [TemplateSectionContent] = template.sections.map { section in
+            let items: [String]
+            switch rawObject?[section.fieldKey] {
+            case let array as [String]:
+                items = array
+            case let text as String:
+                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                items = trimmed.isEmpty ? [] : [trimmed]
+            default:
+                items = []
+            }
+            return TemplateSectionContent(title: section.title, style: section.style, items: items)
+        }
+
+        return (universal?.title, universal?.summary, universal?.tags, sections)
+    }
+
+    /// Derives the legacy `requirements`/`conditions`/`actionItems` arrays from a generic
+    /// `sections` array, by matching the Design Doc built-in template's fixed section titles --
+    /// works automatically whenever that template was chosen (built-in templates can't be
+    /// renamed, so this match is reliable), and correctly comes back empty for every other
+    /// template. `internal` for direct unit testing.
+    static func legacyFields(from sections: [TemplateSectionContent]) -> (requirements: [String], conditions: [String], actionItems: [String]) {
+        let requirements = sections.first(where: { $0.title == NoteTemplate.designDoc.sections[0].title })?.items ?? []
+        let conditions = sections.first(where: { $0.title == NoteTemplate.designDoc.sections[1].title })?.items ?? []
+        let actionItems = sections.first(where: { $0.title == NoteTemplate.designDoc.sections[2].title })?.items ?? []
+        return (requirements, conditions, actionItems)
     }
 
     private func processWithOnDeviceLLMLight(transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
@@ -391,17 +514,26 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         
         // 9. Tag Discovery
         let tags = extractTags(from: sanitized)
-        
-        // 10. Assemble Rich Markdown Layout
-        let markdown = assembleMarkdown(
-            title: title,
-            summary: summary,
-            requirements: requirements,
-            conditions: conditions,
-            actionItems: actionItems,
-            generalPoints: generalPoints
-        )
-        
+
+        // 10. Rule-based `.full` output is always Design-Doc-shaped -- template selection needs
+        //     an LLM to do reliably, which this deterministic fallback doesn't have.
+        var sections: [TemplateSectionContent] = []
+        if !requirements.isEmpty {
+            sections.append(TemplateSectionContent(title: NoteTemplate.designDoc.sections[0].title, style: .bullet, items: requirements))
+        }
+        if !conditions.isEmpty {
+            sections.append(TemplateSectionContent(title: NoteTemplate.designDoc.sections[1].title, style: .numbered, items: conditions))
+        }
+        if !actionItems.isEmpty {
+            sections.append(TemplateSectionContent(title: NoteTemplate.designDoc.sections[2].title, style: .checklist, items: actionItems))
+        }
+        if !generalPoints.isEmpty {
+            sections.append(TemplateSectionContent(title: "📝 Polished Transcript & Notes", style: .paragraph, items: generalPoints))
+        }
+
+        // 11. Assemble Rich Markdown Layout
+        let markdown = assembleMarkdown(title: title, summary: summary, sections: sections)
+
         return LLMProcessingResult(
             title: title,
             summary: summary,
@@ -410,7 +542,10 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             actionItems: actionItems,
             cleanedMarkdown: markdown,
             tags: tags,
-            engine: CleanupEngineLabel.ruleBased
+            engine: CleanupEngineLabel.ruleBased,
+            sections: sections,
+            templateId: NoteTemplate.designDoc.id,
+            templateName: NoteTemplate.designDoc.name
         )
     }
     
@@ -636,141 +771,184 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     
     // MARK: - Markdown Assembly
     
-    private func assembleMarkdown(
-        title: String,
-        summary: String,
-        requirements: [String],
-        conditions: [String],
-        actionItems: [String],
-        generalPoints: [String]
-    ) -> String {
+    /// Generalized over an arbitrary template's sections instead of three fixed
+    /// requirements/conditions/actionItems blocks -- the Design Doc template's section titles
+    /// match the original hardcoded strings exactly, so output for that template is byte-
+    /// identical to before this generalized. `internal` for direct unit testing.
+    func assembleMarkdown(title: String, summary: String, sections: [TemplateSectionContent]) -> String {
         var md = "# \(title)\n\n"
         md += "> \(summary)\n\n"
-        
-        // (a) Requirements converted into bullet points
-        if !requirements.isEmpty {
-            md += "### 🎯 Requirements\n"
-            for req in requirements {
-                md += "- \(req)\n"
+
+        for section in sections where !section.items.isEmpty {
+            md += "### \(section.title)\n"
+            switch section.style {
+            case .bullet:
+                for item in section.items {
+                    md += "- \(item)\n"
+                }
+            case .numbered:
+                for (index, item) in section.items.enumerated() {
+                    md += "\(index + 1). \(item)\n"
+                }
+            case .checklist:
+                for item in section.items {
+                    md += "- [ ] \(item)\n"
+                }
+            case .paragraph:
+                md += section.items.joined(separator: " ") + "\n"
             }
             md += "\n"
         }
-        
-        // (b) Enumerated conditions using numbered formatting
-        if !conditions.isEmpty {
-            md += "### 🔢 Enumerated Conditions & Workflow\n"
-            for (index, cond) in conditions.enumerated() {
-                md += "\(index + 1). \(cond)\n"
-            }
-            md += "\n"
-        }
-        
-        // Action Items
-        if !actionItems.isEmpty {
-            md += "### ✅ Action Items\n"
-            for action in actionItems {
-                md += "- [ ] \(action)\n"
-            }
-            md += "\n"
-        }
-        
-        // (c) Cleaned Layout & General Notes
-        if !generalPoints.isEmpty {
-            md += "### 📝 Polished Transcript & Notes\n"
-            for point in generalPoints {
-                md += "\(point) "
-            }
-            md += "\n"
-        }
-        
+
         return md.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     // MARK: - Optional Local LLM (e.g. Ollama / Local Server) Call
     
-    private func callLocalLLMEndpoint(url: URL, transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+    private func callLocalLLMEndpoint(url: URL, transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
+        switch mode {
+        case .full:
+            return try await callLocalLLMEndpointFull(url: url, transcript: transcript, dictionary: dictionary, templates: templates)
+        case .light:
+            return try await callLocalLLMEndpointLight(url: url, transcript: transcript, dictionary: dictionary)
+        }
+    }
+
+    /// Raw POST-and-extract-`"response"` mechanics shared by every Ollama call below.
+    private func postToOllama(prompt: String, url: URL) async throws -> String {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 10.0
-
-        let prompt: String
-        switch mode {
-        case .full:
-            prompt = """
-            You are an on-device executive copywriter. Transform the following raw voice transcript into clean, structured Markdown:
-            1. Requirements must be converted into bullet points.
-            2. Enumerated conditions must use numbered formatting (1., 2., ...).
-            3. Fix all grammar and typos.\(dictionaryInstructionBlock(dictionary))
-
-            Transcript:
-            \(transcript)
-            """
-        case .light:
-            prompt = """
-            Lightly proofread the following raw voice transcript: fix typos, grammar, and remove \
-            filler words (um, uh, you know, sort of). Also remove any bracketed non-speech \
-            annotations the speech recognizer inserted, such as [Laughter], [Music], or \
-            [Inaudible Remark] -- these are the recognizer's own audio-event tags, not spoken \
-            words. Keep the original wording, sentence order, and level of detail for everything \
-            actually spoken -- do not restructure it into lists or sections, and do not add \
-            commentary. Return only the corrected transcript as plain prose.\(dictionaryInstructionBlock(dictionary))
-
-            Transcript:
-            \(transcript)
-            """
-        }
-
         let body: [String: Any] = [
             "model": "llama3.2:1b",
             "prompt": prompt,
             "stream": false
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        
+
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
             throw URLError(.badServerResponse)
         }
-        
-        if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-           let responseText = json["response"] as? String {
-            let trimmedResponse = responseText.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !trimmedResponse.isEmpty else {
-                throw URLError(.zeroByteResource)
-            }
-
-            // Reuse the local extraction engine to derive title/summary/tags (and, in full mode,
-            // requirements/conditions/action items) from the local LLM's own output, while keeping
-            // its markdown verbatim as the primary cleaned note content (rather than discarding it).
-            switch mode {
-            case .full:
-                let structured = transformLocally(rawTranscript: trimmedResponse)
-                return LLMProcessingResult(
-                    title: structured.title,
-                    summary: structured.summary,
-                    requirements: structured.requirements,
-                    conditions: structured.conditions,
-                    actionItems: structured.actionItems,
-                    cleanedMarkdown: trimmedResponse,
-                    tags: structured.tags,
-                    engine: CleanupEngineLabel.ollama
-                )
-            case .light:
-                let structured = transformLocallyLight(rawTranscript: trimmedResponse)
-                return LLMProcessingResult(
-                    title: structured.title,
-                    summary: structured.summary,
-                    requirements: [],
-                    conditions: [],
-                    actionItems: [],
-                    cleanedMarkdown: stripASRSpecialTokens(trimmedResponse),
-                    tags: structured.tags,
-                    engine: CleanupEngineLabel.ollama
-                )
-            }
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let responseText = json["response"] as? String else {
+            throw URLError(.cannotParseResponse)
         }
+        let trimmed = responseText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            throw URLError(.zeroByteResource)
+        }
+        return trimmed
+    }
 
-        throw URLError(.cannotParseResponse)
+    private func callLocalLLMEndpointLight(url: URL, transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+        let prompt = """
+        Lightly proofread the following raw voice transcript: fix typos, grammar, and remove \
+        filler words (um, uh, you know, sort of). Also remove any bracketed non-speech \
+        annotations the speech recognizer inserted, such as [Laughter], [Music], or \
+        [Inaudible Remark] -- these are the recognizer's own audio-event tags, not spoken \
+        words. Keep the original wording, sentence order, and level of detail for everything \
+        actually spoken -- do not restructure it into lists or sections, and do not add \
+        commentary. Return only the corrected transcript as plain prose.\(dictionaryInstructionBlock(dictionary))
+
+        Transcript:
+        \(transcript)
+        """
+        let trimmedResponse = try await postToOllama(prompt: prompt, url: url)
+        let structured = transformLocallyLight(rawTranscript: trimmedResponse)
+        return LLMProcessingResult(
+            title: structured.title,
+            summary: structured.summary,
+            requirements: [],
+            conditions: [],
+            actionItems: [],
+            cleanedMarkdown: stripASRSpecialTokens(trimmedResponse),
+            tags: structured.tags,
+            engine: CleanupEngineLabel.ollama
+        )
+    }
+
+    /// Same classify-then-generate flow as the on-device path, over HTTP instead of MLX -- needed
+    /// (not just for consistency) because the old prose-instructed approach can only ever bucket
+    /// into requirements/conditions/actionItems via `transformLocally`, never into Email/Tweet/
+    /// custom template fields. Falls back to `legacyOllamaFullRewrite` if the JSON flow fails,
+    /// since an arbitrary user-configured Ollama model is more likely to ignore JSON-formatting
+    /// instructions than the bundled on-device one -- keeps that failure mode exactly as
+    /// recoverable as it was before multi-template support existed.
+    private func callLocalLLMEndpointFull(url: URL, transcript: String, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
+        let availableTemplates = templates.isEmpty ? NoteTemplate.builtIns : templates
+        do {
+            let classificationPrompt = buildClassificationSystemPrompt(templates: availableTemplates) + "\n\nTranscript:\n\(transcript)"
+            let classificationRaw = try await postToOllama(prompt: classificationPrompt, url: url)
+            let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: NoteTemplate.fallbackDefault)
+
+            let generationPrompt = buildGenerationSystemPrompt(template: chosenTemplate, dictionary: dictionary) + "\n\nTranscript:\n\(transcript)"
+            let generationRaw = try await postToOllama(prompt: generationPrompt, url: url)
+            let parsed = try parseGenerationResponse(generationRaw, template: chosenTemplate)
+
+            let title: String
+            if let candidate = parsed.title?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+                title = candidate
+            } else {
+                title = generateTitle(from: splitIntoSentences(sanitizeSpeechTranscript(transcript)), raw: transcript)
+            }
+
+            let summary: String
+            if let candidate = parsed.summary?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+                summary = candidate
+            } else {
+                summary = "Voice memo captured and structured via Ollama."
+            }
+
+            let tags = (parsed.tags?.isEmpty == false) ? parsed.tags! : extractTags(from: transcript)
+            let (requirements, conditions, actionItems) = Self.legacyFields(from: parsed.sections)
+            let markdown = assembleMarkdown(title: title, summary: summary, sections: parsed.sections)
+
+            return LLMProcessingResult(
+                title: title,
+                summary: summary,
+                requirements: requirements,
+                conditions: conditions,
+                actionItems: actionItems,
+                cleanedMarkdown: markdown,
+                tags: tags,
+                engine: CleanupEngineLabel.ollama,
+                sections: parsed.sections,
+                templateId: chosenTemplate.id,
+                templateName: chosenTemplate.name
+            )
+        } catch {
+            print("[LLMCopywriterService] Ollama JSON template flow failed, falling back to legacy prose rewrite: \(error)")
+            return try await legacyOllamaFullRewrite(url: url, transcript: transcript, dictionary: dictionary)
+        }
+    }
+
+    /// Today's original Ollama `.full` behavior (prose instructions, then reusing the rule-based
+    /// extractor on the model's own raw output) -- kept as a fallback for when a user-configured
+    /// Ollama model doesn't cooperate with the JSON-schema flow above, preserving the exact
+    /// robustness floor Ollama had before multi-template support existed.
+    private func legacyOllamaFullRewrite(url: URL, transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+        let prompt = """
+        You are an on-device executive copywriter. Transform the following raw voice transcript into clean, structured Markdown:
+        1. Requirements must be converted into bullet points.
+        2. Enumerated conditions must use numbered formatting (1., 2., ...).
+        3. Fix all grammar and typos.\(dictionaryInstructionBlock(dictionary))
+
+        Transcript:
+        \(transcript)
+        """
+        let trimmedResponse = try await postToOllama(prompt: prompt, url: url)
+        let structured = transformLocally(rawTranscript: trimmedResponse)
+        return LLMProcessingResult(
+            title: structured.title,
+            summary: structured.summary,
+            requirements: structured.requirements,
+            conditions: structured.conditions,
+            actionItems: structured.actionItems,
+            cleanedMarkdown: trimmedResponse,
+            tags: structured.tags,
+            engine: CleanupEngineLabel.ollama
+        )
     }
 }

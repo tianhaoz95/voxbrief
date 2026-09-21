@@ -239,6 +239,7 @@ targets:
       - path: VoxbriefApp/Services/AudioFileManager.swift
       - path: VoxbriefApp/Services/DictionaryCorrector.swift
       - path: VoxbriefApp/Services/PersonalDictionaryStore.swift
+      - path: VoxbriefApp/Services/TemplateStore.swift
       - path: VoxbriefApp/Services/AudioPlaybackService.swift
       - path: VoxbriefApp/Models
       # Shared SwiftUI (feature parity with the iOS app, see CLAUDE.md's "macOS auto-update" /
@@ -254,6 +255,8 @@ targets:
       - path: VoxbriefApp/Views/MarkdownLiteText.swift
       - path: VoxbriefApp/Views/PersonalDictionaryView.swift
       - path: VoxbriefApp/Views/DictionaryEntryEditView.swift
+      - path: VoxbriefApp/Views/TemplatesView.swift
+      - path: VoxbriefApp/Views/TemplateEditView.swift
       - path: VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
         type: folder
         buildPhase: resources

@@ -143,6 +143,22 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
     public var lightCleanedNote: String?
     public var lightCleanupEngine: String?
 
+    /// General-purpose structured content for whichever `NoteTemplate` Stage 2 chose (see
+    /// `LLMCopywriterService`'s classify-then-generate flow) -- generalizes what `requirements`/
+    /// `conditions`/`actionItems` used to be the only possible shape of. Empty for notes
+    /// processed before this field existed; `NoteDetailView` uses `effectiveTemplateSections`
+    /// below to synthesize an equivalent value from the legacy arrays for those.
+    public var templateSections: [TemplateSectionContent] = []
+    /// Which `NoteTemplate` produced `templateSections`, by ID -- `nil` for notes with no
+    /// template concept (the light rewrite, or ones processed before this existed). Kept even
+    /// though `templateName` is also stored so a future feature could look up the live template
+    /// (e.g. to re-run Stage 2 with it) without string-matching on a display name that could
+    /// have been renamed since.
+    public var templateId: UUID?
+    /// Display-name snapshot of the template at generation time, so a note keeps showing what
+    /// was actually used even if that template is later renamed or deleted.
+    public var templateName: String?
+
     public init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
@@ -163,7 +179,10 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         errorMessage: String? = nil,
         cleanupEngine: String? = nil,
         lightCleanedNote: String? = nil,
-        lightCleanupEngine: String? = nil
+        lightCleanupEngine: String? = nil,
+        templateSections: [TemplateSectionContent] = [],
+        templateId: UUID? = nil,
+        templateName: String? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -185,6 +204,9 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         self.cleanupEngine = cleanupEngine
         self.lightCleanedNote = lightCleanedNote
         self.lightCleanupEngine = lightCleanupEngine
+        self.templateSections = templateSections
+        self.templateId = templateId
+        self.templateName = templateName
     }
 
     /// Hand-written (rather than relying on synthesized `Decodable`) solely so `segments` can use
@@ -212,5 +234,28 @@ public struct VoiceNote: Identifiable, Codable, Hashable, Sendable {
         cleanupEngine = try container.decodeIfPresent(String.self, forKey: .cleanupEngine)
         lightCleanedNote = try container.decodeIfPresent(String.self, forKey: .lightCleanedNote)
         lightCleanupEngine = try container.decodeIfPresent(String.self, forKey: .lightCleanupEngine)
+        templateSections = try container.decodeIfPresent([TemplateSectionContent].self, forKey: .templateSections) ?? []
+        templateId = try container.decodeIfPresent(UUID.self, forKey: .templateId)
+        templateName = try container.decodeIfPresent(String.self, forKey: .templateName)
+    }
+
+    /// `templateSections` if this note has any (every note processed after multi-template
+    /// support shipped), otherwise a synthesized equivalent built from the legacy `requirements`/
+    /// `conditions`/`actionItems` arrays -- gives `NoteDetailView` exactly one rendering path
+    /// for both old and new notes instead of two branches to keep in sync. Not stored: this is
+    /// recomputed on read, never persisted, so it always reflects the real underlying fields.
+    public var effectiveTemplateSections: [TemplateSectionContent] {
+        guard templateSections.isEmpty else { return templateSections }
+        var synthesized: [TemplateSectionContent] = []
+        if !requirements.isEmpty {
+            synthesized.append(TemplateSectionContent(title: "🎯 Requirements", style: .bullet, items: requirements))
+        }
+        if !conditions.isEmpty {
+            synthesized.append(TemplateSectionContent(title: "🔢 Enumerated Conditions & Workflow", style: .numbered, items: conditions))
+        }
+        if !actionItems.isEmpty {
+            synthesized.append(TemplateSectionContent(title: "✅ Action Items", style: .checklist, items: actionItems))
+        }
+        return synthesized
     }
 }

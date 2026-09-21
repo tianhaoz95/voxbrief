@@ -52,8 +52,13 @@ public final class NoteListViewModel: ObservableObject {
                 let matchesRequirements = note.requirements.contains { $0.lowercased().contains(query) }
                 let matchesConditions = note.conditions.contains { $0.lowercased().contains(query) }
                 let matchesActionItems = note.actionItems.contains { $0.lowercased().contains(query) }
+                // Legacy arrays cover old notes and Design-Doc-templated ones; templateSections
+                // covers any other template (Email, Short Tweet, custom) -- both checked since a
+                // given note only ever populates one or the other, never both.
+                let matchesTemplateSections = note.templateSections.flatMap(\.items).contains { $0.lowercased().contains(query) }
                 let matchesAny = matchesTitle || matchesSummary || matchesTranscript || matchesCleaned
                     || matchesTags || matchesRequirements || matchesConditions || matchesActionItems
+                    || matchesTemplateSections
                 if !matchesAny {
                     return false
                 }

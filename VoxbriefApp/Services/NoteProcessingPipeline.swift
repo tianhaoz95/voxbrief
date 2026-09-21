@@ -9,6 +9,7 @@ public final class NoteProcessingPipeline: ObservableObject {
     private let repository: NoteRepository
     private let audioFileManager: AudioFileManager
     private let dictionaryStore: PersonalDictionaryStore
+    private let templateStore: TemplateStore
 
     @Published public private(set) var activeProcessingCount: Int = 0
 
@@ -32,13 +33,15 @@ public final class NoteProcessingPipeline: ObservableObject {
         llmService: LLMCopywriterServiceProtocol = LLMCopywriterService.shared,
         repository: NoteRepository = .shared,
         audioFileManager: AudioFileManager = .shared,
-        dictionaryStore: PersonalDictionaryStore = .shared
+        dictionaryStore: PersonalDictionaryStore = .shared,
+        templateStore: TemplateStore = .shared
     ) {
         self.asrService = asrService
         self.llmService = llmService
         self.repository = repository
         self.audioFileManager = audioFileManager
         self.dictionaryStore = dictionaryStore
+        self.templateStore = templateStore
     }
 
     /// Starts warming Stage 1 (ASR) and Stage 2 (on-device LLM) the moment a recording begins,
@@ -92,7 +95,7 @@ public final class NoteProcessingPipeline: ObservableObject {
             // `generateLightCleanup`, called lazily the first time something actually needs to
             // display it.
             repository.updateStatus(for: note.id, status: .cleaningLLM)
-            let llmResult = try await llmService.processTranscript(rawTranscript, mode: .full, dictionary: dictionaryEntries)
+            let llmResult = try await llmService.processTranscript(rawTranscript, mode: .full, dictionary: dictionaryEntries, templates: templateStore.allTemplates)
 
             // Build completed note
             var updatedNote = note
@@ -117,6 +120,9 @@ public final class NoteProcessingPipeline: ObservableObject {
             updatedNote.status = .ready
             updatedNote.errorMessage = nil
             updatedNote.cleanupEngine = llmResult.engine
+            updatedNote.templateSections = llmResult.sections
+            updatedNote.templateId = llmResult.templateId
+            updatedNote.templateName = llmResult.templateName.isEmpty ? nil : llmResult.templateName
             // Deliberately left nil -- see generateLightCleanup, called lazily on demand.
             updatedNote.lightCleanedNote = nil
             updatedNote.lightCleanupEngine = nil
@@ -253,7 +259,7 @@ public final class NoteProcessingPipeline: ObservableObject {
 
         repository.updateStatus(for: noteId, status: .cleaningLLM)
         do {
-            let llmResult = try await llmService.processTranscript(mergedTranscript, mode: .full, dictionary: dictionaryEntries)
+            let llmResult = try await llmService.processTranscript(mergedTranscript, mode: .full, dictionary: dictionaryEntries, templates: templateStore.allTemplates)
             note.title = llmResult.title
             note.summary = llmResult.summary
             note.cleanedNote = llmResult.cleanedMarkdown
@@ -264,6 +270,9 @@ public final class NoteProcessingPipeline: ObservableObject {
             note.status = .ready
             note.errorMessage = nil
             note.cleanupEngine = llmResult.engine
+            note.templateSections = llmResult.sections
+            note.templateId = llmResult.templateId
+            note.templateName = llmResult.templateName.isEmpty ? nil : llmResult.templateName
             note.lightCleanedNote = nil
             note.lightCleanupEngine = nil
             repository.save(note)
@@ -295,7 +304,7 @@ public final class NoteProcessingPipeline: ObservableObject {
         }
 
         do {
-            let lightResult = try await llmService.processTranscript(note.rawTranscript, mode: .light, dictionary: dictionaryStore.entries)
+            let lightResult = try await llmService.processTranscript(note.rawTranscript, mode: .light, dictionary: dictionaryStore.entries, templates: [])
             guard var updated = repository.note(withId: noteId) else { return }
             updated.lightCleanedNote = lightResult.cleanedMarkdown
             updated.lightCleanupEngine = lightResult.engine

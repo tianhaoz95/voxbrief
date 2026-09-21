@@ -129,6 +129,48 @@ final class NoteRepositoryTests: XCTestCase {
         XCTAssertEqual(loaded?.rawTranscript, "legacy transcript")
     }
 
+    /// `VoiceNote.templateSections`/`templateId`/`templateName` were added for multi-template
+    /// Stage 2 support well after notes had already been persisted. This is the highest-risk
+    /// change in that redesign: `loadNotes()` decodes the *entire* persisted array in one call,
+    /// so if any one of these were accidentally added as a required (non-`decodeIfPresent`) key,
+    /// every existing user's `notes_store.json` would silently fail to load in full, not just
+    /// the one incompatible note.
+    func testLoadsLegacyNoteJSONMissingTemplateFields() {
+        let noteId = UUID()
+        let legacyJSON = """
+        [
+          {
+            "id": "\(noteId.uuidString)",
+            "createdAt": "2026-01-01T00:00:00Z",
+            "duration": 12.5,
+            "audioFileName": "legacy.m4a",
+            "title": "Legacy Note",
+            "summary": "",
+            "rawTranscript": "legacy transcript",
+            "cleanedNote": "",
+            "requirements": ["Ship the feature"],
+            "conditions": [],
+            "actionItems": [],
+            "tags": [],
+            "status": "ready",
+            "source": "phone_app",
+            "isFavorite": false
+          }
+        ]
+        """
+        try! legacyJSON.write(to: tempStorageURL, atomically: true, encoding: .utf8)
+
+        let legacyRepository = NoteRepository(customStorageURL: tempStorageURL)
+        let loaded = legacyRepository.note(withId: noteId)
+
+        XCTAssertNotNil(loaded)
+        XCTAssertEqual(loaded?.templateSections, [])
+        XCTAssertNil(loaded?.templateId)
+        XCTAssertNil(loaded?.templateName)
+        // effectiveTemplateSections should still synthesize the legacy requirements array.
+        XCTAssertEqual(loaded?.effectiveTemplateSections.first?.items, ["Ship the feature"])
+    }
+
     func testDeleteRemovesAudioFilesForEverySegmentNotJustTheLatest() {
         let audioFileManager = AudioFileManager()
         let firstFile = audioFileManager.newAudioFileURL()
