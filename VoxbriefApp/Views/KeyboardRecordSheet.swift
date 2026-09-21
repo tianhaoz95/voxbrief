@@ -18,6 +18,13 @@ public struct KeyboardRecordSheet: View {
 
     @State private var phase: Phase = .recording
     @State private var errorMessage: String?
+    /// Set once, in `onAppear`, i.e. the moment this app was opened from the keyboard. iOS's own
+    /// "‹ Back to [App]" status-bar affordance is, by design, temporary -- it silently expires
+    /// after roughly a couple of minutes with no public API to detect or extend it (confirmed via
+    /// community reports going back to its iOS 9 introduction; Apple has never documented an exact
+    /// duration). This is used purely as a best-effort heuristic for when it's likely already gone,
+    /// to swap in fallback guidance rather than send the user hunting for a button that vanished.
+    @State private var openedAt = Date()
 
     private enum Phase: Equatable {
         case recording
@@ -63,6 +70,7 @@ public struct KeyboardRecordSheet: View {
                 }
             }
             .onAppear {
+                openedAt = Date()
                 startAutoRecord()
             }
         }
@@ -138,17 +146,31 @@ public struct KeyboardRecordSheet: View {
     // MARK: - Ready to paste
 
     private var readyToPasteView: some View {
-        VStack(spacing: 16) {
+        // iOS's "‹ Back" affordance isn't guaranteed to still be there by now -- see `openedAt`'s
+        // doc comment. There's no way to actually check, so this is a best-effort guess: past a
+        // conservative threshold, swap in guidance that doesn't send the user hunting for a
+        // button that may have already vanished.
+        let likelyBackButtonGone = Date().timeIntervalSince(openedAt) > 60
+
+        return VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 52))
                 .foregroundStyle(.green)
             Text("Ready to paste")
                 .font(.title2.bold())
-            Text("Switch back to where you were typing -- tap the **‹ Back** button in the top-left corner -- and Voxbrief Keyboard will paste this in automatically. It's also on your clipboard, so a normal paste works with any keyboard.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+            if likelyBackButtonGone {
+                Text("It's on your clipboard, ready to paste with any keyboard. It's been a little while, so iOS may have already hidden the **‹ Back** button -- if you don't see it, just switch back manually (hold the home indicator, or double-click Home) instead of looking for it.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            } else {
+                Text("Switch back to where you were typing -- tap the **‹ Back** button in the top-left corner -- and Voxbrief Keyboard will paste this in automatically. It's also on your clipboard, so a normal paste works with any keyboard.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
         }
     }
 
