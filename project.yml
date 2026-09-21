@@ -257,6 +257,7 @@ targets:
       - path: VoxbriefApp/Views/DictionaryEntryEditView.swift
       - path: VoxbriefApp/Views/TemplatesView.swift
       - path: VoxbriefApp/Views/TemplateEditView.swift
+      - path: VoxbriefApp/Views/TemplateDetailView.swift
       - path: VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
         type: folder
         buildPhase: resources

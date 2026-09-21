@@ -64,6 +64,7 @@
 		64449EC42EE8123A116A08EB /* TemplateEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B14742A80B04804C7A613CF4 /* TemplateEditView.swift */; };
 		67642845892E3B515B0D78D2 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E0BDCC158250481339E11 /* AudioConstants.swift */; };
 		691B6C26A9E7585D09DB058C /* LLMCopywriterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9E58587D34FC957F4AE403 /* LLMCopywriterServiceTests.swift */; };
+		6EFD59944A2D0C5BE2124937 /* TemplateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F69D56A035DF1728B39998 /* TemplateDetailView.swift */; };
 		6FF5EDD32BA1B009FF22B000 /* MacAudioRecorderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC779C7DEFBC23A48D6A366A /* MacAudioRecorderService.swift */; };
 		71CB99209CAB27623629CD5C /* NoteProcessingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */; };
 		7524CA93D74217B1B6652CB9 /* NoteMergePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B54E6F4FF7B03C6D263908 /* NoteMergePickerSheet.swift */; };
@@ -73,6 +74,7 @@
 		7C84767C95B95014B9F8603F /* TemplateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560015483170C2C0F42ED686 /* TemplateStore.swift */; };
 		7D5BFD35B7EED990ABD3D552 /* VoxbriefWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32C11C7D6037937A9F59B01 /* VoxbriefWatchApp.swift */; };
 		7F41AF3BB8FD3A30117A83DA /* WatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6F47AE17245B344D9D2391 /* WatchSyncService.swift */; };
+		80650E05F1C3663BC7FE7915 /* TemplateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F69D56A035DF1728B39998 /* TemplateDetailView.swift */; };
 		811785C3AB29046CEE31D3F2 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 229AFE98228CC08425BD323C /* WhisperKit */; };
 		8190A14A3B9BBC9FEA1503DD /* NoteMergePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B54E6F4FF7B03C6D263908 /* NoteMergePickerSheet.swift */; };
 		83F6880BB0A3B7957B94806A /* NoteTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4670A66832BC3EDB51D04C99 /* NoteTemplate.swift */; };
@@ -309,6 +311,7 @@
 		DDF370D074CADB2C25254782 /* MarkdownLiteText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownLiteText.swift; sourceTree = "<group>"; };
 		DFEB07D6090DC24A5902E9AE /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		E7C3731F89B9CAC7ECDD9D86 /* Qwen3-0.6B-4bit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "Qwen3-0.6B-4bit"; path = "VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit"; sourceTree = SOURCE_ROOT; };
+		E8F69D56A035DF1728B39998 /* TemplateDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateDetailView.swift; sourceTree = "<group>"; };
 		E957233BA796003140F2A4C4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F47B06B91C0E08B3E8267051 /* NoteRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteRowView.swift; sourceTree = "<group>"; };
 		F61EA36A51AF152AC8E9882D /* VoxbriefMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxbriefMacApp.swift; sourceTree = "<group>"; };
@@ -524,6 +527,7 @@
 				ACC7690F2E9CCCD9AC1D86CF /* PersonalDictionaryView.swift */,
 				26D9161722A62F745EEBA731 /* QuickRecordSheet.swift */,
 				015D2CED079AC4D35BFD7889 /* SettingsView.swift */,
+				E8F69D56A035DF1728B39998 /* TemplateDetailView.swift */,
 				B14742A80B04804C7A613CF4 /* TemplateEditView.swift */,
 				B890732A2E9F6A9C8361C2B2 /* TemplatesView.swift */,
 				AE056827F75E2A918AABC197 /* WatchSyncStatusView.swift */,
@@ -1030,6 +1034,7 @@
 				EAB97948647254097F03D47D /* RecordingCoordinator.swift in Sources */,
 				99C50F6E5DA466503D6155E0 /* SettingsView.swift in Sources */,
 				5E5BDB04ACA4C9DA8D990692 /* SyncPayload.swift in Sources */,
+				6EFD59944A2D0C5BE2124937 /* TemplateDetailView.swift in Sources */,
 				64449EC42EE8123A116A08EB /* TemplateEditView.swift in Sources */,
 				7C84767C95B95014B9F8603F /* TemplateStore.swift in Sources */,
 				062F0A4ACE8294D820ABAA0D /* TemplatesView.swift in Sources */,
@@ -1080,6 +1085,7 @@
 				49148D29E3161E1F6859E6CD /* PlatformUI.swift in Sources */,
 				B6905623D3E79C67D0815966 /* PreferencesView.swift in Sources */,
 				36FCFED4761E494C449A67EF /* SyncPayload.swift in Sources */,
+				80650E05F1C3663BC7FE7915 /* TemplateDetailView.swift in Sources */,
 				D0D4AF5513324D94E0624D1C /* TemplateEditView.swift in Sources */,
 				5A989A4109E4CAA2AF7A610B /* TemplateStore.swift in Sources */,
 				9351DBB440E3CFFF52B84AEC /* TemplatesView.swift in Sources */,

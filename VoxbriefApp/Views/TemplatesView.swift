@@ -18,13 +18,17 @@ public struct TemplatesView: View {
                 footer: Text("Voxbrief picks whichever of these best fits each note automatically. Built-in templates can't be edited or removed.")
             ) {
                 ForEach(NoteTemplate.builtIns) { template in
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(template.name)
-                            .font(.body)
-                            .foregroundColor(.primary)
-                        Text(template.summary)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    NavigationLink {
+                        TemplateDetailView(template: template)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(template.name)
+                                .font(.body)
+                                .foregroundColor(.primary)
+                            Text(template.summary)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
