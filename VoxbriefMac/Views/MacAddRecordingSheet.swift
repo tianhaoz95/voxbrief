@@ -23,24 +23,8 @@ struct MacAddRecordingSheet: View {
                 .font(.system(size: 52, weight: .medium, design: .monospaced))
                 .monospacedDigit()
 
-            ZStack {
-                if recorder.isRecording {
-                    Circle()
-                        .fill(Color.red.opacity(0.15))
-                        .frame(width: 132 + CGFloat(recorder.audioLevel * 60),
-                               height: 132 + CGFloat(recorder.audioLevel * 60))
-                        .animation(.easeInOut(duration: 0.1), value: recorder.audioLevel)
-                }
-
-                Circle()
-                    .fill(recorder.isRecording ? Color.red : Color.accentColor)
-                    .frame(width: 96, height: 96)
-
-                Image(systemName: recorder.isRecording ? "stop.fill" : "mic.fill")
-                    .font(.system(size: 34))
-                    .foregroundStyle(.white)
-            }
-            .onTapGesture { toggleRecording() }
+            CaptureWaveformView(isRecording: recorder.isRecording, audioLevel: recorder.audioLevel)
+                .onTapGesture { toggleRecording() }
 
             Text(recorder.isRecording ? "Click to stop and add to this note" : "Click the microphone to add a recording")
                 .font(.footnote)

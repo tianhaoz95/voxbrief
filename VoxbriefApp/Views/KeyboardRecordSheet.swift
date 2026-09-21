@@ -100,26 +100,10 @@ public struct KeyboardRecordSheet: View {
                 .monospacedDigit()
                 .contentTransition(.numericText())
 
-            ZStack {
-                if recordingService.isRecording {
-                    Circle()
-                        .fill(Color.red.opacity(0.15))
-                        .frame(width: 132 + CGFloat(recordingService.audioLevel * 60),
-                               height: 132 + CGFloat(recordingService.audioLevel * 60))
-                        .animation(.easeInOut(duration: 0.1), value: recordingService.audioLevel)
+            CaptureWaveformView(isRecording: true, audioLevel: recordingService.audioLevel, systemImage: "stop.fill")
+                .onTapGesture {
+                    stopAndProcess()
                 }
-
-                Circle()
-                    .fill(recordingService.isRecording ? Color.red : Color.accentColor)
-                    .frame(width: 96, height: 96)
-
-                Image(systemName: "stop.fill")
-                    .font(.system(size: 34))
-                    .foregroundStyle(.white)
-            }
-            .onTapGesture {
-                stopAndProcess()
-            }
 
             Text("Tap to stop -- Voxbrief will clean it up and get it ready to paste")
                 .font(.footnote)

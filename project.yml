@@ -143,6 +143,7 @@ targets:
       - path: Shared
         excludes:
           - "Models/VoiceNoteActivityAttributes.swift"
+          - "Views/CaptureWaveformView.swift"
       - path: VoxbriefKeyboard
     entitlements:
       path: VoxbriefKeyboard/Keyboard.entitlements

@@ -79,7 +79,10 @@ struct OverlayView: View {
     }
 }
 
-/// Small animated level meter driven by the live microphone level.
+/// Small animated level meter driven by the live microphone level. Each bar is filled with a
+/// vertical gradient (brighter at the tip) rather than a flat color, and driven by a spring
+/// instead of a linear ease, for a livelier, more premium feel matching `CaptureWaveformView`
+/// (used elsewhere in the app) without changing this HUD's compact horizontal-bars layout.
 private struct LevelMeter: View {
     var level: Float
 
@@ -89,12 +92,18 @@ private struct LevelMeter: View {
         HStack(spacing: 3) {
             ForEach(0..<barCount, id: \.self) { index in
                 RoundedRectangle(cornerRadius: 1.5)
-                    .fill(Color.accentColor)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.accentColor, Color.accentColor.opacity(0.55)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
                     .frame(width: 3, height: barHeight(for: index))
             }
         }
         .frame(height: 28)
-        .animation(.easeOut(duration: 0.08), value: level)
+        .animation(.spring(response: 0.22, dampingFraction: 0.65), value: level)
     }
 
     private func barHeight(for index: Int) -> CGFloat {

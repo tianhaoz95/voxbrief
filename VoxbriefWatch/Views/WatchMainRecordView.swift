@@ -29,28 +29,12 @@ public struct WatchMainRecordView: View {
                             .font(.system(size: 28, weight: .semibold, design: .monospaced))
                             .foregroundColor(.primary)
                         
-                        // Audio level pulsing meter
-                        ZStack {
-                            Circle()
-                                .fill(Color.red.opacity(0.25))
-                                .frame(
-                                    width: 60 + CGFloat(recorder.audioLevel * 30),
-                                    height: 60 + CGFloat(recorder.audioLevel * 30)
-                                )
-                                .animation(.easeOut(duration: 0.1), value: recorder.audioLevel)
-                            
-                            Button {
-                                stopAndSave()
-                            } label: {
-                                Image(systemName: "stop.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.white)
-                                    .frame(width: 54, height: 54)
-                                    .background(Color.red)
-                                    .clipShape(Circle())
-                            }
-                            .buttonStyle(.plain)
+                        Button {
+                            stopAndSave()
+                        } label: {
+                            CaptureWaveformView(isRecording: true, audioLevel: recorder.audioLevel, diameter: 30, systemImage: "stop.fill")
                         }
+                        .buttonStyle(.plain)
                         
                         Text("Tap to stop & save")
                             .font(.system(size: 10))
@@ -72,19 +56,7 @@ public struct WatchMainRecordView: View {
                         Button {
                             startRecording(source: .watchApp)
                         } label: {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.blue.opacity(0.2))
-                                    .frame(width: 72, height: 72)
-                                
-                                Circle()
-                                    .fill(Color.blue)
-                                    .frame(width: 58, height: 58)
-                                
-                                Image(systemName: "mic.fill")
-                                    .font(.title2)
-                                    .foregroundColor(.white)
-                            }
+                            CaptureWaveformView(isRecording: false, audioLevel: 0, diameter: 30, systemImage: "mic.fill")
                         }
                         .buttonStyle(.plain)
                         

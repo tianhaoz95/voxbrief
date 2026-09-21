@@ -71,6 +71,7 @@
 		811785C3AB29046CEE31D3F2 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 229AFE98228CC08425BD323C /* WhisperKit */; };
 		8190A14A3B9BBC9FEA1503DD /* NoteMergePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43B54E6F4FF7B03C6D263908 /* NoteMergePickerSheet.swift */; };
 		845CFE1177B9118D762C4B21 /* WatchStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10E24B4B7F2AE722E9E2DF9 /* WatchStorage.swift */; };
+		84F9325B22C21FFC803309B0 /* CaptureWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 214322359CF4DEE6753E172E /* CaptureWaveformView.swift */; };
 		87478723C6F1041048676D05 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD5F519993C6DB394849326 /* ExtensionDelegate.swift */; };
 		8A33B8791FF0B81B31C2EB69 /* NoteRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47B06B91C0E08B3E8267051 /* NoteRowView.swift */; };
 		8C3723A863D6F1B1E3BDDC93 /* FormattingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F20D0BCE0BE7D3E7E931A7 /* FormattingExtensions.swift */; };
@@ -103,6 +104,7 @@
 		BACB2440A0244326CC36D058 /* VoxbriefWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 959851115743BB9596288C80 /* VoxbriefWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BAD2245B1C48E6D0BF8E10BB /* AccessibilityPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F96EF59E1D7F971D62EEE7 /* AccessibilityPermissionManager.swift */; };
 		BC2CE7EB4558C82A86E19B14 /* LLMCopywriterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD147AE1BD15A3E6E9E9EA8C /* LLMCopywriterService.swift */; };
+		C4711C0DE2015BF180A7077A /* CaptureWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 214322359CF4DEE6753E172E /* CaptureWaveformView.swift */; };
 		C62F31CCF5357A78F21C47A5 /* KeyboardHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38326DAFB38C97F2FF11D41B /* KeyboardHandoff.swift */; };
 		C8ABA9BEC2112569C5505238 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = F12B540EED6866922E9E23CF /* MLXLLM */; };
 		C9CF200D94495FFBAEA7FA37 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E0BDCC158250481339E11 /* AudioConstants.swift */; };
@@ -114,6 +116,7 @@
 		D2D11004C7EE1405DA03C708 /* MarkdownLiteText.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF370D074CADB2C25254782 /* MarkdownLiteText.swift */; };
 		D564B3C8474F757F4DD291D3 /* SyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 196C6F6CC1AAC7FF5E616A8D /* SyncPayload.swift */; };
 		D99F810CE255C259E1726018 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFEB07D6090DC24A5902E9AE /* LiveActivityManager.swift */; };
+		DCDE66379E089E740318E929 /* CaptureWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 214322359CF4DEE6753E172E /* CaptureWaveformView.swift */; };
 		DE23A3F2D3F700A37D4AA4FC /* FormattingExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F20D0BCE0BE7D3E7E931A7 /* FormattingExtensions.swift */; };
 		E20D02A281F31B8C69CE1682 /* VoxbriefKeyboard.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 16793BFCF0CAFCD8D5316281 /* VoxbriefKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E23BCA997624918D6E0BA43C /* PersonalDictionaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC7690F2E9CCCD9AC1D86CF /* PersonalDictionaryView.swift */; };
@@ -214,6 +217,7 @@
 		17FEE0D93589E948738A6156 /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
 		196C6F6CC1AAC7FF5E616A8D /* SyncPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncPayload.swift; sourceTree = "<group>"; };
 		1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteProcessingPipeline.swift; sourceTree = "<group>"; };
+		214322359CF4DEE6753E172E /* CaptureWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureWaveformView.swift; sourceTree = "<group>"; };
 		251979C32C445301C3EDD38D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2657ABEEE26CAC4BC36968D1 /* VoxbriefWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = VoxbriefWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		26D9161722A62F745EEBA731 /* QuickRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRecordSheet.swift; sourceTree = "<group>"; };
@@ -366,6 +370,7 @@
 				01C9630DF76D64646B73D672 /* Extensions */,
 				3EFFB945655B3E47AB7896BE /* Models */,
 				3D194B09B164A10F47934214 /* Services */,
+				FFA176190C87B452BCDB1DC5 /* Views */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -654,6 +659,14 @@
 			);
 			sourceTree = "<group>";
 		};
+		FFA176190C87B452BCDB1DC5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				214322359CF4DEE6753E172E /* CaptureWaveformView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -929,6 +942,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				67642845892E3B515B0D78D2 /* AudioConstants.swift in Sources */,
+				84F9325B22C21FFC803309B0 /* CaptureWaveformView.swift in Sources */,
 				87478723C6F1041048676D05 /* ExtensionDelegate.swift in Sources */,
 				DE23A3F2D3F700A37D4AA4FC /* FormattingExtensions.swift in Sources */,
 				596D2A7698F542FB058A8317 /* KeyboardHandoff.swift in Sources */,
@@ -962,6 +976,7 @@
 				5BB8B8634927112B555DB910 /* AudioFileManager.swift in Sources */,
 				0F3402B7A31F2FBC8F90A113 /* AudioPlaybackService.swift in Sources */,
 				4F7C18686C7D1DC467E52161 /* AudioRecordingService.swift in Sources */,
+				DCDE66379E089E740318E929 /* CaptureWaveformView.swift in Sources */,
 				ECCD86C67706C6FB7641FDE3 /* DictionaryCorrector.swift in Sources */,
 				12F7739BB4B4B4DEC309F902 /* DictionaryEntry.swift in Sources */,
 				2550CDDFC2FBAD0D6C9CE25E /* DictionaryEntryEditView.swift in Sources */,
@@ -1008,6 +1023,7 @@
 				945E814C8C7BD00FFAE02B83 /* AudioFileManager.swift in Sources */,
 				20EF7A5682F5F8A870B2A9D0 /* AudioPlaybackService.swift in Sources */,
 				CDFA9F1211A2F2E5993DD218 /* CaptureCoordinator.swift in Sources */,
+				C4711C0DE2015BF180A7077A /* CaptureWaveformView.swift in Sources */,
 				9D9217FE131009665D20487F /* DictionaryCorrector.swift in Sources */,
 				0473F467D03D78330B7B0432 /* DictionaryEntry.swift in Sources */,
 				AC516D74FDEFF94F2309199B /* DictionaryEntryEditView.swift in Sources */,

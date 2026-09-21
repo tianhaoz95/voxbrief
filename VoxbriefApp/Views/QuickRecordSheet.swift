@@ -36,26 +36,10 @@ public struct QuickRecordSheet: View {
                     .monospacedDigit()
                     .contentTransition(.numericText())
 
-                ZStack {
-                    if recordingService.isRecording {
-                        Circle()
-                            .fill(Color.red.opacity(0.15))
-                            .frame(width: 132 + CGFloat(recordingService.audioLevel * 60),
-                                   height: 132 + CGFloat(recordingService.audioLevel * 60))
-                            .animation(.easeInOut(duration: 0.1), value: recordingService.audioLevel)
+                CaptureWaveformView(isRecording: recordingService.isRecording, audioLevel: recordingService.audioLevel)
+                    .onTapGesture {
+                        toggleRecording()
                     }
-
-                    Circle()
-                        .fill(recordingService.isRecording ? Color.red : Color.accentColor)
-                        .frame(width: 96, height: 96)
-
-                    Image(systemName: recordingService.isRecording ? "stop.fill" : "mic.fill")
-                        .font(.system(size: 34))
-                        .foregroundStyle(.white)
-                }
-                .onTapGesture {
-                    toggleRecording()
-                }
 
                 Text(recordingService.isRecording ? "Tap to stop and run cleanup" : "Tap the microphone to speak your idea")
                     .font(.footnote)
