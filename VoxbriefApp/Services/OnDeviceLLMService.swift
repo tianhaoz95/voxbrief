@@ -2,6 +2,9 @@ import Foundation
 import MLX
 import MLXLLM
 import MLXLMCommon
+#if os(iOS)
+import UIKit
+#endif
 
 public enum OnDeviceModelState: Sendable, Equatable {
     case notDownloaded
@@ -13,6 +16,7 @@ public enum OnDeviceModelState: Sendable, Equatable {
 public enum OnDeviceLLMError: LocalizedError {
     case bundledModelMissing
     case unavailableInSimulator
+    case unavailableWhileBackgrounded
 
     public var errorDescription: String? {
         switch self {
@@ -20,6 +24,8 @@ public enum OnDeviceLLMError: LocalizedError {
             return "The bundled on-device model is missing from the app."
         case .unavailableInSimulator:
             return "On-device models require a real iPhone or iPad. The Simulator's graphics stack doesn't support the storage modes MLX needs for its GPU allocator -- this is a permanent MLX/Simulator limitation, not something this app can work around."
+        case .unavailableWhileBackgrounded:
+            return "On-device generation was skipped because the app is in the background -- attempting it anyway risks crashing the whole process (see OnDeviceLLMService's doc comment). Falling back to the deterministic rule-based cleanup instead."
         }
     }
 }
@@ -41,6 +47,21 @@ public enum OnDeviceLLMError: LocalizedError {
 /// crashes the whole process with an uncatchable C++ abort (not a Swift error `try/catch` can
 /// intercept). Every entry point below checks `targetEnvironment(simulator)` and fails cleanly
 /// *before* touching any MLX API, rather than letting that abort happen.
+///
+/// The same category of crash also happens on a real device if generation is attempted while
+/// the app is backgrounded: confirmed via a TestFlight crash report where a keyboard-triggered
+/// recording's Stage 2 generation was still running when the user switched back to their
+/// previous app (exactly what the keyboard flow's "you can switch back now" messaging invites).
+/// iOS revokes/suspends foreground GPU access for a backgrounded app, and MLX's Metal command
+/// buffer for the in-flight generation later completes with an error; its completion handler
+/// (`mlx::core::gpu::check_error`) throws a C++ exception from deep inside an async Metal/
+/// libdispatch callback with no Swift `try/catch` anywhere on that call stack, so it terminates
+/// the process (`__cxa_throw` -> `std::terminate` -> abort) exactly like the Simulator case, just
+/// triggered by backgrounding instead of an unsupported heap mode. `isSafeToUseMLXRightNow`
+/// below gates every entry point the same way as the Simulator check -- this can't fully
+/// eliminate the risk if backgrounding happens *after* the check passes, mid-generation (MLX
+/// exposes no way to cancel or pause one), but it stops a new generation from ever starting
+/// while already backgrounded, which is the common case this crash was actually hit from.
 @MainActor
 public final class OnDeviceLLMService: ObservableObject {
     public static let shared = OnDeviceLLMService()
@@ -73,6 +94,19 @@ public final class OnDeviceLLMService: ObservableObject {
         false
         #else
         true
+        #endif
+    }
+
+    /// `isSupportedOnThisDevice`, plus (on iOS only) not currently backgrounded -- see this
+    /// type's doc comment. macOS has no equivalent GPU-access-revocation-on-background behavior,
+    /// so this is just `isSupportedOnThisDevice` there. (Already `@MainActor` via the enclosing
+    /// class -- `UIApplication.shared` access requires that.)
+    private static var isSafeToUseMLXRightNow: Bool {
+        guard isSupportedOnThisDevice else { return false }
+        #if os(iOS)
+        return UIApplication.shared.applicationState != .background
+        #else
+        return true
         #endif
     }
 
@@ -160,7 +194,7 @@ public final class OnDeviceLLMService: ObservableObject {
     /// downloaded, nothing more to load). Errors are swallowed -- a real `generate()` call will
     /// surface them properly if loading still fails.
     public func warmUp() async {
-        guard Self.isSupportedOnThisDevice else { return }
+        guard Self.isSafeToUseMLXRightNow else { return }
         _ = try? await bestAvailableContainer()
     }
 
@@ -169,6 +203,9 @@ public final class OnDeviceLLMService: ObservableObject {
     public func generate(systemPrompt: String, userPrompt: String, maxTokens: Int = 1024) async throws -> String {
         guard Self.isSupportedOnThisDevice else {
             throw OnDeviceLLMError.unavailableInSimulator
+        }
+        guard Self.isSafeToUseMLXRightNow else {
+            throw OnDeviceLLMError.unavailableWhileBackgrounded
         }
         let container = try await bestAvailableContainer()
         return try await Self.runGeneration(
