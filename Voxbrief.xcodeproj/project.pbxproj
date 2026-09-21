@@ -116,6 +116,7 @@
 		BACB2440A0244326CC36D058 /* VoxbriefWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 959851115743BB9596288C80 /* VoxbriefWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BAD2245B1C48E6D0BF8E10BB /* AccessibilityPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F96EF59E1D7F971D62EEE7 /* AccessibilityPermissionManager.swift */; };
 		BC2CE7EB4558C82A86E19B14 /* LLMCopywriterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD147AE1BD15A3E6E9E9EA8C /* LLMCopywriterService.swift */; };
+		BD85B8FD65199388DF835C50 /* MicrophonePermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D816BE4FBE91E1B52B14A93 /* MicrophonePermissionManager.swift */; };
 		C4711C0DE2015BF180A7077A /* CaptureWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 214322359CF4DEE6753E172E /* CaptureWaveformView.swift */; };
 		C62F31CCF5357A78F21C47A5 /* KeyboardHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38326DAFB38C97F2FF11D41B /* KeyboardHandoff.swift */; };
 		C8ABA9BEC2112569C5505238 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = F12B540EED6866922E9E23CF /* MLXLLM */; };
@@ -270,6 +271,7 @@
 		805582BA92BDC768F983C370 /* AudioFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioFileManager.swift; sourceTree = "<group>"; };
 		85FA4EC385ED9D0FC96F7955 /* NoteDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteDetailViewModel.swift; sourceTree = "<group>"; };
 		8C774501050A357DEB4FA1AA /* KeyboardSetupStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardSetupStatus.swift; sourceTree = "<group>"; };
+		8D816BE4FBE91E1B52B14A93 /* MicrophonePermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophonePermissionManager.swift; sourceTree = "<group>"; };
 		917D0366004B01DE5CC2CEA7 /* CaptureCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureCoordinator.swift; sourceTree = "<group>"; };
 		959851115743BB9596288C80 /* VoxbriefWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoxbriefWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97AB4E8DC194919B938B0739 /* PersonalDictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalDictionaryStoreTests.swift; sourceTree = "<group>"; };
@@ -486,6 +488,7 @@
 				917D0366004B01DE5CC2CEA7 /* CaptureCoordinator.swift */,
 				B8DA59D4AB6880238B419BA0 /* GlobalHotkeyManager.swift */,
 				FC779C7DEFBC23A48D6A366A /* MacAudioRecorderService.swift */,
+				8D816BE4FBE91E1B52B14A93 /* MicrophonePermissionManager.swift */,
 				4769D6DA1245703C529EFE21 /* PasteInjector.swift */,
 				6EB9E3588235BEFC67D80649 /* UpdateChecker.swift */,
 			);
@@ -1067,6 +1070,7 @@
 				2EE6397EB9199A3EFDFE3F97 /* MacAddRecordingSheet.swift in Sources */,
 				6FF5EDD32BA1B009FF22B000 /* MacAudioRecorderService.swift in Sources */,
 				D2D11004C7EE1405DA03C708 /* MarkdownLiteText.swift in Sources */,
+				BD85B8FD65199388DF835C50 /* MicrophonePermissionManager.swift in Sources */,
 				FC46BA9131E163CA0959E701 /* NoteDetailView.swift in Sources */,
 				B767D9AF88EC26625026A42E /* NoteDetailViewModel.swift in Sources */,
 				47CBBC52F36344B462A01B3F /* NoteListViewModel.swift in Sources */,

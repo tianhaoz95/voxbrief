@@ -21,8 +21,23 @@ public final class MacAudioRecorderService: ObservableObject {
         self.audioFileManager = audioFileManager
     }
 
-    public func requestPermission() async -> Bool {
-        await AVCaptureDevice.requestAccess(for: .audio)
+    /// Resolves microphone access before recording. Critically, this is what actually registers
+    /// the app in System Settings > Privacy & Security > Microphone in the first place -- opening
+    /// an `AVAudioRecorder` on its own does not reliably trigger the TCC prompt on macOS the way
+    /// `AVCaptureDevice.requestAccess` does. `.notDetermined` prompts the OS's native dialog once;
+    /// `.denied`/`.restricted` return `false` without prompting (the OS never re-prompts once
+    /// denied), which is the caller's cue to point the user at System Settings instead.
+    public func ensureMicrophoneAccess() async -> Bool {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized:
+            return true
+        case .notDetermined:
+            return await AVCaptureDevice.requestAccess(for: .audio)
+        case .denied, .restricted:
+            return false
+        @unknown default:
+            return false
+        }
     }
 
     public func startRecording(for noteId: UUID = UUID()) throws {

@@ -71,7 +71,7 @@ public struct NoteDetailView: View {
             }
             .padding()
         }
-        .background(Color.appGroupedBackground)
+        .background(AppPageBackground())
         .navigationTitle("")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

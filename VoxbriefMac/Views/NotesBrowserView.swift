@@ -33,6 +33,8 @@ struct NotesBrowserView: View {
                     .id(note.id)
             } else {
                 ContentUnavailableView("Select a Note", systemImage: "waveform")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(AppPageBackground())
             }
         }
         .sheet(item: $viewModel.mergeSourceNote) { source in

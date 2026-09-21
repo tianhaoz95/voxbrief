@@ -15,8 +15,10 @@ import SwiftUI
 public final class OverlayWindowController {
     private let panel: NSPanel
     private var cancellable: AnyCancellable?
+    private let coordinator: CaptureCoordinator
 
     public init(coordinator: CaptureCoordinator, recorder: MacAudioRecorderService) {
+        self.coordinator = coordinator
         let content = OverlayView(coordinator: coordinator, recorder: recorder)
         let hosting = NSHostingView(rootView: content)
         let size = NSSize(width: 340, height: 150)
@@ -48,6 +50,14 @@ public final class OverlayWindowController {
         case .idle:
             panel.orderOut(nil)
         case .listening, .processing, .success, .failed:
+            // The Notes browser's "Add Recording" sheet (MacAddRecordingSheet) already has its own
+            // full recording UI, including Cancel. Showing this floating HUD at the same time let
+            // either surface drive `state` independently -- e.g. cancelling from here left that
+            // sheet open with no active recording and no feedback that anything had changed.
+            guard !coordinator.isAppendCapture else {
+                panel.orderOut(nil)
+                return
+            }
             positionPanel()
             panel.orderFrontRegardless()
         }

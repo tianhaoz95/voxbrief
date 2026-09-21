@@ -1,4 +1,3 @@
-import AVFoundation
 import ServiceManagement
 import SwiftUI
 
@@ -13,6 +12,7 @@ struct PreferencesView: View {
     @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
 
     @ObservedObject var accessibility: AccessibilityPermissionManager
+    @StateObject private var microphone = MicrophonePermissionManager.shared
     @StateObject private var llmService = OnDeviceLLMService.shared
     @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
     @StateObject private var updateChecker = UpdateChecker.shared
@@ -38,8 +38,8 @@ struct PreferencesView: View {
             Section("Permissions") {
                 permissionRow(
                     title: "Microphone",
-                    isGranted: AVCaptureDeviceAudioAuthorization.isAuthorized,
-                    onFix: nil
+                    isGranted: microphone.isAuthorized,
+                    onFix: microphone.isAuthorized ? nil : { microphone.requestOrOpenSystemSettings() }
                 )
                 permissionRow(
                     title: "Accessibility",
@@ -103,6 +103,7 @@ struct PreferencesView: View {
         }
         .formStyle(.grouped)
         .frame(width: 480, height: 680)
+        .onAppear { microphone.refresh() }
         .task {
             if autoCheckForUpdates, updateChecker.state == .idle {
                 await updateChecker.checkNow()
@@ -220,13 +221,5 @@ struct PreferencesView: View {
                     .foregroundStyle(.secondary)
             }
         }
-    }
-}
-
-/// Thin wrapper so the permissions section can read current microphone authorization
-/// synchronously without needing an async round trip just to render a checkmark.
-private enum AVCaptureDeviceAudioAuthorization {
-    static var isAuthorized: Bool {
-        AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
     }
 }

@@ -18,6 +18,11 @@ public final class CaptureCoordinator: ObservableObject {
     }
 
     @Published public private(set) var state: State = .idle
+    /// True for the lifetime of a capture started via `beginCapture(appendingTo:)` (the Notes
+    /// browser's "Add Recording" sheet, which has its own full recording UI already) -- lets
+    /// `OverlayWindowController` skip showing the global floating HUD for that flow, since showing
+    /// both at once let either one drive `state` while the other's controls silently went stale.
+    @Published public private(set) var isAppendCapture: Bool = false
     public var audioLevel: Float { recorder.audioLevel }
     public var recordingDuration: TimeInterval { recorder.recordingDuration }
 
@@ -37,6 +42,11 @@ public final class CaptureCoordinator: ObservableObject {
     /// "Add Recording" action shares the same recorder/state machine as the global-hotkey flow.
     private var appendTargetNoteId: UUID?
 
+    /// Guards against a second `beginCapture()` landing while the first is still awaiting the
+    /// microphone-permission check below -- `state` is still `.idle` during that await, so the
+    /// usual `guard state == .idle` at the top of `beginCapture` wouldn't catch a re-entrant call.
+    private var isBeginningCapture = false
+
     public init(
         recorder: MacAudioRecorderService,
         repository: NoteRepository,
@@ -53,16 +63,33 @@ public final class CaptureCoordinator: ObservableObject {
     /// `NoteProcessingPipeline.appendRecording`) once it finishes, instead of becoming a new note
     /// that gets pasted into the previously-focused app.
     public func beginCapture(appendingTo targetNoteId: UUID? = nil) {
-        guard state == .idle else { return }
+        guard state == .idle, !isBeginningCapture else { return }
+        isBeginningCapture = true
         generation += 1
+        let currentGeneration = generation
         appendTargetNoteId = targetNoteId
-        do {
-            try recorder.startRecording()
-            state = .listening
-            pipeline.warmUp()
-        } catch {
-            state = .failed(error.localizedDescription)
-            scheduleReturnToIdle()
+        isAppendCapture = targetNoteId != nil
+
+        Task { [weak self] in
+            guard let self else { return }
+            defer { self.isBeginningCapture = false }
+
+            let authorized = await self.recorder.ensureMicrophoneAccess()
+            guard self.generation == currentGeneration else { return }
+            guard authorized else {
+                self.state = .failed("Microphone access is required. Enable it in System Settings > Privacy & Security > Microphone.")
+                self.scheduleReturnToIdle()
+                return
+            }
+
+            do {
+                try self.recorder.startRecording()
+                self.state = .listening
+                self.pipeline.warmUp()
+            } catch {
+                self.state = .failed(error.localizedDescription)
+                self.scheduleReturnToIdle()
+            }
         }
     }
 

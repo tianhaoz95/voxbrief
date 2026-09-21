@@ -34,6 +34,39 @@ extension Color {
     }
 }
 
+#if os(macOS)
+/// Wraps `NSVisualEffectView` configured with the exact same `.sidebar` material
+/// `NavigationSplitView`/`List(.sidebar)` use for the Mac app's sidebar column, so other surfaces
+/// can match it pixel-for-pixel instead of approximating it with a flat `NSColor` -- sidebar
+/// vibrancy blends with whatever's behind the window, so a flat color only ever looks right under
+/// one specific appearance/wallpaper combination.
+private struct SidebarMaterialView: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .sidebar
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+#endif
+
+/// Page-level background for the shared iOS/macOS note views -- plain grouped background on iOS,
+/// the same vibrancy material as `VoxbriefMac`'s sidebar on macOS, so `NotesBrowserView`'s
+/// `NavigationSplitView` reads as one continuous surface instead of two visibly different grays
+/// between the sidebar and the detail pane.
+struct AppPageBackground: View {
+    var body: some View {
+        #if os(iOS)
+        Color.appGroupedBackground
+        #elseif os(macOS)
+        SidebarMaterialView()
+        #endif
+    }
+}
+
 /// Cross-platform "copy this string to the system pasteboard."
 enum PlatformPasteboard {
     static func copy(_ text: String) {
