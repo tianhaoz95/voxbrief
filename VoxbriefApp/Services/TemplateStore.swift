@@ -15,6 +15,11 @@ public final class TemplateStore: ObservableObject {
     private static let reservedFieldKeys: Set<String> = ["title", "summary", "tags"]
 
     @Published public private(set) var customTemplates: [NoteTemplate] = []
+    /// IDs (built-in or custom) the user has opted out of -- `enabledTemplates` is what
+    /// `NoteProcessingPipeline` actually offers the LLM for classification, so disabling a
+    /// template here means it never appears in a classification prompt at all, not just that the
+    /// LLM is told to avoid it.
+    @Published public private(set) var disabledTemplateIDs: Set<UUID> = []
 
     private let storageURL: URL
 
@@ -36,6 +41,35 @@ public final class TemplateStore: ObservableObject {
     /// prompts and the order they're listed in `TemplatesView`.
     public var allTemplates: [NoteTemplate] {
         NoteTemplate.builtIns + customTemplates
+    }
+
+    /// `allTemplates` minus anything the user disabled -- this, not `allTemplates`, is what
+    /// `NoteProcessingPipeline` passes to `LLMCopywriterService` for classification, so a
+    /// disabled template's name/summary never even enters the prompt. Falls back to
+    /// `allTemplates` if disabling somehow left nothing enabled (shouldn't happen given
+    /// `setEnabled`'s own guard, but the LLM always needs at least one candidate).
+    public var enabledTemplates: [NoteTemplate] {
+        let enabled = allTemplates.filter { !disabledTemplateIDs.contains($0.id) }
+        return enabled.isEmpty ? allTemplates : enabled
+    }
+
+    public func isEnabled(_ template: NoteTemplate) -> Bool {
+        !disabledTemplateIDs.contains(template.id)
+    }
+
+    /// Toggles whether a template (built-in or custom) is offered to the LLM. Refuses to disable
+    /// the last remaining enabled template or an unknown ID, so there's always at least one
+    /// candidate for classification to choose from.
+    public func setEnabled(_ enabled: Bool, for templateId: UUID) {
+        guard allTemplates.contains(where: { $0.id == templateId }) else { return }
+        if enabled {
+            guard disabledTemplateIDs.remove(templateId) != nil else { return }
+        } else {
+            let remainingEnabled = allTemplates.filter { $0.id != templateId && !disabledTemplateIDs.contains($0.id) }
+            guard !remainingEnabled.isEmpty else { return }
+            disabledTemplateIDs.insert(templateId)
+        }
+        persist()
     }
 
     // MARK: - CRUD Operations
@@ -81,12 +115,16 @@ public final class TemplateStore: ObservableObject {
     /// No-ops for a built-in template's ID -- there's nothing in `customTemplates` to remove.
     public func delete(id: UUID) {
         customTemplates.removeAll { $0.id == id }
+        disabledTemplateIDs.remove(id)
         persist()
     }
 
     /// Offsets are scoped to `customTemplates` (the only array `TemplatesView`'s `.onDelete`
     /// applies to) -- built-in rows never appear in a `ForEach` this is attached to.
     public func delete(at offsets: IndexSet) {
+        for id in offsets.compactMap({ customTemplates.indices.contains($0) ? customTemplates[$0].id : nil }) {
+            disabledTemplateIDs.remove(id)
+        }
         customTemplates.remove(atOffsets: offsets)
         persist()
     }
@@ -140,6 +178,15 @@ public final class TemplateStore: ObservableObject {
 
     // MARK: - Persistence
 
+    /// On-disk shape as of per-template enable/disable. Older installs' `custom_templates.json`
+    /// is just a bare `[NoteTemplate]` array (no disabled-IDs concept existed yet) -- `loadTemplates`
+    /// tries this shape first and falls back to the bare-array shape, so an existing file loads
+    /// exactly as before with everything defaulting to enabled, rather than getting wiped.
+    private struct PersistedData: Codable {
+        var customTemplates: [NoteTemplate]
+        var disabledTemplateIDs: [UUID]
+    }
+
     private func sortAndPersist() {
         customTemplates.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         persist()
@@ -151,8 +198,16 @@ public final class TemplateStore: ObservableObject {
             let data = try Data(contentsOf: storageURL)
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
-            let loaded = try decoder.decode([NoteTemplate].self, from: data)
-            self.customTemplates = loaded.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+            if let persisted = try? decoder.decode(PersistedData.self, from: data) {
+                self.customTemplates = persisted.customTemplates.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+                self.disabledTemplateIDs = Set(persisted.disabledTemplateIDs)
+                return
+            }
+
+            // Legacy format, from before per-template enable/disable existed.
+            let legacy = try decoder.decode([NoteTemplate].self, from: data)
+            self.customTemplates = legacy.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         } catch {
             print("[TemplateStore] Failed to load custom templates: \(error)")
         }
@@ -163,7 +218,8 @@ public final class TemplateStore: ObservableObject {
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             encoder.dateEncodingStrategy = .iso8601
-            let data = try encoder.encode(customTemplates)
+            let payload = PersistedData(customTemplates: customTemplates, disabledTemplateIDs: Array(disabledTemplateIDs))
+            let data = try encoder.encode(payload)
             try data.write(to: storageURL, options: .atomic)
         } catch {
             print("[TemplateStore] Failed to persist custom templates: \(error)")

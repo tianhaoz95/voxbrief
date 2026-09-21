@@ -188,13 +188,14 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     /// capacity strain multi-template support needs to avoid.
     private func processWithOnDeviceLLMFull(transcript: String, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
         let availableTemplates = templates.isEmpty ? NoteTemplate.builtIns : templates
+        let fallback = effectiveFallbackTemplate(in: availableTemplates)
 
         let classificationRaw = try await OnDeviceLLMService.shared.generate(
             systemPrompt: buildClassificationSystemPrompt(templates: availableTemplates),
             userPrompt: transcript,
             maxTokens: 24
         )
-        let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: NoteTemplate.fallbackDefault)
+        let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: fallback)
 
         let generationRaw = try await OnDeviceLLMService.shared.generate(
             systemPrompt: buildGenerationSystemPrompt(template: chosenTemplate, dictionary: dictionary),
@@ -247,11 +248,6 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         var tags: [String]?
     }
 
-    /// Builds the system prompt for step A (classify): lists every available template's name and
-    /// summary, asks for only `{"template": "<exact name>"}` in response -- a short, single-
-    /// purpose completion, deliberately simpler than asking the model to also generate content
-    /// in the same call. `internal` (not `private`) so it's directly unit-testable, matching
-    /// `dictionaryInstructionBlock`'s existing precedent.
     /// Fixed transcript -> template-name example pairs used as few-shot examples in the
     /// classification prompt (see below). A small model follows worked examples far more
     /// reliably than free-form descriptions alone -- this was added after real-device testing
@@ -269,9 +265,26 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         ("I've been thinking about how we could redesign the onboarding flow, there's a few interesting directions.", "General Notes")
     ]
 
+    /// The template `resolveTemplate` should fall back to for a given candidate set: the global
+    /// default (General Notes) if it's actually in `templates`, otherwise the first available
+    /// template. Needed because `templates` may be a strict subset the user has enabled via
+    /// `TemplateStore.setEnabled` -- if General Notes itself was disabled, falling back to it
+    /// anyway would silently resurrect a template the user turned off. `internal` for direct
+    /// unit testing.
+    func effectiveFallbackTemplate(in templates: [NoteTemplate]) -> NoteTemplate {
+        templates.first(where: { $0.id == NoteTemplate.fallbackDefault.id })
+            ?? templates.first
+            ?? NoteTemplate.fallbackDefault
+    }
+
+    /// Builds the system prompt for step A (classify): lists every available template's name and
+    /// summary, asks for only `{"template": "<exact name>"}` in response -- a short, single-
+    /// purpose completion, deliberately simpler than asking the model to also generate content
+    /// in the same call. `internal` (not `private`) so it's directly unit-testable, matching
+    /// `dictionaryInstructionBlock`'s existing precedent.
     func buildClassificationSystemPrompt(templates: [NoteTemplate]) -> String {
         let listing = templates.map { "- \"\($0.name)\": \($0.summary)" }.joined(separator: "\n")
-        let fallbackName = NoteTemplate.fallbackDefault.name
+        let fallbackName = effectiveFallbackTemplate(in: templates).name
 
         let availableNames = Set(templates.map(\.name))
         let examples = Self.classificationFewShotExamples.filter { availableNames.contains($0.templateName) }
@@ -914,7 +927,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         do {
             let classificationPrompt = buildClassificationSystemPrompt(templates: availableTemplates) + "\n\nTranscript:\n\(transcript)"
             let classificationRaw = try await postToOllama(prompt: classificationPrompt, url: url)
-            let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: NoteTemplate.fallbackDefault)
+            let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: effectiveFallbackTemplate(in: availableTemplates))
 
             let generationPrompt = buildGenerationSystemPrompt(template: chosenTemplate, dictionary: dictionary) + "\n\nTranscript:\n\(transcript)"
             let generationRaw = try await postToOllama(prompt: generationPrompt, url: url)

@@ -228,6 +228,37 @@ final class LLMCopywriterServiceTests: XCTestCase {
         XCTAssertEqual(resolved.id, NoteTemplate.generalNotes.id)
     }
 
+    func testEffectiveFallbackTemplatePrefersGeneralNotesWhenPresent() {
+        let fallback = service.effectiveFallbackTemplate(in: NoteTemplate.builtIns)
+
+        XCTAssertEqual(fallback.id, NoteTemplate.generalNotes.id)
+    }
+
+    /// Simulates the user disabling General Notes via `TemplateStore.setEnabled` -- the effective
+    /// fallback must not silently resurrect a template the user turned off.
+    func testEffectiveFallbackTemplateUsesFirstTemplateWhenGeneralNotesExcluded() {
+        let subset = [NoteTemplate.email, NoteTemplate.shortTweet]
+        let fallback = service.effectiveFallbackTemplate(in: subset)
+
+        XCTAssertEqual(fallback.id, NoteTemplate.email.id)
+    }
+
+    func testEffectiveFallbackTemplateFallsBackToGlobalDefaultForEmptyList() {
+        let fallback = service.effectiveFallbackTemplate(in: [])
+
+        XCTAssertEqual(fallback.id, NoteTemplate.fallbackDefault.id)
+    }
+
+    func testResolveTemplateRespectsExplicitFallbackOverGeneralNotes() {
+        // Even when the raw response is unparsable, resolveTemplate must use whatever `fallback`
+        // it's given -- not silently prefer General Notes -- since this is how a disabled General
+        // Notes template stays excluded end-to-end.
+        let raw = "not json at all"
+        let resolved = service.resolveTemplate(fromClassificationRaw: raw, candidates: [NoteTemplate.email, NoteTemplate.shortTweet], fallback: NoteTemplate.email)
+
+        XCTAssertEqual(resolved.id, NoteTemplate.email.id)
+    }
+
     func testBuildClassificationSystemPromptListsEveryTemplate() {
         let prompt = service.buildClassificationSystemPrompt(templates: NoteTemplate.builtIns)
 

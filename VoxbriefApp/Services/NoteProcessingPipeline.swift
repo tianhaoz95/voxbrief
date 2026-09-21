@@ -95,7 +95,7 @@ public final class NoteProcessingPipeline: ObservableObject {
             // `generateLightCleanup`, called lazily the first time something actually needs to
             // display it.
             repository.updateStatus(for: note.id, status: .cleaningLLM)
-            let llmResult = try await llmService.processTranscript(rawTranscript, mode: .full, dictionary: dictionaryEntries, templates: templateStore.allTemplates)
+            let llmResult = try await llmService.processTranscript(rawTranscript, mode: .full, dictionary: dictionaryEntries, templates: templateStore.enabledTemplates)
 
             // Build completed note
             var updatedNote = note
@@ -259,7 +259,7 @@ public final class NoteProcessingPipeline: ObservableObject {
 
         repository.updateStatus(for: noteId, status: .cleaningLLM)
         do {
-            let llmResult = try await llmService.processTranscript(mergedTranscript, mode: .full, dictionary: dictionaryEntries, templates: templateStore.allTemplates)
+            let llmResult = try await llmService.processTranscript(mergedTranscript, mode: .full, dictionary: dictionaryEntries, templates: templateStore.enabledTemplates)
             note.title = llmResult.title
             note.summary = llmResult.summary
             note.cleanedNote = llmResult.cleanedMarkdown

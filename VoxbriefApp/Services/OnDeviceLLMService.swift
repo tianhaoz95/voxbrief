@@ -142,11 +142,24 @@ public final class OnDeviceLLMService: ObservableObject {
         downloadTask = Task {
             do {
                 let configuration = largeModelConfiguration
+                let modelDirectory = configuration.modelDirectory(hub: defaultHubApi)
                 let container = try await LLMModelFactory.shared.loadContainer(
                     configuration: configuration
-                ) { progress in
+                ) { _ in
+                    // Ignore the library's own `Progress.fractionCompleted` -- swift-transformers'
+                    // Hub downloader weights it by FILE COUNT (`Progress(totalUnitCount:
+                    // filenames.count)`), not by bytes, so a repo like this one (one ~2.2GB
+                    // safetensors file plus several tiny config/tokenizer files) reports as
+                    // almost done the instant the small files finish, long before the dominant
+                    // file has downloaded any meaningful fraction of its bytes. Compute our own
+                    // byte-weighted fraction instead by summing actual on-disk bytes under the
+                    // model's directory -- this also picks up the currently-downloading file's
+                    // growing `.incomplete` temp file, since that lives in a `.cache/huggingface/
+                    // download` subdirectory of this same root.
+                    let bytesOnDisk = Self.directorySizeInBytes(at: modelDirectory)
+                    let fraction = min(1.0, Double(bytesOnDisk) / Double(Self.largeModelApproxDownloadBytes))
                     Task { @MainActor [weak self] in
-                        self?.largeModelState = .downloading(progress: progress.fractionCompleted)
+                        self?.largeModelState = .downloading(progress: fraction)
                     }
                 }
                 self.largeContainer = container
@@ -156,6 +169,26 @@ public final class OnDeviceLLMService: ObservableObject {
             }
             self.downloadTask = nil
         }
+    }
+
+    /// Recursively sums the size of every regular file under `url`, including hidden ones --
+    /// deliberately not `.skipsHiddenFiles`, since the Hub downloader's in-progress `.incomplete`
+    /// file lives under a hidden `.cache` subdirectory that must be counted for progress to track
+    /// the currently-downloading file's growing byte count, not just already-finished files.
+    private nonisolated static func directorySizeInBytes(at url: URL) -> Int64 {
+        guard let enumerator = FileManager.default.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey]
+        ) else { return 0 }
+
+        var total: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            guard let values = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey]),
+                  values.isRegularFile == true,
+                  let size = values.fileSize else { continue }
+            total += Int64(size)
+        }
+        return total
     }
 
     public func cancelDownload() {

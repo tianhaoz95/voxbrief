@@ -172,4 +172,110 @@ final class TemplateStoreTests: XCTestCase {
         XCTAssertEqual(loadedStore.customTemplates.first?.name, "Journal")
         XCTAssertEqual(loadedStore.customTemplates.first?.sections.first?.fieldKey, "entry")
     }
+
+    // MARK: - Enable/disable
+
+    func testAllTemplatesAreEnabledByDefault() {
+        for template in store.allTemplates {
+            XCTAssertTrue(store.isEnabled(template))
+        }
+        XCTAssertEqual(store.enabledTemplates.count, store.allTemplates.count)
+    }
+
+    func testSetEnabledFalseRemovesFromEnabledTemplates() {
+        store.setEnabled(false, for: NoteTemplate.email.id)
+
+        XCTAssertFalse(store.isEnabled(NoteTemplate.email))
+        XCTAssertFalse(store.enabledTemplates.contains(where: { $0.id == NoteTemplate.email.id }))
+        XCTAssertEqual(store.enabledTemplates.count, store.allTemplates.count - 1)
+    }
+
+    func testSetEnabledTrueRestoresTemplate() {
+        store.setEnabled(false, for: NoteTemplate.email.id)
+        store.setEnabled(true, for: NoteTemplate.email.id)
+
+        XCTAssertTrue(store.isEnabled(NoteTemplate.email))
+        XCTAssertEqual(store.enabledTemplates.count, store.allTemplates.count)
+    }
+
+    func testSetEnabledWorksForCustomTemplates() {
+        let template = store.add(name: "Journal", summary: "", sections: [(title: "Entry", instructions: "", style: .paragraph)])!
+
+        store.setEnabled(false, for: template.id)
+
+        XCTAssertFalse(store.isEnabled(template))
+        XCTAssertFalse(store.enabledTemplates.contains(where: { $0.id == template.id }))
+    }
+
+    func testSetEnabledRefusesToDisableTheLastEnabledTemplate() {
+        for template in store.allTemplates where template.id != NoteTemplate.email.id {
+            store.setEnabled(false, for: template.id)
+        }
+        XCTAssertEqual(store.enabledTemplates.count, 1)
+
+        store.setEnabled(false, for: NoteTemplate.email.id)
+
+        XCTAssertEqual(store.enabledTemplates.count, 1, "must always leave at least one template enabled")
+        XCTAssertTrue(store.isEnabled(NoteTemplate.email))
+    }
+
+    func testSetEnabledIgnoresUnknownID() {
+        store.setEnabled(false, for: UUID())
+
+        XCTAssertEqual(store.enabledTemplates.count, store.allTemplates.count)
+    }
+
+    func testEnabledStatePersistsAcrossFreshStoreInstance() {
+        store.setEnabled(false, for: NoteTemplate.shortTweet.id)
+
+        let reloaded = TemplateStore(customStorageURL: tempStorageURL)
+
+        XCTAssertFalse(reloaded.isEnabled(NoteTemplate.shortTweet))
+    }
+
+    func testDeletingCustomTemplateClearsItsDisabledState() {
+        let template = store.add(name: "Journal", summary: "", sections: [(title: "Entry", instructions: "", style: .paragraph)])!
+        store.setEnabled(false, for: template.id)
+
+        store.delete(id: template.id)
+
+        // Re-adding a template with a fresh UUID wouldn't collide anyway, but this also proves
+        // deletion doesn't leave stale IDs bloating the persisted disabled set forever.
+        XCTAssertTrue(store.isEnabled(NoteTemplate.email), "unrelated templates must be unaffected")
+    }
+
+    /// Mirrors `testLoadsCustomTemplateJSON`'s legacy-array documentation, but specifically for
+    /// the disabled-IDs feature: a `custom_templates.json` written before per-template enable/
+    /// disable existed is a bare `[NoteTemplate]` array with no `disabledTemplateIDs` key at all.
+    /// Loading it must not crash or wipe the custom templates, and everything should default to
+    /// enabled since there's no disabled state to restore.
+    func testLoadsLegacyJSONMissingDisabledTemplateIDs() {
+        let legacyJSON = """
+        [
+          {
+            "id": "\(UUID().uuidString)",
+            "name": "Journal",
+            "summary": "A personal journal entry.",
+            "isBuiltIn": false,
+            "createdAt": "2026-01-01T00:00:00Z",
+            "sections": [
+              {
+                "id": "\(UUID().uuidString)",
+                "fieldKey": "entry",
+                "title": "Entry",
+                "instructions": "",
+                "style": "paragraph"
+              }
+            ]
+          }
+        ]
+        """
+        try! legacyJSON.write(to: tempStorageURL, atomically: true, encoding: .utf8)
+
+        let loadedStore = TemplateStore(customStorageURL: tempStorageURL)
+
+        XCTAssertEqual(loadedStore.customTemplates.count, 1)
+        XCTAssertTrue(loadedStore.disabledTemplateIDs.isEmpty)
+        XCTAssertEqual(loadedStore.enabledTemplates.count, loadedStore.allTemplates.count)
+    }
 }
