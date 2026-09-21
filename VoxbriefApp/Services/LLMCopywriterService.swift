@@ -252,18 +252,44 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     /// purpose completion, deliberately simpler than asking the model to also generate content
     /// in the same call. `internal` (not `private`) so it's directly unit-testable, matching
     /// `dictionaryInstructionBlock`'s existing precedent.
+    /// Fixed transcript -> template-name example pairs used as few-shot examples in the
+    /// classification prompt (see below). A small model follows worked examples far more
+    /// reliably than free-form descriptions alone -- this was added after real-device testing
+    /// showed a casually-phrased todo list ("I need to finish X, read Y, prepare Z...") still
+    /// got classified as General Notes even with a good description-only prompt, because that
+    /// phrasing also superficially resembles Design Doc's "requirements" language. Only ever
+    /// referenced by name (never by index), so a template being renamed/removed just drops its
+    /// example rather than breaking anything. `internal` for direct unit testing.
+    static let classificationFewShotExamples: [(transcript: String, templateName: String)] = [
+        ("I need to call the dentist, buy groceries, and finish my taxes.", "Task List"),
+        ("So tomorrow I need to finish the report, read through the contract, and call the client back about the invoice.", "Task List"),
+        ("Write an email to Sarah telling her the report is delayed until Friday.", "Email"),
+        ("Draft a tweet announcing we just launched our new feature.", "Short Tweet"),
+        ("The system must support two factor authentication. If a user fails twice, lock the account. Then follow up with the security team.", "Design Doc"),
+        ("I've been thinking about how we could redesign the onboarding flow, there's a few interesting directions.", "General Notes")
+    ]
+
     func buildClassificationSystemPrompt(templates: [NoteTemplate]) -> String {
         let listing = templates.map { "- \"\($0.name)\": \($0.summary)" }.joined(separator: "\n")
         let fallbackName = NoteTemplate.fallbackDefault.name
+
+        let availableNames = Set(templates.map(\.name))
+        let examples = Self.classificationFewShotExamples.filter { availableNames.contains($0.templateName) }
+        let exampleBlock = examples.isEmpty ? "" : "\n\nExamples:\n" + examples.map {
+            "Transcript: \"\($0.transcript)\"\nAnswer: {\"template\": \"\($0.templateName)\"}"
+        }.joined(separator: "\n") + "\n"
+
         return """
         You choose which note-taking template best fits a spoken voice-memo transcript. Pick the \
         single most specific template that matches -- do not default to "\(fallbackName)" just \
-        because you're unsure; look for concrete signals like "email"/"send"/"write to" for an \
-        email, a short public announcement for a tweet, or requirements/steps/action items for a \
-        design doc. Available templates:
+        because you're unsure. Several distinct short to-dos are a task list even when spoken as \
+        one flowing sentence joined by "and" rather than a comma list, e.g. "I need to finish X, \
+        read Y, and prepare Z" -- count the separate things being done; if there are two or more, \
+        it's a task list, not general notes. Reserve "\(fallbackName)" for open-ended musing with \
+        no separate countable items. Available templates:
         \(listing)
         Only choose "\(fallbackName)" if the transcript truly matches none of the more specific \
-        templates above.
+        templates above.\(exampleBlock)
         Respond with ONLY one valid JSON object -- no markdown code fences, no commentary before \
         or after -- using exactly this key: "template" (string, the exact name of the best-fitting \
         template from the list above).
