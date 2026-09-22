@@ -1,5 +1,10 @@
 # Voxbrief: iOS & watchOS Voice Idea Capture & On-Device AI Cleanup
 
+[![Unit Tests](https://github.com/tianhaoz95/voxbrief/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/tianhaoz95/voxbrief/actions/workflows/unit-tests.yml)
+[![Release to TestFlight](https://github.com/tianhaoz95/voxbrief/actions/workflows/testflight.yml/badge.svg)](https://github.com/tianhaoz95/voxbrief/actions/workflows/testflight.yml)
+[![Release (macOS)](https://github.com/tianhaoz95/voxbrief/actions/workflows/release-mac.yml/badge.svg)](https://github.com/tianhaoz95/voxbrief/actions/workflows/release-mac.yml)
+[![Deploy Landing Page to GitHub Pages](https://github.com/tianhaoz95/voxbrief/actions/workflows/deploy_pages.yml/badge.svg)](https://github.com/tianhaoz95/voxbrief/actions/workflows/deploy_pages.yml)
+
 **Voxbrief** is a companion product for iOS and Apple Watch designed to effortlessly capture thoughts and ideas on the go.
 
 The primary capture surface is the **Apple Watch**, allowing instant one-tap recordings from watch face complications or Smart Stack Live Activities. Recordings are saved locally on the watch immediately, and synced to the iPhone in the background when connectivity or background tasks run. 

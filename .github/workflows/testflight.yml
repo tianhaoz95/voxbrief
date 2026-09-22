@@ -10,11 +10,18 @@ on:
     types: [published]
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   release:
     name: Build & Upload to TestFlight
     runs-on: macos-26
     timeout-minutes: 45
+    environment:
+      name: testflight
+      url: https://appstoreconnect.apple.com/apps
     steps:
       - name: Checkout
         uses: actions/checkout@v4

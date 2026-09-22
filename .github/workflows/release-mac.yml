@@ -30,6 +30,7 @@ on:
 
 permissions:
   contents: write
+  deployments: write
 
 # Not shared with testflight.yml -- the two platforms' builds are independent and shouldn't wait
 # on each other (same reasoning nana's release-{mac,linux,windows}.yml document).
@@ -41,6 +42,9 @@ jobs:
   mac:
     runs-on: macos-26
     timeout-minutes: 45
+    environment:
+      name: macos
+      url: ${{ steps.tag.outputs.tag && format('https://github.com/{0}/releases/tag/{1}', github.repository, steps.tag.outputs.tag) || format('https://github.com/{0}/releases', github.repository) }}
     steps:
       - name: Resolve the tag
         id: tag
