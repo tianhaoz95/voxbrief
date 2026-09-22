@@ -21,7 +21,7 @@ public final class OverlayWindowController {
         self.coordinator = coordinator
         let content = OverlayView(coordinator: coordinator, recorder: recorder)
         let hosting = NSHostingView(rootView: content)
-        let size = NSSize(width: 340, height: 150)
+        let size = NSSize(width: 360, height: 165)
         hosting.frame = NSRect(origin: .zero, size: size)
 
         let panel = NSPanel(

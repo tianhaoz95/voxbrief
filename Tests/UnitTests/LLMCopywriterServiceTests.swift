@@ -368,4 +368,112 @@ final class LLMCopywriterServiceTests: XCTestCase {
         XCTAssertEqual(conditions, [])
         XCTAssertEqual(actionItems, [])
     }
+
+    // MARK: - LLM Model Switching & Selection Tests
+
+    func testConfiguredLocalLLMModelNameDefaultsToLlama() {
+        let prev = UserDefaults.standard.object(forKey: LLMCopywriterService.localLLMModelNameKey)
+        UserDefaults.standard.removeObject(forKey: LLMCopywriterService.localLLMModelNameKey)
+        defer {
+            if let prev { UserDefaults.standard.set(prev, forKey: LLMCopywriterService.localLLMModelNameKey) }
+            else { UserDefaults.standard.removeObject(forKey: LLMCopywriterService.localLLMModelNameKey) }
+        }
+
+        XCTAssertEqual(LLMCopywriterService.configuredLocalLLMModelName(), "llama3.2:1b")
+    }
+
+    func testConfiguredLocalLLMModelNameReadsCustomSetting() {
+        let prev = UserDefaults.standard.object(forKey: LLMCopywriterService.localLLMModelNameKey)
+        UserDefaults.standard.set("qwen2.5:7b", forKey: LLMCopywriterService.localLLMModelNameKey)
+        defer {
+            if let prev { UserDefaults.standard.set(prev, forKey: LLMCopywriterService.localLLMModelNameKey) }
+            else { UserDefaults.standard.removeObject(forKey: LLMCopywriterService.localLLMModelNameKey) }
+        }
+
+        XCTAssertEqual(LLMCopywriterService.configuredLocalLLMModelName(), "qwen2.5:7b")
+    }
+
+    func testCleanupEngineLabelOllamaWithModel() {
+        XCTAssertEqual(CleanupEngineLabel.ollama, "Ollama")
+        XCTAssertEqual(CleanupEngineLabel.ollama(model: "llama3.2:3b"), "Ollama (llama3.2:3b)")
+        XCTAssertEqual(CleanupEngineLabel.onDeviceLLM(model: "Qwen3-4B"), "On-Device LLM (Qwen3-4B)")
+    }
+
+    func testOnDeviceModelSelectionProperties() {
+        XCTAssertEqual(OnDeviceModelSelection.auto.rawValue, "auto")
+        XCTAssertEqual(OnDeviceModelSelection.small.rawValue, "small")
+        XCTAssertEqual(OnDeviceModelSelection.large.rawValue, "large")
+
+        XCTAssertEqual(OnDeviceModelSelection.auto.id, "auto")
+        XCTAssertEqual(OnDeviceModelSelection.small.id, "small")
+        XCTAssertEqual(OnDeviceModelSelection.large.id, "large")
+
+        XCTAssertTrue(OnDeviceModelSelection.small.displayName.contains("0.6B"))
+        XCTAssertTrue(OnDeviceModelSelection.large.displayName.contains("4B"))
+        XCTAssertTrue(OnDeviceModelSelection.auto.displayName.contains("Auto"))
+    }
+
+    @MainActor
+    func testOnDeviceLLMServiceModelPreferenceSwitching() {
+        let service = OnDeviceLLMService.shared
+        let prevPref = service.modelPreference
+        defer {
+            service.modelPreference = prevPref
+        }
+
+        service.modelPreference = .small
+        XCTAssertEqual(service.modelPreference, .small)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: OnDeviceLLMService.modelPreferenceStorageKey), "small")
+
+        service.modelPreference = .large
+        XCTAssertEqual(service.modelPreference, .large)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: OnDeviceLLMService.modelPreferenceStorageKey), "large")
+
+        service.modelPreference = .auto
+        XCTAssertEqual(service.modelPreference, .auto)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: OnDeviceLLMService.modelPreferenceStorageKey), "auto")
+    }
+
+    @MainActor
+    func testOnDeviceLLMServiceActiveModelRespectsPreferenceAndDownloadState() {
+        let service = OnDeviceLLMService.shared
+        let prevPref = service.modelPreference
+        let prevState = service.largeModelState
+        defer {
+            service.modelPreference = prevPref
+            service.setLargeModelStateForTesting(prevState)
+        }
+
+        // When large model is NOT ready:
+        service.setLargeModelStateForTesting(.notDownloaded)
+        service.modelPreference = .auto
+        XCTAssertFalse(service.isUsingLargeModel)
+        XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
+
+        service.modelPreference = .large
+        XCTAssertFalse(service.isUsingLargeModel, "Should fall back when large model is not ready")
+        XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
+
+        service.modelPreference = .small
+        XCTAssertFalse(service.isUsingLargeModel)
+        XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
+
+        // When large model IS ready:
+        service.setLargeModelStateForTesting(.ready)
+
+        // 1. In .auto mode, it prefers large model
+        service.modelPreference = .auto
+        XCTAssertTrue(service.isUsingLargeModel)
+        XCTAssertEqual(service.activeModelDisplayName, OnDeviceLLMService.largeModelDisplayName)
+
+        // 2. In .large mode, it uses large model
+        service.modelPreference = .large
+        XCTAssertTrue(service.isUsingLargeModel)
+        XCTAssertEqual(service.activeModelDisplayName, OnDeviceLLMService.largeModelDisplayName)
+
+        // 3. In .small mode, it forces small model even though large model is ready!
+        service.modelPreference = .small
+        XCTAssertFalse(service.isUsingLargeModel)
+        XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
+    }
 }

@@ -11,6 +11,10 @@ public enum CleanupEngineLabel {
     public static func onDeviceLLM(model: String) -> String {
         "On-Device LLM (\(model))"
     }
+
+    public static func ollama(model: String) -> String {
+        "Ollama (\(model))"
+    }
 }
 
 /// Which of the two Stage 2 rewrite styles to produce. Both run through the same engine chain
@@ -100,6 +104,17 @@ public enum LLMCopywriterError: LocalizedError {
 
 public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecked Sendable {
     public static let shared = LLMCopywriterService()
+
+    public static let defaultLocalLLMModelName = "llama3.2:1b"
+    public static let localLLMModelNameKey = "local_llm_model_name"
+
+    public static func configuredLocalLLMModelName() -> String {
+        let stored = UserDefaults.standard.string(forKey: localLLMModelNameKey)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let stored, !stored.isEmpty {
+            return stored
+        }
+        return defaultLocalLLMModelName
+    }
     
     public init() {}
 
@@ -137,8 +152,9 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         if UserDefaults.standard.bool(forKey: "use_local_llm_endpoint"),
            let endpointString = UserDefaults.standard.string(forKey: "local_llm_endpoint_url"),
            let endpointURL = URL(string: endpointString) {
+            let modelName = Self.configuredLocalLLMModelName()
             do {
-                return try await callLocalLLMEndpoint(url: endpointURL, transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
+                return try await callLocalLLMEndpoint(url: endpointURL, model: modelName, transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
             } catch {
                 print("[LLMCopywriterService] Local LLM endpoint failed, falling back: \(error)")
             }
@@ -851,23 +867,23 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     
     // MARK: - Optional Local LLM (e.g. Ollama / Local Server) Call
     
-    private func callLocalLLMEndpoint(url: URL, transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
+    private func callLocalLLMEndpoint(url: URL, model: String, transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
         switch mode {
         case .full:
-            return try await callLocalLLMEndpointFull(url: url, transcript: transcript, dictionary: dictionary, templates: templates)
+            return try await callLocalLLMEndpointFull(url: url, model: model, transcript: transcript, dictionary: dictionary, templates: templates)
         case .light:
-            return try await callLocalLLMEndpointLight(url: url, transcript: transcript, dictionary: dictionary)
+            return try await callLocalLLMEndpointLight(url: url, model: model, transcript: transcript, dictionary: dictionary)
         }
     }
 
     /// Raw POST-and-extract-`"response"` mechanics shared by every Ollama call below.
-    private func postToOllama(prompt: String, url: URL) async throws -> String {
+    private func postToOllama(prompt: String, url: URL, model: String) async throws -> String {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 10.0
         let body: [String: Any] = [
-            "model": "llama3.2:1b",
+            "model": model,
             "prompt": prompt,
             "stream": false
         ]
@@ -888,7 +904,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         return trimmed
     }
 
-    private func callLocalLLMEndpointLight(url: URL, transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+    private func callLocalLLMEndpointLight(url: URL, model: String, transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
         let prompt = """
         Lightly proofread the following raw voice transcript: fix typos, grammar, and remove \
         filler words (um, uh, you know, sort of). Also remove any bracketed non-speech \
@@ -901,7 +917,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         Transcript:
         \(transcript)
         """
-        let trimmedResponse = try await postToOllama(prompt: prompt, url: url)
+        let trimmedResponse = try await postToOllama(prompt: prompt, url: url, model: model)
         let structured = transformLocallyLight(rawTranscript: trimmedResponse)
         return LLMProcessingResult(
             title: structured.title,
@@ -911,7 +927,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             actionItems: [],
             cleanedMarkdown: stripASRSpecialTokens(trimmedResponse),
             tags: structured.tags,
-            engine: CleanupEngineLabel.ollama
+            engine: CleanupEngineLabel.ollama(model: model)
         )
     }
 
@@ -922,15 +938,15 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     /// since an arbitrary user-configured Ollama model is more likely to ignore JSON-formatting
     /// instructions than the bundled on-device one -- keeps that failure mode exactly as
     /// recoverable as it was before multi-template support existed.
-    private func callLocalLLMEndpointFull(url: URL, transcript: String, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
+    private func callLocalLLMEndpointFull(url: URL, model: String, transcript: String, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
         let availableTemplates = templates.isEmpty ? NoteTemplate.builtIns : templates
         do {
             let classificationPrompt = buildClassificationSystemPrompt(templates: availableTemplates) + "\n\nTranscript:\n\(transcript)"
-            let classificationRaw = try await postToOllama(prompt: classificationPrompt, url: url)
+            let classificationRaw = try await postToOllama(prompt: classificationPrompt, url: url, model: model)
             let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: effectiveFallbackTemplate(in: availableTemplates))
 
             let generationPrompt = buildGenerationSystemPrompt(template: chosenTemplate, dictionary: dictionary) + "\n\nTranscript:\n\(transcript)"
-            let generationRaw = try await postToOllama(prompt: generationPrompt, url: url)
+            let generationRaw = try await postToOllama(prompt: generationPrompt, url: url, model: model)
             let parsed = try parseGenerationResponse(generationRaw, template: chosenTemplate)
 
             let title: String
@@ -959,14 +975,14 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
                 actionItems: actionItems,
                 cleanedMarkdown: markdown,
                 tags: tags,
-                engine: CleanupEngineLabel.ollama,
+                engine: CleanupEngineLabel.ollama(model: model),
                 sections: parsed.sections,
                 templateId: chosenTemplate.id,
                 templateName: chosenTemplate.name
             )
         } catch {
             print("[LLMCopywriterService] Ollama JSON template flow failed, falling back to legacy prose rewrite: \(error)")
-            return try await legacyOllamaFullRewrite(url: url, transcript: transcript, dictionary: dictionary)
+            return try await legacyOllamaFullRewrite(url: url, model: model, transcript: transcript, dictionary: dictionary)
         }
     }
 
@@ -974,7 +990,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     /// extractor on the model's own raw output) -- kept as a fallback for when a user-configured
     /// Ollama model doesn't cooperate with the JSON-schema flow above, preserving the exact
     /// robustness floor Ollama had before multi-template support existed.
-    private func legacyOllamaFullRewrite(url: URL, transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+    private func legacyOllamaFullRewrite(url: URL, model: String, transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
         let prompt = """
         You are an on-device executive copywriter. Transform the following raw voice transcript into clean, structured Markdown:
         1. Requirements must be converted into bullet points.
@@ -984,7 +1000,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         Transcript:
         \(transcript)
         """
-        let trimmedResponse = try await postToOllama(prompt: prompt, url: url)
+        let trimmedResponse = try await postToOllama(prompt: prompt, url: url, model: model)
         let structured = transformLocally(rawTranscript: trimmedResponse)
         return LLMProcessingResult(
             title: structured.title,
@@ -994,7 +1010,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             actionItems: structured.actionItems,
             cleanedMarkdown: trimmedResponse,
             tags: structured.tags,
-            engine: CleanupEngineLabel.ollama
+            engine: CleanupEngineLabel.ollama(model: model)
         )
     }
 }

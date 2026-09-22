@@ -30,6 +30,36 @@ public enum OnDeviceLLMError: LocalizedError {
     }
 }
 
+public enum OnDeviceModelSelection: String, CaseIterable, Identifiable, Sendable {
+    case auto = "auto"
+    case small = "small"
+    case large = "large"
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .auto:
+            return "Auto (Best Available)"
+        case .small:
+            return "Qwen3-0.6B (Bundled)"
+        case .large:
+            return "Qwen3-4B (Downloaded)"
+        }
+    }
+
+    public var shortDisplayName: String {
+        switch self {
+        case .auto:
+            return "Auto"
+        case .small:
+            return "Qwen3-0.6B"
+        case .large:
+            return "Qwen3-4B"
+        }
+    }
+}
+
 /// Runs Stage 2 text generation fully on-device via MLX Swift (mlx-swift-examples), with two
 /// model tiers:
 ///
@@ -66,6 +96,8 @@ public enum OnDeviceLLMError: LocalizedError {
 public final class OnDeviceLLMService: ObservableObject {
     public static let shared = OnDeviceLLMService()
 
+    public static let modelPreferenceStorageKey = "on_device_model_preference"
+
     public static let smallModelResourceName = "Qwen3-0.6B-4bit"
     public static let smallModelDisplayName = "Qwen3-0.6B (bundled)"
     public static let smallModelParameterCount = "0.6B"
@@ -78,14 +110,26 @@ public final class OnDeviceLLMService: ObservableObject {
 
     @Published public private(set) var largeModelState: OnDeviceModelState = .notDownloaded
 
+    @Published public var modelPreference: OnDeviceModelSelection {
+        didSet {
+            UserDefaults.standard.set(modelPreference.rawValue, forKey: Self.modelPreferenceStorageKey)
+            if modelPreference == .small {
+                largeContainer = nil
+            }
+        }
+    }
+
     private let largeModelConfiguration = ModelConfiguration(id: OnDeviceLLMService.largeModelRepoId)
 
     private var smallContainer: ModelContainer?
     private var smallLoadTask: Task<ModelContainer, Error>?
     private var largeContainer: ModelContainer?
+    private var largeLoadTask: Task<ModelContainer, Error>?
     private var downloadTask: Task<Void, Never>?
 
     public init() {
+        let savedRaw = UserDefaults.standard.string(forKey: Self.modelPreferenceStorageKey) ?? OnDeviceModelSelection.auto.rawValue
+        self.modelPreference = OnDeviceModelSelection(rawValue: savedRaw) ?? .auto
         refreshLargeModelState()
     }
 
@@ -207,10 +251,15 @@ public final class OnDeviceLLMService: ObservableObject {
     /// Whether the higher-quality downloaded model is the one actually in use right now
     /// (as opposed to the always-available bundled model).
     public var isUsingLargeModel: Bool {
-        if case .ready = largeModelState {
-            return largeContainer != nil
+        guard case .ready = largeModelState else {
+            return false
         }
-        return false
+        switch modelPreference {
+        case .auto, .large:
+            return true
+        case .small:
+            return false
+        }
     }
 
     /// Short display name of whichever model would actually serve the next `generate` call --
@@ -218,6 +267,12 @@ public final class OnDeviceLLMService: ObservableObject {
     public var activeModelDisplayName: String {
         isUsingLargeModel ? Self.largeModelDisplayName : "Qwen3-0.6B"
     }
+
+    #if DEBUG
+    internal func setLargeModelStateForTesting(_ state: OnDeviceModelState) {
+        self.largeModelState = state
+    }
+    #endif
 
     // MARK: - Generation
 
@@ -250,13 +305,49 @@ public final class OnDeviceLLMService: ObservableObject {
     }
 
     private func bestAvailableContainer() async throws -> ModelContainer {
-        if case .ready = largeModelState, let largeContainer {
-            return largeContainer
+        if isUsingLargeModel {
+            do {
+                return try await loadLargeContainer()
+            } catch {
+                print("[OnDeviceLLMService] Failed to load large model container, falling back to small: \(error)")
+                return try await loadSmallContainer()
+            }
         }
         return try await loadSmallContainer()
     }
 
+    private func loadLargeContainer() async throws -> ModelContainer {
+        guard Self.isSupportedOnThisDevice else {
+            throw OnDeviceLLMError.unavailableInSimulator
+        }
+        if let largeContainer {
+            return largeContainer
+        }
+        if let largeLoadTask {
+            return try await largeLoadTask.value
+        }
+
+        let task = Task<ModelContainer, Error> {
+            let configuration = largeModelConfiguration
+            return try await LLMModelFactory.shared.loadContainer(configuration: configuration)
+        }
+        largeLoadTask = task
+
+        do {
+            let container = try await task.value
+            largeContainer = container
+            largeLoadTask = nil
+            return container
+        } catch {
+            largeLoadTask = nil
+            throw error
+        }
+    }
+
     private func loadSmallContainer() async throws -> ModelContainer {
+        guard Self.isSupportedOnThisDevice else {
+            throw OnDeviceLLMError.unavailableInSimulator
+        }
         if let smallContainer {
             return smallContainer
         }

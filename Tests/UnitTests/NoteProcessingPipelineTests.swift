@@ -10,9 +10,18 @@ fileprivate final class MockASRService: ASRServiceProtocol {
     private(set) var receivedAudioURLs: [URL] = []
     private(set) var warmUpCallCount = 0
 
-    func transcribeAudio(at fileURL: URL, vocabulary: [String]) async throws -> String {
+    var onProgressEmissions: [String] = []
+
+    func transcribeAudio(
+        at fileURL: URL,
+        vocabulary: [String],
+        onProgress: (@Sendable (String) -> Void)?
+    ) async throws -> String {
         receivedVocabulary = vocabulary
         receivedAudioURLs.append(fileURL)
+        for emission in onProgressEmissions {
+            onProgress?(emission)
+        }
         if !transcriptQueue.isEmpty {
             return transcriptQueue.removeFirst()
         }
@@ -312,5 +321,58 @@ final class NoteProcessingPipelineTests: XCTestCase {
         // warmUp() must never touch the actual transcription/generation path.
         XCTAssertTrue(mockASR.receivedAudioURLs.isEmpty)
         XCTAssertTrue(mockLLM.receivedTranscripts.isEmpty)
+    }
+
+    // MARK: - Streaming Transcript Tests
+
+    func testProcessStreamingTranscriptsEmittedAndCleared() async {
+        let note = VoiceNote(id: UUID(), audioFileName: "recording.m4a", status: .syncing)
+        repository.save(note)
+
+        mockASR.onProgressEmissions = ["Live piece one", "Live piece one and two"]
+        mockASR.stubTranscript = "Live piece one and two completed."
+
+        var observedStreamingValues: [String] = []
+        let cancellable = pipeline.$streamingTranscripts.sink { map in
+            if let text = map[note.id] {
+                observedStreamingValues.append(text)
+            }
+        }
+
+        await pipeline.process(note: note)
+
+        XCTAssertFalse(observedStreamingValues.isEmpty)
+        XCTAssertTrue(observedStreamingValues.contains("Live piece one"))
+        XCTAssertTrue(observedStreamingValues.contains("Live piece one and two"))
+        // After pipeline completes, the entry should be removed
+        XCTAssertNil(pipeline.streamingTranscripts[note.id])
+        _ = cancellable
+    }
+
+    func testAppendRecordingStreamsProgressAndCleansUp() async {
+        let target = VoiceNote(id: UUID(), rawTranscript: "Existing text.", status: .ready)
+        repository.save(target)
+
+        mockASR.onProgressEmissions = ["New appended idea"]
+        mockASR.stubTranscript = "New appended idea completed."
+
+        var observedStreamingValues: [String] = []
+        let cancellable = pipeline.$streamingTranscripts.sink { map in
+            if let text = map[target.id] {
+                observedStreamingValues.append(text)
+            }
+        }
+
+        await pipeline.appendRecording(
+            segmentId: UUID(),
+            audioFileName: "segment.m4a",
+            duration: 10,
+            source: .phoneApp,
+            toNoteId: target.id
+        )
+
+        XCTAssertTrue(observedStreamingValues.contains("New appended idea"))
+        XCTAssertNil(pipeline.streamingTranscripts[target.id])
+        _ = cancellable
     }
 }

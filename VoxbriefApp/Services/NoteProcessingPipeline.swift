@@ -12,6 +12,9 @@ public final class NoteProcessingPipeline: ObservableObject {
     private let templateStore: TemplateStore
 
     @Published public private(set) var activeProcessingCount: Int = 0
+    /// Holds the live, progressive transcript for any notes actively undergoing Stage 1 ASR transcription.
+    /// Cleared once processing completes or fails.
+    @Published public private(set) var streamingTranscripts: [UUID: String] = [:]
 
     /// Notes currently mid-pipeline. Guards against double-processing the same note when a
     /// retry, a pull-to-refresh, and the original sync-triggered run could otherwise overlap.
@@ -75,6 +78,7 @@ public final class NoteProcessingPipeline: ObservableObject {
         defer {
             inFlightNoteIds.remove(note.id)
             activeProcessingCount -= 1
+            streamingTranscripts.removeValue(forKey: note.id)
         }
         
         do {
@@ -85,8 +89,17 @@ public final class NoteProcessingPipeline: ObservableObject {
 
             // Stage 1: ASR Speech-to-Text
             repository.updateStatus(for: note.id, status: .transcribingASR)
-            let asrTranscript = try await asrService.transcribeAudio(at: audioURL, vocabulary: dictionaryEntries.map(\.term))
+            let asrTranscript = try await asrService.transcribeAudio(
+                at: audioURL,
+                vocabulary: dictionaryEntries.map(\.term),
+                onProgress: { [weak self, noteId = note.id] partialText in
+                    Task { @MainActor [weak self] in
+                        self?.streamingTranscripts[noteId] = partialText
+                    }
+                }
+            )
             let rawTranscript = DictionaryCorrector.apply(to: asrTranscript, entries: dictionaryEntries)
+            streamingTranscripts[note.id] = rawTranscript
 
             // Stage 2: On-device LLM cleanup / copywriting. Only the "full" structured rewrite
             // runs here -- the "light" rewrite is never generated eagerly (it used to run
@@ -172,14 +185,24 @@ public final class NoteProcessingPipeline: ObservableObject {
         defer {
             inFlightNoteIds.remove(noteId)
             activeProcessingCount -= 1
+            streamingTranscripts.removeValue(forKey: noteId)
         }
 
         repository.updateStatus(for: noteId, status: .transcribingASR)
         do {
             let dictionaryEntries = dictionaryStore.entries
             let audioURL = audioFileManager.url(for: audioFileName)
-            let asrTranscript = try await asrService.transcribeAudio(at: audioURL, vocabulary: dictionaryEntries.map(\.term))
+            let asrTranscript = try await asrService.transcribeAudio(
+                at: audioURL,
+                vocabulary: dictionaryEntries.map(\.term),
+                onProgress: { [weak self] partialText in
+                    Task { @MainActor [weak self] in
+                        self?.streamingTranscripts[noteId] = partialText
+                    }
+                }
+            )
             let correctedTranscript = DictionaryCorrector.apply(to: asrTranscript, entries: dictionaryEntries)
+            streamingTranscripts[noteId] = correctedTranscript
 
             guard var note = repository.note(withId: noteId) else { return }
             let segment = NoteSegment(

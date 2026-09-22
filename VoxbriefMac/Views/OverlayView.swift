@@ -8,12 +8,12 @@ struct OverlayView: View {
     @ObservedObject var recorder: MacAudioRecorderService
 
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             statusRow
             actionRow
         }
-        .padding(20)
-        .frame(width: 340, height: 150)
+        .padding(18)
+        .frame(width: 360, height: 165)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -33,12 +33,41 @@ struct OverlayView: View {
                 LevelMeter(level: recorder.audioLevel)
             }
         case .processing:
-            VStack(spacing: 10) {
-                Label("Cleaning up…", systemImage: "sparkles")
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    Label(
+                        coordinator.isCleaningLLM ? "Cleaning up…" : "Transcribing…",
+                        systemImage: coordinator.isCleaningLLM ? "sparkles" : "waveform"
+                    )
                     .font(.headline)
                     .symbolEffect(.pulse)
-                ProgressView()
-                    .controlSize(.small)
+
+                    ProgressView()
+                        .controlSize(.small)
+                }
+
+                if !coordinator.streamingTranscript.isEmpty {
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            Text(coordinator.streamingTranscript)
+                                .font(.callout)
+                                .foregroundStyle(.primary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .id("bottom")
+                        }
+                        .frame(height: 48)
+                        .padding(8)
+                        .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .onChange(of: coordinator.streamingTranscript) { _, _ in
+                            proxy.scrollTo("bottom", anchor: .bottom)
+                        }
+                    }
+                } else {
+                    Text("Decoding audio…")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(height: 48)
+                }
             }
         case .success:
             Label("Pasted", systemImage: "checkmark.circle.fill")

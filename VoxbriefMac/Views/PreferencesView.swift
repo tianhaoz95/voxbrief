@@ -7,6 +7,7 @@ import SwiftUI
 struct PreferencesView: View {
     @AppStorage("use_local_llm_endpoint") private var useLocalLLM: Bool = false
     @AppStorage("local_llm_endpoint_url") private var localLLMUrl: String = "http://127.0.0.1:11434/api/generate"
+    @AppStorage(LLMCopywriterService.localLLMModelNameKey) private var localLLMModel: String = LLMCopywriterService.defaultLocalLLMModelName
     @AppStorage("launch_at_login") private var launchAtLoginStored: Bool = false
     @AppStorage("auto_check_for_updates") private var autoCheckForUpdates: Bool = true
     @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
@@ -54,6 +55,30 @@ struct PreferencesView: View {
                     TextField("http://127.0.0.1:11434/api/generate", text: $localLLMUrl)
                         .font(.subheadline.monospaced())
                         .textFieldStyle(.roundedBorder)
+
+                    HStack {
+                        TextField("Model Name (e.g. llama3.2:1b)", text: $localLLMModel)
+                            .font(.subheadline.monospaced())
+                            .textFieldStyle(.roundedBorder)
+                        Menu("Presets") {
+                            Button("llama3.2:1b") { localLLMModel = "llama3.2:1b" }
+                            Button("llama3.2:3b") { localLLMModel = "llama3.2:3b" }
+                            Button("llama3:8b") { localLLMModel = "llama3:8b" }
+                            Button("qwen2.5:7b") { localLLMModel = "qwen2.5:7b" }
+                            Button("mistral:7b") { localLLMModel = "mistral:7b" }
+                        }
+                    }
+                } else {
+                    Picker("Model", selection: $llmService.modelPreference) {
+                        ForEach(OnDeviceModelSelection.allCases) { selection in
+                            Text(selection.displayName).tag(selection)
+                        }
+                    }
+
+                    LabeledContent("Active Model") {
+                        Text(llmService.isUsingLargeModel ? OnDeviceLLMService.largeModelDisplayName : "Qwen3-0.6B")
+                            .foregroundStyle(.secondary)
+                    }
                 }
             } header: {
                 Text("Stage 2: LLM Cleanup")
@@ -70,11 +95,33 @@ struct PreferencesView: View {
             }
 
             Section {
+                Picker("Model Selection", selection: $llmService.modelPreference) {
+                    ForEach(OnDeviceModelSelection.allCases) { selection in
+                        Text(selection.displayName).tag(selection)
+                    }
+                }
+
                 LabeledContent(OnDeviceLLMService.smallModelDisplayName) {
-                    Text("\(OnDeviceLLMService.smallModelParameterCount) · bundled")
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 8) {
+                        Text("\(OnDeviceLLMService.smallModelParameterCount) · bundled")
+                            .foregroundStyle(.secondary)
+                        if !llmService.isUsingLargeModel {
+                            Label("Active", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                        } else {
+                            Button("Set Active") {
+                                llmService.modelPreference = .small
+                            }
+                        }
+                    }
                 }
                 largeModelRow
+
+                if llmService.modelPreference == .large && !llmService.isUsingLargeModel {
+                    Text("Qwen3-4B is selected, but not downloaded yet. Falling back to Qwen3-0.6B until downloaded.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
             } header: {
                 Text("On-Device Models")
             } footer: {
@@ -102,7 +149,7 @@ struct PreferencesView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 680)
+        .frame(width: 480, height: 720)
         .onAppear { microphone.refresh() }
         .task {
             if autoCheckForUpdates, updateChecker.state == .idle {
@@ -205,9 +252,15 @@ struct PreferencesView: View {
             }
         case .ready:
             LabeledContent(OnDeviceLLMService.largeModelDisplayName) {
-                HStack {
-                    Label("Downloaded", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                HStack(spacing: 8) {
+                    if llmService.isUsingLargeModel {
+                        Label("Active", systemImage: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                    } else {
+                        Button("Set Active") {
+                            llmService.modelPreference = .large
+                        }
+                    }
                     Button("Delete", role: .destructive) { llmService.deleteLargeModel() }
                 }
             }

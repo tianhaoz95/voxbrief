@@ -30,6 +30,30 @@ struct MacAddRecordingSheet: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
 
+            if coordinator.state == .processing && !coordinator.streamingTranscript.isEmpty {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        Text(coordinator.streamingTranscript)
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id("bottom")
+                    }
+                    .frame(maxHeight: 120)
+                    .padding(12)
+                    .background(Color.primary.opacity(0.04), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                    )
+                    .onChange(of: coordinator.streamingTranscript) { _, _ in
+                        withAnimation(.easeOut(duration: 0.1)) {
+                            proxy.scrollTo("bottom", anchor: .bottom)
+                        }
+                    }
+                }
+            }
+
             if case .failed(let message) = coordinator.state {
                 Text(message)
                     .font(.caption)
@@ -67,7 +91,8 @@ struct MacAddRecordingSheet: View {
 
     private var headline: String {
         switch coordinator.state {
-        case .processing: return "Transcribing…"
+        case .processing:
+            return coordinator.isCleaningLLM ? "Cleaning up…" : "Transcribing…"
         case .success: return "Added"
         case .failed: return "Failed"
         default: return recorder.isRecording ? "Listening…" : "Ready to Record"

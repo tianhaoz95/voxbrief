@@ -28,6 +28,7 @@ public struct KeyboardRecordSheet: View {
 
     @State private var phase: Phase = .recording
     @State private var errorMessage: String?
+    @State private var processingNoteId: UUID? = nil
     /// Set once, in `onAppear`, i.e. the moment this app was opened from the keyboard. iOS's own
     /// "‹ Back to [App]" status-bar affordance is, by design, temporary -- it silently expires
     /// after roughly a couple of minutes with no public API to detect or extend it (confirmed via
@@ -129,19 +130,55 @@ public struct KeyboardRecordSheet: View {
     // MARK: - Processing
 
     private var processingView: some View {
-        VStack(spacing: 16) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Cleaning up your recording…")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            // Deliberately does NOT invite switching away here. The on-device LLM (Stage 2) can
-            // only safely run while this app is in the foreground -- see OnDeviceLLMService's
-            // doc comment on the real crash this caused. Leaving mid-generation risks a crash;
-            // leaving before it starts silently downgrades this note to the plainer rule-based
-            // cleanup instead of the LLM one. Neither is something to invite as the common case
-            // just to save a few seconds -- the background-task/Live Activity protection stays
-            // as a safety net for an *involuntary* interruption (a call, etc.), not an invitation.
+        let liveTranscript = processingNoteId.flatMap { pipeline.streamingTranscripts[$0] } ?? ""
+        let note = processingNoteId.flatMap { repository.note(withId: $0) }
+        let isCleaningLLM = note?.status == .cleaningLLM
+        let textToDisplay = !liveTranscript.isEmpty ? liveTranscript : (note?.rawTranscript ?? "")
+
+        return VStack(spacing: 16) {
+            if !textToDisplay.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: isCleaningLLM ? "sparkles" : "waveform")
+                            .font(.caption)
+                            .foregroundStyle(Color.accentColor)
+                        Text(isCleaningLLM ? "Cleaning up with on-device LLM…" : "Transcribing speech…")
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(Color.accentColor)
+                        Spacer()
+                        ProgressView()
+                            .controlSize(.mini)
+                    }
+
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            Text(textToDisplay)
+                                .font(.body)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .id("bottom")
+                        }
+                        .frame(maxHeight: 140)
+                        .onChange(of: textToDisplay) { _, _ in
+                            withAnimation(.easeOut(duration: 0.1)) {
+                                proxy.scrollTo("bottom", anchor: .bottom)
+                            }
+                        }
+                    }
+                }
+                .padding(14)
+                .background(Color.appSecondaryBackground, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                )
+            } else {
+                ProgressView()
+                    .controlSize(.large)
+                Text("Transcribing audio…")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+            }
+
             Text("This usually only takes a few seconds -- keeping Voxbrief open gets you the better on-device LLM cleanup instead of a plainer fallback.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -221,6 +258,7 @@ public struct KeyboardRecordSheet: View {
 
     private func stopAndProcess() {
         guard let note = coordinator.finishRecording() else { return }
+        processingNoteId = note.id
         phase = .processing
         Task {
             await waitForResultAndHandOff(noteId: note.id)

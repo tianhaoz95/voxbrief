@@ -5,6 +5,7 @@ public struct SettingsView: View {
     @Environment(\.scenePhase) private var scenePhase
     @AppStorage("use_local_llm_endpoint") private var useLocalLLM: Bool = false
     @AppStorage("local_llm_endpoint_url") private var localLLMUrl: String = "http://127.0.0.1:11434/api/generate"
+    @AppStorage(LLMCopywriterService.localLLMModelNameKey) private var localLLMModel: String = LLMCopywriterService.defaultLocalLLMModelName
     @AppStorage("app_appearance") private var appearance: String = "system"
     @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
     @StateObject private var llmService = OnDeviceLLMService.shared
@@ -51,6 +52,28 @@ public struct SettingsView: View {
                                 .autocorrectionDisabled()
                                 .textInputAutocapitalization(.never)
                         }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("Model Name")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Menu("Presets") {
+                                    Button("llama3.2:1b") { localLLMModel = "llama3.2:1b" }
+                                    Button("llama3.2:3b") { localLLMModel = "llama3.2:3b" }
+                                    Button("llama3:8b") { localLLMModel = "llama3:8b" }
+                                    Button("qwen2.5:7b") { localLLMModel = "qwen2.5:7b" }
+                                    Button("mistral:7b") { localLLMModel = "mistral:7b" }
+                                }
+                                .font(.caption)
+                            }
+                            TextField("llama3.2:1b", text: $localLLMModel)
+                                .font(.subheadline.monospaced())
+                                .textFieldStyle(.roundedBorder)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
+                        }
                     } else {
                         HStack {
                             Label("Framework", systemImage: "shippingbox")
@@ -58,6 +81,13 @@ public struct SettingsView: View {
                             Text("MLX Swift")
                                 .foregroundStyle(.secondary)
                         }
+
+                        Picker("Model", selection: $llmService.modelPreference) {
+                            ForEach(OnDeviceModelSelection.allCases) { selection in
+                                Text(selection.displayName).tag(selection)
+                            }
+                        }
+
                         HStack {
                             Label("Active Model", systemImage: "cpu")
                             Spacer()
@@ -138,27 +168,35 @@ public struct SettingsView: View {
                         ? "The small model ships with the app and always works offline. Download the larger model for meaningfully better cleanup quality — it only needs network once, to download."
                         : "On-device models require a real iPhone or iPad. The Simulator's graphics stack doesn't support MLX, so this won't work here — try a physical device.")
                 ) {
+                    Picker("Model Preference", selection: $llmService.modelPreference) {
+                        ForEach(OnDeviceModelSelection.allCases) { selection in
+                            Text(selection.displayName).tag(selection)
+                        }
+                    }
+
                     modelRow(
                         name: OnDeviceLLMService.smallModelDisplayName,
                         detail: "\(OnDeviceLLMService.smallModelParameterCount) parameters · bundled with the app",
                         trailing: AnyView(
-                            OnDeviceLLMService.isSupportedOnThisDevice
-                                ? AnyView(
-                                    Label("Ready", systemImage: "checkmark.circle.fill")
-                                        .labelStyle(.titleAndIcon)
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.green)
-                                )
-                                : AnyView(
-                                    Label("Unsupported", systemImage: "exclamationmark.triangle.fill")
-                                        .labelStyle(.titleAndIcon)
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(.red)
-                                )
+                            HStack(spacing: 8) {
+                                smallModelStatusBadge
+                                if OnDeviceLLMService.isSupportedOnThisDevice && llmService.isUsingLargeModel {
+                                    Button("Use This") {
+                                        llmService.modelPreference = .small
+                                    }
+                                    .font(.caption.weight(.semibold))
+                                }
+                            }
                         )
                     )
 
                     largeModelRow
+
+                    if llmService.modelPreference == .large && !llmService.isUsingLargeModel {
+                        Text("Qwen3-4B is selected, but not downloaded yet. Falling back to Qwen3-0.6B until downloaded.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                 }
                 
                 Section(header: Text("Stage 1 ASR (Speech Recognition)")) {
@@ -340,11 +378,21 @@ public struct SettingsView: View {
                 }
 
             case .ready:
-                Button(role: .destructive) {
-                    llmService.deleteLargeModel()
-                } label: {
-                    Label("Delete Downloaded Model", systemImage: "trash")
-                        .font(.caption)
+                HStack(spacing: 12) {
+                    if !llmService.isUsingLargeModel {
+                        Button {
+                            llmService.modelPreference = .large
+                        } label: {
+                            Label("Use This Model", systemImage: "checkmark.circle")
+                                .font(.caption.weight(.semibold))
+                        }
+                    }
+                    Button(role: .destructive) {
+                        llmService.deleteLargeModel()
+                    } label: {
+                        Label("Delete Downloaded Model", systemImage: "trash")
+                            .font(.caption)
+                    }
                 }
 
             case .failed(let message):
@@ -363,6 +411,25 @@ public struct SettingsView: View {
     }
 
     @ViewBuilder
+    private var smallModelStatusBadge: some View {
+        if !OnDeviceLLMService.isSupportedOnThisDevice {
+            Label("Unsupported", systemImage: "exclamationmark.triangle.fill")
+                .labelStyle(.titleAndIcon)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.red)
+        } else if !llmService.isUsingLargeModel {
+            Label("Active", systemImage: "checkmark.circle.fill")
+                .labelStyle(.titleAndIcon)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.green)
+        } else {
+            Text("Ready")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
     private var largeModelStatusBadge: some View {
         switch llmService.largeModelState {
         case .notDownloaded:
@@ -375,10 +442,16 @@ public struct SettingsView: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.blue)
         case .ready:
-            Label("Ready", systemImage: "checkmark.circle.fill")
-                .labelStyle(.titleAndIcon)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.green)
+            if llmService.isUsingLargeModel {
+                Label("Active", systemImage: "checkmark.circle.fill")
+                    .labelStyle(.titleAndIcon)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.green)
+            } else {
+                Text("Downloaded")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         case .failed:
             Label("Failed", systemImage: "exclamationmark.triangle.fill")
                 .labelStyle(.titleAndIcon)

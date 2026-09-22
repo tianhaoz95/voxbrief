@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// Drives one end-to-end capture: hotkey -> record -> ASR/LLM pipeline -> paste. The Mac analogue
 /// of the iOS `RecordingCoordinator`, except the "finish" action pastes into the previously
@@ -23,6 +24,11 @@ public final class CaptureCoordinator: ObservableObject {
     /// `OverlayWindowController` skip showing the global floating HUD for that flow, since showing
     /// both at once let either one drive `state` while the other's controls silently went stale.
     @Published public private(set) var isAppendCapture: Bool = false
+    /// Real-time streaming transcript received progressively from Stage 1 ASR during processing.
+    @Published public private(set) var streamingTranscript: String = ""
+    /// True when Stage 1 ASR has finished and Stage 2 LLM copywriting is in progress.
+    @Published public private(set) var isCleaningLLM: Bool = false
+
     public var audioLevel: Float { recorder.audioLevel }
     public var recordingDuration: TimeInterval { recorder.recordingDuration }
 
@@ -30,6 +36,9 @@ public final class CaptureCoordinator: ObservableObject {
     private let repository: NoteRepository
     private let pipeline: NoteProcessingPipeline
     private let pasteInjector: PasteInjector
+
+    private var cancellables = Set<AnyCancellable>()
+    private var activeProcessingNoteId: UUID?
 
     /// Bumped on every `beginCapture()`/`cancelCapture()` so a still-running processing task from
     /// a cancelled/superseded capture can tell it's stale and skip pasting or updating state.
@@ -57,6 +66,20 @@ public final class CaptureCoordinator: ObservableObject {
         self.repository = repository
         self.pipeline = pipeline
         self.pasteInjector = pasteInjector
+
+        pipeline.$streamingTranscripts
+            .sink { [weak self] transcripts in
+                guard let self, let id = self.activeProcessingNoteId else { return }
+                self.streamingTranscript = transcripts[id] ?? ""
+            }
+            .store(in: &cancellables)
+
+        repository.objectWillChange
+            .sink { [weak self] in
+                guard let self, let id = self.activeProcessingNoteId, let note = self.repository.note(withId: id) else { return }
+                self.isCleaningLLM = (note.status == .cleaningLLM)
+            }
+            .store(in: &cancellables)
     }
 
     /// `appendingTo`, when set, means this recording will be folded into that existing note (via
@@ -102,6 +125,10 @@ public final class CaptureCoordinator: ObservableObject {
         self.appendTargetNoteId = nil
 
         if let appendTargetNoteId {
+            activeProcessingNoteId = appendTargetNoteId
+            streamingTranscript = ""
+            isCleaningLLM = false
+
             processingTask = Task { [pipeline, repository] in
                 await pipeline.appendRecording(
                     segmentId: result.noteId,
@@ -121,6 +148,10 @@ public final class CaptureCoordinator: ObservableObject {
             }
             return
         }
+
+        activeProcessingNoteId = result.noteId
+        streamingTranscript = ""
+        isCleaningLLM = false
 
         processingTask = Task { [pipeline, repository, pasteInjector] in
             let draft = VoiceNote(
@@ -162,6 +193,9 @@ public final class CaptureCoordinator: ObservableObject {
     public func cancelCapture() {
         generation += 1
         appendTargetNoteId = nil
+        activeProcessingNoteId = nil
+        streamingTranscript = ""
+        isCleaningLLM = false
         processingTask?.cancel()
         processingTask = nil
         switch state {
@@ -178,6 +212,9 @@ public final class CaptureCoordinator: ObservableObject {
         Task {
             try? await Task.sleep(nanoseconds: 1_600_000_000)
             guard self.generation == currentGeneration else { return }
+            self.activeProcessingNoteId = nil
+            self.streamingTranscript = ""
+            self.isCleaningLLM = false
             self.state = .idle
         }
     }
