@@ -22,8 +22,6 @@ public struct NoteListView: View {
     public var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                watchSyncBanner
-
                 if !viewModel.allTags.isEmpty {
                     tagFilterBar
                 }
@@ -85,15 +83,10 @@ public struct NoteListView: View {
                     Button {
                         viewModel.showingSyncStatus = true
                     } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "applewatch")
-                            if syncService.isReachable {
-                                Circle()
-                                    .fill(Color.green)
-                                    .frame(width: 6, height: 6)
-                            }
-                        }
+                        Image(systemName: "applewatch")
+                            .foregroundStyle(watchIconColor)
                     }
+                    .accessibilityLabel(syncService.isReachable ? "Apple Watch connected" : "Apple Watch disconnected")
                 }
 
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -228,33 +221,8 @@ public struct NoteListView: View {
 
     // MARK: - Subviews
 
-    private var watchSyncBanner: some View {
-        Button {
-            viewModel.showingSyncStatus = true
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: "applewatch.radiowaves.left.and.right")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-
-                Text(syncService.latestSyncMessage)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 10)
-        }
-        .buttonStyle(.plain)
-        .overlay(alignment: .bottom) {
-            Divider()
-        }
+    private var watchIconColor: Color {
+        syncService.isReachable ? .green : .secondary
     }
 
     private var tagFilterBar: some View {
