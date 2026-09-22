@@ -96,13 +96,30 @@ fi
 if [ "$SKIP_BUILD" -eq 0 ]; then
   say "regenerating the Xcode project and building VoxbriefMac (Release)"
   (cd "$ROOT" && xcodegen generate)
+
+  # project.yml's MARKETING_VERSION is a static "1.1" placeholder never bumped release to
+  # release -- it's what UpdateChecker.swift compares against the latest GitHub release tag to
+  # decide whether an update is available, and what scripts/release-mac.sh's own DMG-naming step
+  # below reads back out. Left at "1.1" it made every "0.x.y" release look OLDER than what's
+  # already installed (SemVer-ish comparison: major 0 < major 1), so the in-app update check
+  # silently never found anything newer, no matter how many releases were cut. Overriding it here
+  # to the actual release tag being built keeps CFBundleShortVersionString in sync with the tag
+  # that names it.
+  MARKETING_VERSION_ARGS=()
+  if [ -n "$TAG" ]; then
+    MARKETING_VERSION_ARGS=(MARKETING_VERSION="${TAG#v}")
+  else
+    echo "!! no release tag known at build time (only possible with --no-upload and no --tag) -- MARKETING_VERSION stays at project.yml's placeholder." >&2
+  fi
+
   xcodebuild build \
     -project "$ROOT/Voxbrief.xcodeproj" \
     -scheme VoxbriefMac \
     -configuration Release \
     -destination 'platform=macOS' \
     -derivedDataPath "$BUILD_DIR" \
-    CODE_SIGNING_ALLOWED=NO
+    CODE_SIGNING_ALLOWED=NO \
+    "${MARKETING_VERSION_ARGS[@]}"
 else
   say "skipping build"
 fi
