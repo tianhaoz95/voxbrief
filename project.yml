@@ -303,10 +303,24 @@ targets:
         product: MLXLMCommon
       - package: FeedbackKit
         product: FeedbackKit
+    scheme:
+      testTargets:
+        - VoxbriefMacTests
     frameworks:
       - framework: AVFoundation.framework
       - framework: ApplicationServices.framework
       - framework: CoreGraphics.framework
+
+  VoxbriefMacTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: Tests/MacUnitTests
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.jacksonzhou666.voxbrief.mac.tests
+    dependencies:
+      - target: VoxbriefMac
 
   VoxbriefTests:
     type: bundle.unit-test
@@ -318,3 +332,4 @@ targets:
       PRODUCT_BUNDLE_IDENTIFIER: com.jacksonzhou666.voxbrief.tests
     dependencies:
       - target: Voxbrief
+

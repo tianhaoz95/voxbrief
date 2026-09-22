@@ -18,14 +18,30 @@ The `Voxbrief` target depends on the `WhisperKit` Swift package (see Architectur
 xcodebuild -resolvePackageDependencies -project Voxbrief.xcodeproj -scheme Voxbrief
 ```
 
-Run the full unit test suite:
+Run the full unit test suite (both macOS and iOS):
 ```bash
+./scripts/run_unit_tests.sh        # runs both macOS and iOS unit tests
+./scripts/run_unit_tests.sh --mac  # macOS only (VoxbriefMacTests)
+./scripts/run_unit_tests.sh --ios  # iOS only (VoxbriefTests)
+```
+
+Or run directly via xcodebuild:
+```bash
+# iOS unit tests
 xcodebuild test \
   -project Voxbrief.xcodeproj \
   -scheme Voxbrief \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
   CODE_SIGNING_ALLOWED=NO \
   -only-testing:VoxbriefTests
+
+# macOS unit tests
+xcodebuild test \
+  -project Voxbrief.xcodeproj \
+  -scheme VoxbriefMac \
+  -destination 'platform=macOS' \
+  CODE_SIGNING_ALLOWED=NO \
+  -only-testing:VoxbriefMacTests
 ```
 
 Run a single test (append the class/method to `-only-testing`):

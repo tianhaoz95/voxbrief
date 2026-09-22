@@ -1,0 +1,66 @@
+name: Unit Tests
+
+# Runs all unit tests across macOS (VoxbriefMacTests) and iOS (VoxbriefTests).
+# Triggered on every push to main, pull requests targeting main, on a recurring
+# schedule every 6 hours, and on-demand via workflow_dispatch.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Recurring every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: '0 */6 * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26"
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      # The bundled Qwen3-0.6B-4bit model (~337MB) is gitignored and required as a folder-reference
+      # resource in project.yml. Cache it across CI runs to avoid re-downloading.
+      - name: Cache bundled on-device model
+        id: model-cache
+        uses: actions/cache@v4
+        with:
+          path: VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
+          key: qwen3-0.6b-4bit-mlx-community-v1
+
+      - name: Download bundled on-device model (Qwen3-0.6B-4bit)
+        if: steps.model-cache.outputs.cache-hit != 'true'
+        run: |
+          python3 -m pip install --break-system-packages --quiet -U "huggingface_hub"
+          hf download mlx-community/Qwen3-0.6B-4bit \
+            --local-dir VoxbriefApp/Resources/Models/Qwen3-0.6B-4bit
+
+      - name: Regenerate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve package dependencies
+        run: xcodebuild -resolvePackageDependencies -project Voxbrief.xcodeproj -scheme Voxbrief
+
+      - name: Run macOS Unit Tests
+        run: ./scripts/run_unit_tests.sh --mac
+
+      - name: Run iOS Unit Tests
+        run: ./scripts/run_unit_tests.sh --ios

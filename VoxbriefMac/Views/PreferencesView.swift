@@ -17,6 +17,7 @@ struct PreferencesView: View {
     @StateObject private var llmService = OnDeviceLLMService.shared
     @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
     @StateObject private var updateChecker = UpdateChecker.shared
+    @StateObject private var shortcutStore = FeedbackShortcutStore.shared
     @Environment(\.openWindow) private var openWindow
     @Environment(\.openURL) private var openURL
 
@@ -144,13 +145,62 @@ struct PreferencesView: View {
             }
 
 
+            Section {
+                Toggle("Enable Feedback Shortcut", isOn: $shortcutStore.currentShortcut.isEnabled)
+
+                if shortcutStore.currentShortcut.isEnabled {
+                    LabeledContent("Shortcut") {
+                        HStack(spacing: 8) {
+                            Text(shortcutStore.currentShortcut.displayString)
+                                .font(.system(.body, design: .monospaced).weight(.semibold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.appTertiaryFill)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+                            Button(shortcutStore.isRecording ? "Press Keys…" : "Record Shortcut") {
+                                shortcutStore.toggleRecording()
+                            }
+                            .buttonStyle(.bordered)
+
+                            if shortcutStore.isRecording {
+                                Button("Cancel") {
+                                    shortcutStore.cancelRecording()
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                    }
+
+                    Picker("Presets", selection: $shortcutStore.selectedPresetIndex) {
+                        ForEach(0..<FeedbackShortcut.presets.count, id: \.self) { index in
+                            Text(FeedbackShortcut.presets[index].name).tag(index)
+                        }
+                        if shortcutStore.isCustomShortcut {
+                            Text("Custom (\(shortcutStore.currentShortcut.displayString))").tag(-1)
+                        }
+                    }
+
+                    if shortcutStore.currentShortcut != FeedbackShortcut.defaultShortcut {
+                        Button("Reset to Default") {
+                            shortcutStore.resetToDefault()
+                        }
+                        .font(.caption)
+                    }
+                }
+            } header: {
+                Text("Feedback")
+            } footer: {
+                Text("Press this shortcut from anywhere to open the feedback and bug report screen.")
+            }
+
             Section(header: Text("Updates")) {
                 Toggle("Automatically Check for Updates", isOn: $autoCheckForUpdates)
                 updateStatusRow
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 720)
+        .frame(width: 480, height: 760)
         .trackFeedbackScreen("Preferences")
         .onAppear { microphone.refresh() }
         .task {

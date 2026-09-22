@@ -27,6 +27,7 @@ public final class GlobalHotkeyManager {
     private static let rightCommandDeviceFlag = CGEventFlags(rawValue: 0x0000_0010)
 
     public var onBothCommandKeysPressed: (() -> Void)?
+    public var onFeedbackShortcutPressed: (() -> Void)?
 
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
@@ -53,7 +54,7 @@ public final class GlobalHotkeyManager {
         guard eventTap == nil else { return true }
         guard AXIsProcessTrusted() else { return false }
 
-        let mask = CGEventMask(1 << CGEventType.flagsChanged.rawValue)
+        let mask = CGEventMask((1 << CGEventType.flagsChanged.rawValue) | (1 << CGEventType.keyDown.rawValue))
         let selfPointer = Unmanaged.passUnretained(self).toOpaque()
 
         guard let tap = CGEvent.tapCreate(
@@ -104,6 +105,15 @@ public final class GlobalHotkeyManager {
             }
             return
         }
+
+        if type == .keyDown {
+            if !FeedbackShortcutStore.shared.isRecording &&
+                FeedbackShortcutStore.shared.currentShortcut.matches(cgEvent: event) {
+                onFeedbackShortcutPressed?()
+            }
+            return
+        }
+
         guard type == .flagsChanged else { return }
 
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)

@@ -48,6 +48,14 @@ struct VoxbriefMacApp: App {
             coordinator?.beginCapture()
         }
 
+        hotkeyManager.onFeedbackShortcutPressed = {
+            MacFeedbackPresenter.openFeedback()
+        }
+
+        FeedbackShortcutStore.shared.startLocalMonitor {
+            MacFeedbackPresenter.openFeedback()
+        }
+
         #if canImport(FeedbackKit)
         FeedbackKit.configure(.init(
             endpointURL: URL(string: "https://gpucoladcyvijefdjudf.supabase.co/functions/v1/ingest-feedback")!,
