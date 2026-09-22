@@ -16,68 +16,75 @@ public struct NoteListView: View {
     /// fresh, distinct id on every trigger guarantees SwiftUI always treats it as a new
     /// presentation instead.
     @State private var keyboardRecordTrigger: KeyboardRecordTrigger?
+    @State private var isSearchExpanded: Bool = false
+    @FocusState private var isSearchFieldFocused: Bool
 
     public init() {}
 
     public var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                if !viewModel.allTags.isEmpty {
-                    tagFilterBar
+            List {
+                if isSearchExpanded {
+                    searchAndTagsHeader
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
 
                 if viewModel.notes.isEmpty {
                     emptyStateView
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .frame(maxWidth: .infinity, minHeight: 350)
                 } else {
-                    List {
-                        ForEach(viewModel.notes) { note in
-                            NavigationLink(destination: NoteDetailView(note: note)) {
-                                NoteRowView(note: note)
-                            }
-                            .swipeActions(edge: .leading) {
-                                Button {
-                                    viewModel.toggleFavorite(note: note)
-                                } label: {
-                                    Label(note.isFavorite ? "Unfavorite" : "Favorite", systemImage: note.isFavorite ? "star.slash" : "star.fill")
-                                }
-                                .tint(.yellow)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                Button(role: .destructive) {
-                                    viewModel.delete(note: note)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
-
-                                if note.status == .failed {
-                                    Button {
-                                        viewModel.retryProcessing(note: note)
-                                    } label: {
-                                        Label("Retry", systemImage: "arrow.triangle.2.circlepath")
-                                    }
-                                    .tint(.accentColor)
-                                }
-
-                                if note.status == .ready {
-                                    Button {
-                                        viewModel.beginMerge(source: note)
-                                    } label: {
-                                        Label("Append To…", systemImage: "arrow.triangle.merge")
-                                    }
-                                    .tint(.blue)
-                                }
-                            }
-                            .listRowSeparator(.hidden)
+                    ForEach(viewModel.notes) { note in
+                        NavigationLink(destination: NoteDetailView(note: note)) {
+                            NoteRowView(note: note)
                         }
-                    }
-                    .listStyle(.plain)
-                    .refreshable {
-                        await viewModel.refresh()
+                        .swipeActions(edge: .leading) {
+                            Button {
+                                viewModel.toggleFavorite(note: note)
+                            } label: {
+                                Label(note.isFavorite ? "Unfavorite" : "Favorite", systemImage: note.isFavorite ? "star.slash" : "star.fill")
+                            }
+                            .tint(.yellow)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                viewModel.delete(note: note)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+
+                            if note.status == .failed {
+                                Button {
+                                    viewModel.retryProcessing(note: note)
+                                } label: {
+                                    Label("Retry", systemImage: "arrow.triangle.2.circlepath")
+                                }
+                                .tint(.accentColor)
+                            }
+
+                            if note.status == .ready {
+                                Button {
+                                    viewModel.beginMerge(source: note)
+                                } label: {
+                                    Label("Append To…", systemImage: "arrow.triangle.merge")
+                                }
+                                .tint(.blue)
+                            }
+                        }
+                        .listRowSeparator(.hidden)
                     }
                 }
             }
+            .listStyle(.plain)
+            .scrollDismissesKeyboard(.interactively)
+            .refreshable {
+                await viewModel.refresh()
+            }
             .navigationTitle("Voice Notes")
-            .searchable(text: $viewModel.searchText, prompt: "Search notes, requirements, tags...")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -90,6 +97,18 @@ public struct NoteListView: View {
                 }
 
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            isSearchExpanded.toggle()
+                            if !isSearchExpanded {
+                                collapseSearch()
+                            }
+                        }
+                    } label: {
+                        Image(systemName: isSearchExpanded ? "magnifyingglass.circle.fill" : "magnifyingglass")
+                    }
+                    .accessibilityLabel(isSearchExpanded ? "Hide search and tags" : "Search and filter tags")
+
                     Menu {
                         Picker("Source Filter", selection: $viewModel.filterSource) {
                             Text("All Sources").tag(NoteSource?.none)
@@ -184,6 +203,20 @@ public struct NoteListView: View {
                 applyNavigation(screen: screen, tab: tab)
             }
         }
+        if let searchIdx = args.firstIndex(of: "-voxbriefSearch"), searchIdx + 1 < args.count {
+            let query = args[searchIdx + 1]
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isSearchExpanded = true
+                viewModel.searchText = query
+            }
+        }
+        if let tagIdx = args.firstIndex(of: "-voxbriefTag"), tagIdx + 1 < args.count {
+            let tag = args[tagIdx + 1]
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isSearchExpanded = true
+                viewModel.selectedTag = tag
+            }
+        }
     }
 
     private func applyNavigation(screen: String, tab: String?) {
@@ -195,8 +228,13 @@ public struct NoteListView: View {
 
         switch screen {
         case "list":
-            break
+            collapseSearch()
+        case "search":
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isSearchExpanded = true
+            }
         case "detail":
+            collapseSearch()
             if let note = viewModel.notes.first {
                 switch tab {
                 case "raw": selectedDetailTab = .rawTranscript
@@ -225,6 +263,72 @@ public struct NoteListView: View {
         syncService.isReachable ? .green : .secondary
     }
 
+    private var searchAndTagsHeader: some View {
+        VStack(spacing: 0) {
+            searchBar
+            if !viewModel.allTags.isEmpty {
+                tagFilterBar
+            }
+            Divider()
+        }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 16))
+
+                TextField("Search notes, requirements, tags...", text: $viewModel.searchText)
+                    .font(.body)
+                    .focused($isSearchFieldFocused)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .submitLabel(.search)
+                    .onSubmit {
+                        isSearchFieldFocused = false
+                    }
+
+                if !viewModel.searchText.isEmpty {
+                    Button {
+                        viewModel.searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 15))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear search text")
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 7)
+            .background {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(Color(UIColor.secondarySystemFill))
+            }
+
+            Button("Cancel") {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    collapseSearch()
+                }
+            }
+            .font(.body)
+            .foregroundStyle(Color.accentColor)
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+        .padding(.bottom, viewModel.allTags.isEmpty ? 8 : 4)
+    }
+
+    private func collapseSearch() {
+        isSearchExpanded = false
+        viewModel.searchText = ""
+        viewModel.selectedTag = nil
+        isSearchFieldFocused = false
+    }
+
     private var tagFilterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -243,7 +347,7 @@ public struct NoteListView: View {
                 }
             }
             .padding(.horizontal)
-            .padding(.vertical, 10)
+            .padding(.vertical, 8)
         }
     }
 
@@ -262,22 +366,42 @@ public struct NoteListView: View {
         .buttonStyle(.plain)
     }
 
+    private var isAnyFilterActive: Bool {
+        !viewModel.searchText.isEmpty || viewModel.selectedTag != nil || viewModel.filterSource != nil || viewModel.onlyFavorites
+    }
+
     private var emptyStateView: some View {
         VStack(spacing: 18) {
             Spacer()
 
-            Image(systemName: "waveform")
-                .font(.system(size: 46, weight: .light))
-                .foregroundStyle(.tertiary)
+            if isAnyFilterActive {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 46, weight: .light))
+                    .foregroundStyle(.tertiary)
 
-            VStack(spacing: 6) {
-                Text("No Notes Yet")
-                    .font(.title3.weight(.semibold))
-                Text("Record from your Apple Watch, or tap the mic icon to capture an idea.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
+                VStack(spacing: 6) {
+                    Text("No Matching Notes")
+                        .font(.title3.weight(.semibold))
+                    Text("Try searching with different keywords or clearing your filters.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
+            } else {
+                Image(systemName: "waveform")
+                    .font(.system(size: 46, weight: .light))
+                    .foregroundStyle(.tertiary)
+
+                VStack(spacing: 6) {
+                    Text("No Notes Yet")
+                        .font(.title3.weight(.semibold))
+                    Text("Record from your Apple Watch, or tap the mic icon to capture an idea.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
             }
 
             Spacer()
