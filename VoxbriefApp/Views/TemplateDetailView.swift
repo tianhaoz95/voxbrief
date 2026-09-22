@@ -46,5 +46,6 @@ public struct TemplateDetailView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .trackFeedbackScreen("TemplateDetail")
     }
 }

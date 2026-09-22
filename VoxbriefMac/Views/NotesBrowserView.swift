@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(FeedbackKit)
+import FeedbackKit
+#endif
 
 /// Full-featured Mac counterpart to the iPhone app's `NoteListView` + `NoteDetailView` — same
 /// notes (search, tag/source/favorite filters, export, edit, favorite, reprocess, retry, add
@@ -43,6 +46,17 @@ struct NotesBrowserView: View {
             }
         }
         .frame(minWidth: 760, minHeight: 480)
+        .trackFeedbackScreen("NotesBrowser")
+        .onChange(of: selectedNoteId) { _, newId in
+            #if canImport(FeedbackKit)
+            FeedbackKit.currentScreen = (newId != nil) ? "NoteDetail" : "NotesBrowser"
+            #endif
+        }
+        .onAppear {
+            #if canImport(FeedbackKit)
+            FeedbackSettings.syncFloatingButton()
+            #endif
+        }
     }
 
     private var sidebar: some View {

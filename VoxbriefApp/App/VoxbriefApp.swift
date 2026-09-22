@@ -1,10 +1,24 @@
 import SwiftUI
+#if canImport(FeedbackKit)
+import FeedbackKit
+#endif
 
 @main
 struct VoxbriefApp: App {
     @StateObject private var watchSyncService = WatchSyncService.shared
     @StateObject private var noteRepository = NoteRepository.shared
     @StateObject private var pipeline = NoteProcessingPipeline.shared
+
+    init() {
+        #if canImport(FeedbackKit)
+        FeedbackKit.configure(.init(
+            endpointURL: URL(string: "https://gpucoladcyvijefdjudf.supabase.co/functions/v1/ingest-feedback")!,
+            projectKey: "pk_ffa7308d843fd670a9bbd1d67ad0ebf54597"
+        ))
+
+        FeedbackSettings.setupTriggers()
+        #endif
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -28,6 +42,9 @@ private struct RootView: View {
             .preferredColorScheme(colorScheme)
             .onAppear {
                 showOnboarding = !hasCompletedOnboarding
+                #if canImport(FeedbackKit)
+                FeedbackSettings.syncFloatingButton()
+                #endif
             }
             .fullScreenCover(isPresented: $showOnboarding) {
                 OnboardingView {

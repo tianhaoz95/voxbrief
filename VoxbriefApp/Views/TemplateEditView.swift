@@ -96,6 +96,7 @@ public struct TemplateEditView: View {
                     .disabled(trimmedName.isEmpty || !hasAtLeastOneNamedSection)
                 }
             }
+            .trackFeedbackScreen("TemplateEdit")
         }
     }
 

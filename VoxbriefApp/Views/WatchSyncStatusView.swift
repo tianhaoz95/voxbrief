@@ -93,6 +93,7 @@ public struct WatchSyncStatusView: View {
                     }
                 }
             }
+            .trackFeedbackScreen("WatchSyncStatus")
         }
     }
 }

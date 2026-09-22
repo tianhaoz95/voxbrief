@@ -89,6 +89,7 @@ public struct TemplatesView: View {
         .sheet(item: $editingTemplate) { template in
             TemplateEditView(store: store, template: template)
         }
+        .trackFeedbackScreen("Templates")
     }
 
     private func enabledBinding(for template: NoteTemplate) -> Binding<Bool> {

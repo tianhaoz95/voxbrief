@@ -56,6 +56,7 @@ public struct NoteMergePickerSheet: View {
                     Button("Cancel") { dismiss() }
                 }
             }
+            .trackFeedbackScreen("NoteMergePicker")
         }
     }
 }

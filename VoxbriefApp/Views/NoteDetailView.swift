@@ -124,6 +124,7 @@ public struct NoteDetailView: View {
             MacAddRecordingSheet(noteId: viewModel.note.id)
             #endif
         }
+        .trackFeedbackScreen("NoteDetail")
         .onAppear {
             if viewModel.selectedTab == .lightCleanup {
                 viewModel.ensureLightCleanupGenerated()

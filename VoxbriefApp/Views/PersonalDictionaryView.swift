@@ -64,5 +64,6 @@ public struct PersonalDictionaryView: View {
         .sheet(item: $editingEntry) { entry in
             DictionaryEntryEditView(store: store, entry: entry)
         }
+        .trackFeedbackScreen("PersonalDictionary")
     }
 }

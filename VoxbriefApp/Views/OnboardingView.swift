@@ -89,6 +89,7 @@ public struct OnboardingView: View {
                 .padding(.top, 10)
                 .padding(.bottom, 24)
         }
+        .trackFeedbackScreen("Onboarding")
     }
 
     private func featureRow(icon: String, color: Color, title: String, description: String) -> some View {

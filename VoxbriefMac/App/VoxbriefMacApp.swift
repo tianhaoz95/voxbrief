@@ -1,5 +1,8 @@
 import AppKit
 import SwiftUI
+#if canImport(FeedbackKit)
+import FeedbackKit
+#endif
 
 @main
 struct VoxbriefMacApp: App {
@@ -44,6 +47,15 @@ struct VoxbriefMacApp: App {
         hotkeyManager.onBothCommandKeysPressed = { [weak coordinator] in
             coordinator?.beginCapture()
         }
+
+        #if canImport(FeedbackKit)
+        FeedbackKit.configure(.init(
+            endpointURL: URL(string: "https://gpucoladcyvijefdjudf.supabase.co/functions/v1/ingest-feedback")!,
+            projectKey: "pk_ffa7308d843fd670a9bbd1d67ad0ebf54597"
+        ))
+
+        FeedbackSettings.setupTriggers()
+        #endif
 
         if UserDefaults.standard.object(forKey: "auto_check_for_updates") as? Bool ?? true {
             Task { await UpdateChecker.shared.checkNow() }
@@ -94,6 +106,7 @@ private struct MenuBarContentView: View {
     @ObservedObject var coordinator: CaptureCoordinator
     let hotkeyManager: GlobalHotkeyManager
     @ObservedObject var updateChecker: UpdateChecker
+    @AppStorage(FeedbackSettings.buttonEnabledKey) private var feedbackButtonEnabled: Bool = true
 
     @Environment(\.openWindow) private var openWindow
     @Environment(\.openURL) private var openURL
@@ -116,6 +129,15 @@ private struct MenuBarContentView: View {
                     openURL(update.downloadURL)
                 }
             }
+
+            #if canImport(FeedbackKit)
+            if feedbackButtonEnabled {
+                Divider()
+                Button("Send Feedback…") {
+                    FeedbackKit.presentAndSubmit(from: NSApplication.shared.keyWindow) { _ in }
+                }
+            }
+            #endif
 
             Divider()
 

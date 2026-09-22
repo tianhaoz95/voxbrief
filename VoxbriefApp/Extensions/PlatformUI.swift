@@ -78,3 +78,89 @@ enum PlatformPasteboard {
         #endif
     }
 }
+
+#if canImport(FeedbackKit)
+import FeedbackKit
+
+public enum FeedbackSettings {
+    public static let buttonEnabledKey = "feedback_button_enabled"
+    public static let shakeEnabledKey = "feedback_shake_enabled"
+
+    public static var isButtonEnabled: Bool {
+        get { UserDefaults.standard.object(forKey: buttonEnabledKey) as? Bool ?? true }
+        set {
+            UserDefaults.standard.set(newValue, forKey: buttonEnabledKey)
+            syncFloatingButton()
+        }
+    }
+
+    public static var isShakeEnabled: Bool {
+        get { UserDefaults.standard.object(forKey: shakeEnabledKey) as? Bool ?? true }
+        set {
+            UserDefaults.standard.set(newValue, forKey: shakeEnabledKey)
+        }
+    }
+
+    public static func syncFloatingButton() {
+        if isButtonEnabled {
+            #if os(iOS)
+            FeedbackKit.showFloatingTriggerButton {
+                UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap { $0.windows }
+                    .first { $0.isKeyWindow }?
+                    .rootViewController
+            }
+            #elseif os(macOS)
+            FeedbackKit.showFloatingTriggerButton {
+                NSApplication.shared.keyWindow
+            }
+            #endif
+        } else {
+            FeedbackKit.hideFloatingTriggerButton()
+        }
+    }
+
+    public static func setupTriggers() {
+        #if os(iOS)
+        FeedbackKit.enableShakeToReport {
+            guard isShakeEnabled else { return nil }
+            return UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }?
+                .rootViewController
+        }
+        #endif
+
+        syncFloatingButton()
+    }
+}
+
+public struct FeedbackScreenModifier: ViewModifier {
+    let screenName: String
+
+    public func body(content: Content) -> some View {
+        content.onAppear {
+            FeedbackKit.currentScreen = screenName
+        }
+    }
+}
+
+extension View {
+    public func trackFeedbackScreen(_ name: String) -> some View {
+        modifier(FeedbackScreenModifier(screenName: name))
+    }
+}
+#else
+public enum FeedbackSettings {
+    public static let buttonEnabledKey = "feedback_button_enabled"
+    public static let shakeEnabledKey = "feedback_shake_enabled"
+}
+
+extension View {
+    public func trackFeedbackScreen(_ name: String) -> some View {
+        self
+    }
+}
+#endif

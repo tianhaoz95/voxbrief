@@ -12,3 +12,4 @@ build/
 # builds to embed, but too large for plain git (GitHub hard-blocks files
 # over 100MB without Git LFS).
 VoxbriefApp/Resources/Models/
+.agents/

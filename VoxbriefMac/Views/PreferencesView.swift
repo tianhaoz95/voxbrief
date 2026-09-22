@@ -1,5 +1,8 @@
 import ServiceManagement
 import SwiftUI
+#if canImport(FeedbackKit)
+import FeedbackKit
+#endif
 
 /// Mac Settings window. Mirrors the iPhone app's `SettingsView` where it makes sense to behave
 /// identically (same `@AppStorage` keys for the Ollama toggle, same `OnDeviceLLMService` for the
@@ -11,6 +14,7 @@ struct PreferencesView: View {
     @AppStorage("launch_at_login") private var launchAtLoginStored: Bool = false
     @AppStorage("auto_check_for_updates") private var autoCheckForUpdates: Bool = true
     @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
+    @AppStorage(FeedbackSettings.buttonEnabledKey) private var feedbackButtonEnabled: Bool = true
 
     @ObservedObject var accessibility: AccessibilityPermissionManager
     @StateObject private var microphone = MicrophonePermissionManager.shared
@@ -143,6 +147,25 @@ struct PreferencesView: View {
                 .buttonStyle(.plain)
             }
 
+            Section(header: Text("Feedback")) {
+                Toggle("Send Feedback Button", isOn: $feedbackButtonEnabled)
+                    .onChange(of: feedbackButtonEnabled) { _, _ in
+                        #if canImport(FeedbackKit)
+                        FeedbackSettings.syncFloatingButton()
+                        #endif
+                    }
+
+                #if canImport(FeedbackKit)
+                if feedbackButtonEnabled {
+                    Button {
+                        FeedbackKit.presentAndSubmit(from: NSApplication.shared.keyWindow) { _ in }
+                    } label: {
+                        Label("Send Feedback", systemImage: "exclamationmark.bubble")
+                    }
+                }
+                #endif
+            }
+
             Section(header: Text("Updates")) {
                 Toggle("Automatically Check for Updates", isOn: $autoCheckForUpdates)
                 updateStatusRow
@@ -150,6 +173,7 @@ struct PreferencesView: View {
         }
         .formStyle(.grouped)
         .frame(width: 480, height: 720)
+        .trackFeedbackScreen("Preferences")
         .onAppear { microphone.refresh() }
         .task {
             if autoCheckForUpdates, updateChecker.state == .idle {

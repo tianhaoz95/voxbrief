@@ -59,6 +59,7 @@ public struct QuickRecordSheet: View {
                     }
                 }
             }
+            .trackFeedbackScreen("QuickRecord")
             .onAppear {
                 startAutoRecord()
             }

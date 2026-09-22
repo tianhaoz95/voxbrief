@@ -73,6 +73,7 @@ public struct DictionaryEntryEditView: View {
                     .disabled(trimmedTerm.isEmpty)
                 }
             }
+            .trackFeedbackScreen("DictionaryEntryEdit")
         }
     }
 

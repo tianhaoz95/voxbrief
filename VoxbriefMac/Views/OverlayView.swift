@@ -19,6 +19,7 @@ struct OverlayView: View {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .strokeBorder(Color.primary.opacity(0.08))
         )
+        .trackFeedbackScreen("Overlay")
     }
 
     @ViewBuilder

@@ -81,6 +81,7 @@ struct MacAddRecordingSheet: View {
         // the Cancel button off-window entirely: present in the view tree, but below the visible sheet
         // and unclickable. Letting height size to content is what actually keeps Cancel reachable.
         .frame(width: 360)
+        .trackFeedbackScreen("AddRecording")
         .onAppear { coordinator.beginCapture(appendingTo: noteId) }
         .onChange(of: coordinator.state) { _, newState in
             if newState == .success {

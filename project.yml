@@ -21,6 +21,9 @@ packages:
   MLXSwiftExamples:
     url: https://github.com/ml-explore/mlx-swift-examples
     exactVersion: 2.29.1
+  FeedbackKit:
+    url: https://github.com/tianhaoz95/feedback-kit
+    branch: main
 
 targets:
   Voxbrief:
@@ -91,6 +94,8 @@ targets:
         product: MLXLLM
       - package: MLXSwiftExamples
         product: MLXLMCommon
+      - package: FeedbackKit
+        product: FeedbackKit
     frameworks:
       - framework: AVFoundation.framework
       - framework: WatchConnectivity.framework
@@ -296,6 +301,8 @@ targets:
         product: MLXLLM
       - package: MLXSwiftExamples
         product: MLXLMCommon
+      - package: FeedbackKit
+        product: FeedbackKit
     frameworks:
       - framework: AVFoundation.framework
       - framework: ApplicationServices.framework

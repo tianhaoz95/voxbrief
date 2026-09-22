@@ -80,6 +80,7 @@ public struct KeyboardRecordSheet: View {
                     }
                 }
             }
+            .trackFeedbackScreen("KeyboardRecord")
             .onAppear {
                 openedAt = Date()
                 startAutoRecord()

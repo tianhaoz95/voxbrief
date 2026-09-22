@@ -163,6 +163,7 @@ public struct NoteListView: View {
             .navigationDestination(item: $selectedDetailNote) { note in
                 NoteDetailView(note: note, initialTab: selectedDetailTab)
             }
+            .trackFeedbackScreen("NoteList")
             .onAppear {
                 applyLaunchArguments()
             }

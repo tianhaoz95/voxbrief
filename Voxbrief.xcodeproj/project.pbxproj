@@ -64,6 +64,7 @@
 		64449EC42EE8123A116A08EB /* TemplateEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B14742A80B04804C7A613CF4 /* TemplateEditView.swift */; };
 		67642845892E3B515B0D78D2 /* AudioConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988E0BDCC158250481339E11 /* AudioConstants.swift */; };
 		691B6C26A9E7585D09DB058C /* LLMCopywriterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9E58587D34FC957F4AE403 /* LLMCopywriterServiceTests.swift */; };
+		6B525DE5AD2D8696C40BB67C /* FeedbackKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6B9699D1165BEDA06BDDC1BA /* FeedbackKit */; };
 		6EFD59944A2D0C5BE2124937 /* TemplateDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F69D56A035DF1728B39998 /* TemplateDetailView.swift */; };
 		6FF5EDD32BA1B009FF22B000 /* MacAudioRecorderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC779C7DEFBC23A48D6A366A /* MacAudioRecorderService.swift */; };
 		71CB99209CAB27623629CD5C /* NoteProcessingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */; };
@@ -138,6 +139,7 @@
 		E8496FC62FF5A7CE92419DEA /* PasteInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4769D6DA1245703C529EFE21 /* PasteInjector.swift */; };
 		EAB97948647254097F03D47D /* RecordingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C43AFCEE906F715A993001 /* RecordingCoordinator.swift */; };
 		EACCE41A539C3FB1E8B76E71 /* VoiceNoteActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B6B4EE56273273351A6104 /* VoiceNoteActivityAttributes.swift */; };
+		EBE2CA78073932EF96C2F4D6 /* FeedbackKit in Frameworks */ = {isa = PBXBuildFile; productRef = C3592D6161DC5A9969A5B66F /* FeedbackKit */; };
 		ECCD86C67706C6FB7641FDE3 /* DictionaryCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F11F8A2D3B21ECC69ECA27 /* DictionaryCorrector.swift */; };
 		F39F847D156570E22EC28858 /* NoteDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FA4EC385ED9D0FC96F7955 /* NoteDetailViewModel.swift */; };
 		F5C9810D4553F163281C72F5 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FEE0D93589E948738A6156 /* VoiceNote.swift */; };
@@ -329,6 +331,7 @@
 				FADF466CC1C50C89D346636D /* WhisperKit in Frameworks */,
 				51CC7CC68DBE2F229C298885 /* MLXLLM in Frameworks */,
 				A2DC25FC3CC4733F84BD302E /* MLXLMCommon in Frameworks */,
+				6B525DE5AD2D8696C40BB67C /* FeedbackKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,6 +342,7 @@
 				811785C3AB29046CEE31D3F2 /* WhisperKit in Frameworks */,
 				C8ABA9BEC2112569C5505238 /* MLXLLM in Frameworks */,
 				A5813846512DB507166D26CC /* MLXLMCommon in Frameworks */,
+				EBE2CA78073932EF96C2F4D6 /* FeedbackKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -720,6 +724,7 @@
 				229AFE98228CC08425BD323C /* WhisperKit */,
 				F12B540EED6866922E9E23CF /* MLXLLM */,
 				C6628A2DEF8598CD4850817D /* MLXLMCommon */,
+				C3592D6161DC5A9969A5B66F /* FeedbackKit */,
 			);
 			productName = Voxbrief;
 			productReference = BFF47C7AC8DE99A52D14D5E7 /* Voxbrief.app */;
@@ -742,6 +747,7 @@
 				2040CA9F4A672DFAAEAC0B47 /* WhisperKit */,
 				5217B63305D7FA96D559DE40 /* MLXLLM */,
 				FE66E50CF58B0A68756AB6D7 /* MLXLMCommon */,
+				6B9699D1165BEDA06BDDC1BA /* FeedbackKit */,
 			);
 			productName = VoxbriefMac;
 			productReference = 4BF5A0AD3173094058B72D91 /* VoxbriefMac.app */;
@@ -879,6 +885,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5FA083E011276BDBA1332C19 /* XCRemoteSwiftPackageReference "argmax-oss-swift" */,
+				DAF76B28D42D3C46C7AB00DD /* XCRemoteSwiftPackageReference "feedback-kit" */,
 				2154F9A9B7BCA54BFB72DC64 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -1591,6 +1598,14 @@
 				minimumVersion = 1.1.0;
 			};
 		};
+		DAF76B28D42D3C46C7AB00DD /* XCRemoteSwiftPackageReference "feedback-kit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tianhaoz95/feedback-kit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1608,6 +1623,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2154F9A9B7BCA54BFB72DC64 /* XCRemoteSwiftPackageReference "mlx-swift-examples" */;
 			productName = MLXLLM;
+		};
+		6B9699D1165BEDA06BDDC1BA /* FeedbackKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DAF76B28D42D3C46C7AB00DD /* XCRemoteSwiftPackageReference "feedback-kit" */;
+			productName = FeedbackKit;
+		};
+		C3592D6161DC5A9969A5B66F /* FeedbackKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DAF76B28D42D3C46C7AB00DD /* XCRemoteSwiftPackageReference "feedback-kit" */;
+			productName = FeedbackKit;
 		};
 		C6628A2DEF8598CD4850817D /* MLXLMCommon */ = {
 			isa = XCSwiftPackageProductDependency;

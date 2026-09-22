@@ -1,5 +1,5 @@
 {
-  "originHash" : "50968cf6181e9616a82f405d76f4bd402a23cc17ccfc669308dc9021771b0214",
+  "originHash" : "bd604d7044496592730c016ed50909e5756d64e38aa0459bc2d64c7ffa1b923e",
   "pins" : [
     {
       "identity" : "argmax-oss-swift",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "1e2a163736dfa5a198e637ae44c114e1c6d5cc2d",
         "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "feedback-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tianhaoz95/feedback-kit",
+      "state" : {
+        "branch" : "main",
+        "revision" : "7ac73fd121ecfaf564f3b3ea064a0398167a2c5e"
       }
     },
     {
