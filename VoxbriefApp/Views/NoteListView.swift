@@ -18,12 +18,26 @@ public struct NoteListView: View {
     @State private var keyboardRecordTrigger: KeyboardRecordTrigger?
     @State private var isSearchExpanded: Bool = false
     @FocusState private var isSearchFieldFocused: Bool
+    @State private var isHeaderScrolled: Bool = false
 
     public init() {}
 
     public var body: some View {
         NavigationStack {
             List {
+                VoxbriefLogoView(size: .large)
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear.preference(
+                                key: HeaderOffsetPreferenceKey.self,
+                                value: geo.frame(in: .named("NoteListScroll")).minY
+                            )
+                        }
+                    )
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
                 if isSearchExpanded {
                     searchAndTagsHeader
                         .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
@@ -80,11 +94,21 @@ public struct NoteListView: View {
                 }
             }
             .listStyle(.plain)
+            .coordinateSpace(name: "NoteListScroll")
+            .onPreferenceChange(HeaderOffsetPreferenceKey.self) { minY in
+                let scrolled = minY < -10
+                if scrolled != isHeaderScrolled {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isHeaderScrolled = scrolled
+                    }
+                }
+            }
             .scrollDismissesKeyboard(.interactively)
             .refreshable {
                 await viewModel.refresh()
             }
-            .navigationTitle("Voice Notes")
+            .navigationTitle(isHeaderScrolled ? "VoxBrief" : "")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -417,3 +441,11 @@ public struct NoteListView: View {
 private struct KeyboardRecordTrigger: Identifiable {
     let id = UUID()
 }
+
+private struct HeaderOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+

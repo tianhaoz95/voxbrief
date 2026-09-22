@@ -77,7 +77,7 @@ struct NotesBrowserView: View {
                 .listStyle(.sidebar)
             }
         }
-        .navigationTitle("Voice Notes")
+        .navigationTitle("VoxBrief")
         .navigationSplitViewColumnWidth(min: 240, ideal: 300)
         .searchable(text: $viewModel.searchText, prompt: "Search notes, requirements, tags...")
         .toolbar {

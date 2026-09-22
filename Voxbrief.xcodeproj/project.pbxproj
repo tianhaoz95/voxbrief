@@ -53,6 +53,7 @@
 		51CC7CC68DBE2F229C298885 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = 5217B63305D7FA96D559DE40 /* MLXLLM */; };
 		5208B51DEF855BC15E07468D /* WatchAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BF494983C29E89D921ABACA /* WatchAudioRecorder.swift */; };
 		55E5EF8D8F25F9CB2F004DF9 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 479CB7D3F321802C49EF5564 /* KeyboardView.swift */; };
+		56805164ECBD8AFC31789CD4 /* VoxbriefLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FBAB18CBFD15D8BCF11DFF /* VoxbriefLogoView.swift */; };
 		57711FA260DA9B0BE7DA8F44 /* NoteListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79425446C4B377940835B987 /* NoteListViewModel.swift */; };
 		579753AFFD8E2094702404DD /* NoteTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4670A66832BC3EDB51D04C99 /* NoteTemplate.swift */; };
 		585B76CB8C6C5E401F3001C3 /* PersonalDictionaryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F942BDF0E561E09CD54BC4 /* PersonalDictionaryStore.swift */; };
@@ -246,6 +247,7 @@
 		1C1F160AB952E32457620BAC /* NoteProcessingPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteProcessingPipeline.swift; sourceTree = "<group>"; };
 		214322359CF4DEE6753E172E /* CaptureWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureWaveformView.swift; sourceTree = "<group>"; };
 		21EBE178B4D20AED497C380E /* MacFeedbackPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacFeedbackPresenter.swift; sourceTree = "<group>"; };
+		23FBAB18CBFD15D8BCF11DFF /* VoxbriefLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoxbriefLogoView.swift; sourceTree = "<group>"; };
 		251979C32C445301C3EDD38D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2657ABEEE26CAC4BC36968D1 /* VoxbriefWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = VoxbriefWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		26D9161722A62F745EEBA731 /* QuickRecordSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRecordSheet.swift; sourceTree = "<group>"; };
@@ -557,6 +559,7 @@
 				E8F69D56A035DF1728B39998 /* TemplateDetailView.swift */,
 				B14742A80B04804C7A613CF4 /* TemplateEditView.swift */,
 				B890732A2E9F6A9C8361C2B2 /* TemplatesView.swift */,
+				23FBAB18CBFD15D8BCF11DFF /* VoxbriefLogoView.swift */,
 				AE056827F75E2A918AABC197 /* WatchSyncStatusView.swift */,
 			);
 			path = Views;
@@ -1110,6 +1113,7 @@
 				F5C9810D4553F163281C72F5 /* VoiceNote.swift in Sources */,
 				CF522D7A437072483BE0EF9A /* VoiceNoteActivityAttributes.swift in Sources */,
 				936364B94D1E1E7839A01DC9 /* VoxbriefApp.swift in Sources */,
+				56805164ECBD8AFC31789CD4 /* VoxbriefLogoView.swift in Sources */,
 				B3D2E5CCE28D62709F3D12D5 /* WatchSyncService.swift in Sources */,
 				2D4CF8A23ED4AE84CB00AE5B /* WatchSyncStatusView.swift in Sources */,
 			);
