@@ -1,43 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!--
-  Nothing needed here today: kept as a placeholder so a future entitlement has an obvious home.
-  VoxbriefMac ships outside the Mac App Store (Developer ID + notarization, see
-  scripts/sign-desktop.sh), so it is NOT sandboxed. Microphone access already works via
-  NSMicrophoneUsageDescription in Info.plist alone, and the global hotkey / paste-into-focused-app
-  features (GlobalHotkeyManager, PasteInjector) need Accessibility (TCC), not an entitlement.
-  WhisperKit/MLX Swift link statically into the app executable with no bundled runtime or spawned
-  helper process, so none of the hardened-runtime relaxations below apply either.
-
-  Note for anyone editing this file: an XML comment may not contain the two-character sequence
-  "double hyphen" anywhere in its body, only at the closing delimiter (this file was originally
-  broken by exactly that: AMFIUnserializeXML syntax error, which plutil/general XML tools
-  tolerate but codesign's stricter entitlements parser does not). Use a colon or parentheses
-  instead of that sequence in comment prose here.
-
-  com.apple.security.device.audio-input: only relevant under App Sandbox
-  (com.apple.security.app-sandbox, below), so irrelevant here since this app isn't sandboxed.
-
-  com.apple.security.cs.allow-jit / .allow-unsigned-executable-memory / .disable-library-validation:
-  needed only if the app spawns an executable that isn't itself signed by this same identity (a
-  bundled runtime, a helper tool). VoxbriefMac has none.
-
-  com.apple.security.app-sandbox: NOT required for Developer ID distribution/notarization, only
-  for Mac App Store distribution, which isn't the plan here (see scripts/sign-desktop.sh's header).
--->
 <plist version="1.0">
 <dict>
-  <!--
-  <key>com.apple.security.device.audio-input</key>
-  <true/>
-  <key>com.apple.security.cs.allow-jit</key>
-  <true/>
-  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
-  <true/>
-  <key>com.apple.security.cs.disable-library-validation</key>
-  <true/>
-  <key>com.apple.security.app-sandbox</key>
-  <true/>
-  -->
+	<key>com.apple.security.device.audio-input</key>
+	<true/>
 </dict>
 </plist>

@@ -270,6 +270,22 @@ targets:
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
     entitlements:
       path: VoxbriefMac/Entitlements.plist
+      # XcodeGen treats VoxbriefMac/Entitlements.plist as a generated artifact: it rewrites that
+      # file from `properties` below on every `xcodegen generate` (called by scripts/run_mac.sh,
+      # release-mac.sh, etc.), silently discarding anything hand-edited directly into the checked-
+      # in file instead. So this `properties` block is the actual source of truth for what ships.
+      #
+      # com.apple.security.device.audio-input is required despite VoxbriefMac NOT being sandboxed:
+      # it's signed with the Hardened Runtime (`codesign --options runtime`, required for
+      # notarization -- see scripts/sign-desktop.sh), and Hardened Runtime enforces this
+      # entitlement for microphone access on its own, independent of App Sandbox. Without it,
+      # tccd refuses to even show the consent dialog -- confirmed via `log show --predicate
+      # 'eventMessage CONTAINS "kTCCServiceMicrophone"'`, which logged "Policy disallows prompt
+      # ...; access to kTCCServiceMicrophone denied" for every launch of the properly-signed,
+      # notarized app. No amount of toggling Microphone access in System Settings fixes that,
+      # since the OS never actually asks.
+      properties:
+        com.apple.security.device.audio-input: true
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.jacksonzhou666.voxbrief.mac
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
