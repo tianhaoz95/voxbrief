@@ -1,7 +1,4 @@
 import SwiftUI
-#if canImport(FeedbackKit)
-import FeedbackKit
-#endif
 
 public struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -11,7 +8,6 @@ public struct SettingsView: View {
     @AppStorage(LLMCopywriterService.localLLMModelNameKey) private var localLLMModel: String = LLMCopywriterService.defaultLocalLLMModelName
     @AppStorage("app_appearance") private var appearance: String = "system"
     @AppStorage(NoteProcessingPipeline.lightCleanupEnabledKey) private var lightCleanupEnabled: Bool = true
-    @AppStorage(FeedbackSettings.buttonEnabledKey) private var feedbackButtonEnabled: Bool = true
     @AppStorage(FeedbackSettings.shakeEnabledKey) private var feedbackShakeEnabled: Bool = true
     @StateObject private var llmService = OnDeviceLLMService.shared
     @StateObject private var dictionaryStore = PersonalDictionaryStore.shared
@@ -238,30 +234,7 @@ public struct SettingsView: View {
                 }
                 
                 Section(header: Text("Feedback")) {
-                    Toggle("Send Feedback Button", isOn: $feedbackButtonEnabled)
-                        .onChange(of: feedbackButtonEnabled) { _, _ in
-                            #if canImport(FeedbackKit)
-                            FeedbackSettings.syncFloatingButton()
-                            #endif
-                        }
-
                     Toggle("Shake to Feedback", isOn: $feedbackShakeEnabled)
-
-                    #if canImport(FeedbackKit)
-                    if feedbackButtonEnabled {
-                        Button {
-                            if let rootVC = UIApplication.shared.connectedScenes
-                                .compactMap({ $0 as? UIWindowScene })
-                                .flatMap({ $0.windows })
-                                .first(where: { $0.isKeyWindow })?
-                                .rootViewController {
-                                FeedbackKit.presentAndSubmit(from: rootVC) { _ in }
-                            }
-                        } label: {
-                            Label("Send Feedback", systemImage: "exclamationmark.bubble")
-                        }
-                    }
-                    #endif
                 }
 
                 Section(header: Text("About Voxbrief")) {

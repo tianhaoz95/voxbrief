@@ -42,9 +42,6 @@ private struct RootView: View {
             .preferredColorScheme(colorScheme)
             .onAppear {
                 showOnboarding = !hasCompletedOnboarding
-                #if canImport(FeedbackKit)
-                FeedbackSettings.syncFloatingButton()
-                #endif
             }
             .fullScreenCover(isPresented: $showOnboarding) {
                 OnboardingView {

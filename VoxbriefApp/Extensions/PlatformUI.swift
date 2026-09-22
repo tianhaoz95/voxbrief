@@ -83,41 +83,12 @@ enum PlatformPasteboard {
 import FeedbackKit
 
 public enum FeedbackSettings {
-    public static let buttonEnabledKey = "feedback_button_enabled"
     public static let shakeEnabledKey = "feedback_shake_enabled"
-
-    public static var isButtonEnabled: Bool {
-        get { UserDefaults.standard.object(forKey: buttonEnabledKey) as? Bool ?? true }
-        set {
-            UserDefaults.standard.set(newValue, forKey: buttonEnabledKey)
-            syncFloatingButton()
-        }
-    }
 
     public static var isShakeEnabled: Bool {
         get { UserDefaults.standard.object(forKey: shakeEnabledKey) as? Bool ?? true }
         set {
             UserDefaults.standard.set(newValue, forKey: shakeEnabledKey)
-        }
-    }
-
-    public static func syncFloatingButton() {
-        if isButtonEnabled {
-            #if os(iOS)
-            FeedbackKit.showFloatingTriggerButton {
-                UIApplication.shared.connectedScenes
-                    .compactMap { $0 as? UIWindowScene }
-                    .flatMap { $0.windows }
-                    .first { $0.isKeyWindow }?
-                    .rootViewController
-            }
-            #elseif os(macOS)
-            FeedbackKit.showFloatingTriggerButton {
-                NSApplication.shared.keyWindow
-            }
-            #endif
-        } else {
-            FeedbackKit.hideFloatingTriggerButton()
         }
     }
 
@@ -132,8 +103,6 @@ public enum FeedbackSettings {
                 .rootViewController
         }
         #endif
-
-        syncFloatingButton()
     }
 }
 
@@ -154,7 +123,6 @@ extension View {
 }
 #else
 public enum FeedbackSettings {
-    public static let buttonEnabledKey = "feedback_button_enabled"
     public static let shakeEnabledKey = "feedback_shake_enabled"
 }
 

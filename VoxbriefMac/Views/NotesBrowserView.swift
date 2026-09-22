@@ -52,11 +52,6 @@ struct NotesBrowserView: View {
             FeedbackKit.currentScreen = (newId != nil) ? "NoteDetail" : "NotesBrowser"
             #endif
         }
-        .onAppear {
-            #if canImport(FeedbackKit)
-            FeedbackSettings.syncFloatingButton()
-            #endif
-        }
     }
 
     private var sidebar: some View {
