@@ -53,14 +53,14 @@ private struct SidebarMaterialView: NSViewRepresentable {
 }
 #endif
 
-/// Page-level background for the shared iOS/macOS note views -- plain grouped background on iOS,
-/// the same vibrancy material as `VoxbriefMac`'s sidebar on macOS, so `NotesBrowserView`'s
-/// `NavigationSplitView` reads as one continuous surface instead of two visibly different grays
-/// between the sidebar and the detail pane.
+/// Page-level background for the shared iOS/macOS note views -- system background on iOS
+/// matching the app bar and home page, the same vibrancy material as `VoxbriefMac`'s
+/// sidebar on macOS, so `NotesBrowserView`'s `NavigationSplitView` reads as one continuous
+/// surface instead of two visibly different grays between the sidebar and the detail pane.
 struct AppPageBackground: View {
     var body: some View {
         #if os(iOS)
-        Color.appGroupedBackground
+        Color(UIColor.systemBackground)
         #elseif os(macOS)
         SidebarMaterialView()
         #endif
