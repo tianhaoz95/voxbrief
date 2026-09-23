@@ -21,7 +21,6 @@ public struct NoteListView: View {
     @State private var keyboardRecordTrigger: KeyboardRecordTrigger?
     @State private var isSearchExpanded: Bool = false
     @FocusState private var isSearchFieldFocused: Bool
-    @Namespace private var searchAnimationNamespace
 
     public init() {}
 
@@ -30,7 +29,16 @@ public struct NoteListView: View {
             VStack(spacing: 0) {
                 if isSearchExpanded {
                     searchAndTagsHeader
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .transition(
+                            .asymmetric(
+                                insertion: .scale(scale: 0.95, anchor: .topTrailing)
+                                    .combined(with: .opacity)
+                                    .combined(with: .move(edge: .top)),
+                                removal: .scale(scale: 0.95, anchor: .topTrailing)
+                                    .combined(with: .opacity)
+                                    .combined(with: .move(edge: .top))
+                            )
+                        )
                 }
 
                 notesList
@@ -46,7 +54,6 @@ public struct NoteListView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     searchToolbarButton
                 }
-                .hideSharedBackgroundIfAvailable()
 
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     trailingToolbarGroup
@@ -121,7 +128,7 @@ public struct NoteListView: View {
         if let searchIdx = args.firstIndex(of: "-voxbriefSearch"), searchIdx + 1 < args.count {
             let query = args[searchIdx + 1]
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                     isSearchExpanded = true
                 }
                 viewModel.searchText = query
@@ -130,7 +137,7 @@ public struct NoteListView: View {
         if let tagIdx = args.firstIndex(of: "-voxbriefTag"), tagIdx + 1 < args.count {
             let tag = args[tagIdx + 1]
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                     isSearchExpanded = true
                 }
                 viewModel.selectedTag = tag
@@ -149,7 +156,7 @@ public struct NoteListView: View {
         case "list":
             collapseSearch()
         case "search":
-            withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                 isSearchExpanded = true
                 isSearchFieldFocused = true
             }
@@ -240,16 +247,14 @@ public struct NoteListView: View {
     private var searchToolbarButton: some View {
         if !isSearchExpanded {
             Button {
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                     isSearchExpanded = true
                     isSearchFieldFocused = true
                 }
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .matchedGeometryEffect(id: "searchIcon", in: searchAnimationNamespace)
             }
             .accessibilityLabel("Search and filter tags")
-            .matchedGeometryEffect(id: "searchContainer", in: searchAnimationNamespace)
         }
     }
 
@@ -319,9 +324,8 @@ public struct NoteListView: View {
             if !viewModel.allTags.isEmpty {
                 tagFilterBar
             }
-            Divider()
         }
-        .background(Color.appGroupedBackground)
+        .background(Color(UIColor.systemBackground))
     }
 
     private var searchBar: some View {
@@ -330,7 +334,6 @@ public struct NoteListView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 16))
-                    .matchedGeometryEffect(id: "searchIcon", in: searchAnimationNamespace)
 
                 TextField("Search notes, requirements, tags...", text: $viewModel.searchText)
                     .font(.body)
@@ -354,13 +357,12 @@ public struct NoteListView: View {
                     .accessibilityLabel("Clear search text")
                 }
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
             .background {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(Color(UIColor.secondarySystemFill))
             }
-            .matchedGeometryEffect(id: "searchContainer", in: searchAnimationNamespace)
 
             Button("Cancel") {
                 collapseSearch()
@@ -374,7 +376,7 @@ public struct NoteListView: View {
     }
 
     private func collapseSearch() {
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
             isSearchExpanded = false
         }
         viewModel.searchText = ""
