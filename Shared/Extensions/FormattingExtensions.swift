@@ -27,4 +27,11 @@ public extension Date {
             return formatter.string(from: self)
         }
     }
+
+    var fullFormattedString: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .short
+        return formatter.string(from: self)
+    }
 }

@@ -8,14 +8,16 @@ public struct NoteRowView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .center, spacing: 6) {
                 Text(note.title)
                     .font(.headline)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
 
                 Spacer(minLength: 8)
+
+                statusIndicator
 
                 if note.isFavorite {
                     Image(systemName: "star.fill")
@@ -30,18 +32,8 @@ public struct NoteRowView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
-
-            HStack(spacing: 4) {
-                Text(metadataLine)
-
-                Spacer(minLength: 8)
-
-                statusIndicator
-            }
-            .font(.caption)
-            .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 10)
+        .padding(.vertical, 4)
     }
 
     private var shortProcessingLabel: String {
@@ -53,15 +45,6 @@ public struct NoteRowView: View {
         }
     }
 
-    private var metadataLine: String {
-        var parts = [note.createdAt.relativeOrFormattedString]
-        if note.duration > 0 {
-            parts.append(note.duration.formattedDuration)
-        }
-        parts.append(note.source.displayName)
-        return parts.joined(separator: "  ·  ")
-    }
-
     @ViewBuilder
     private var statusIndicator: some View {
         if note.status.isProcessing {
@@ -71,14 +54,18 @@ public struct NoteRowView: View {
                 Text(shortProcessingLabel)
                     .lineLimit(1)
             }
+            .font(.caption2)
+            .foregroundStyle(.secondary)
         } else if note.status == .failed {
             Label("Failed", systemImage: "exclamationmark.circle.fill")
                 .foregroundStyle(.red)
                 .labelStyle(.titleAndIcon)
+                .font(.caption2)
         } else if note.cleanupEngine == CleanupEngineLabel.ruleBased {
             Label("Basic Cleanup", systemImage: "exclamationmark.circle.fill")
                 .foregroundStyle(.orange)
                 .labelStyle(.titleAndIcon)
+                .font(.caption2)
         }
     }
 }

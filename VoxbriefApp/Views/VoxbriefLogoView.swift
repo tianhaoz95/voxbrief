@@ -40,9 +40,10 @@ public struct VoxbriefLogoView: View {
                 Text("Brief")
                     .foregroundStyle(Color.accentColor)
             }
-            .font(.system(size: size == .large ? 32 : 19, weight: .bold, design: .rounded))
+            .font(.system(size: size == .large ? 32 : 18, weight: .bold, design: .rounded))
             .tracking(-0.5)
         }
+        .fixedSize()
         .accessibilityElement(children: .combine)
         .accessibilityLabel("VoxBrief")
     }

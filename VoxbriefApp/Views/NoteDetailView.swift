@@ -68,6 +68,8 @@ public struct NoteDetailView: View {
                 case .pipeline:
                     pipelineSection
                 }
+
+                metadataFooter
             }
             .padding()
         }
@@ -141,10 +143,19 @@ public struct NoteDetailView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
+            HStack(spacing: 6) {
                 Label(viewModel.note.source.displayName, systemImage: viewModel.note.source.iconName)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
+
+                if viewModel.note.duration > 0 {
+                    Text("·")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                    Text(viewModel.note.duration.formattedDuration)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
 
                 Spacer()
 
@@ -745,6 +756,31 @@ public struct NoteDetailView: View {
         case .done: return .green
         case .active: return .accentColor
         case .pending: return Color.appTertiaryFill
+        }
+    }
+
+    // MARK: - Metadata Footer
+
+    private var metadataFooter: some View {
+        VStack(spacing: 6) {
+            Divider()
+                .padding(.top, 12)
+                .padding(.bottom, 6)
+
+            HStack(spacing: 6) {
+                Label(viewModel.note.source.displayName, systemImage: viewModel.note.source.iconName)
+
+                if viewModel.note.duration > 0 {
+                    Text("·")
+                    Text(viewModel.note.duration.formattedDuration)
+                }
+
+                Text("·")
+                Text(viewModel.note.createdAt.fullFormattedString)
+            }
+            .font(.caption)
+            .foregroundStyle(.tertiary)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }
