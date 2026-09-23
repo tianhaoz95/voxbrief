@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(FeedbackKit)
+import FeedbackKit
+#endif
 
 public struct NoteListView: View {
     @StateObject private var viewModel = NoteListViewModel()
@@ -18,72 +21,19 @@ public struct NoteListView: View {
     @State private var keyboardRecordTrigger: KeyboardRecordTrigger?
     @State private var isSearchExpanded: Bool = false
     @FocusState private var isSearchFieldFocused: Bool
+    @Namespace private var searchAnimationNamespace
 
     public init() {}
 
     public var body: some View {
         NavigationStack {
-            List {
-
+            VStack(spacing: 0) {
                 if isSearchExpanded {
                     searchAndTagsHeader
-                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
-                if viewModel.notes.isEmpty {
-                    emptyStateView
-                        .listRowInsets(EdgeInsets())
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                        .frame(maxWidth: .infinity, minHeight: 350)
-                } else {
-                    ForEach(viewModel.notes) { note in
-                        NavigationLink(destination: NoteDetailView(note: note)) {
-                            NoteRowView(note: note)
-                        }
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                viewModel.toggleFavorite(note: note)
-                            } label: {
-                                Label(note.isFavorite ? "Unfavorite" : "Favorite", systemImage: note.isFavorite ? "star.slash" : "star.fill")
-                            }
-                            .tint(.yellow)
-                        }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                viewModel.delete(note: note)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-
-                            if note.status == .failed {
-                                Button {
-                                    viewModel.retryProcessing(note: note)
-                                } label: {
-                                    Label("Retry", systemImage: "arrow.triangle.2.circlepath")
-                                }
-                                .tint(.accentColor)
-                            }
-
-                            if note.status == .ready {
-                                Button {
-                                    viewModel.beginMerge(source: note)
-                                } label: {
-                                    Label("Append To…", systemImage: "arrow.triangle.merge")
-                                }
-                                .tint(.blue)
-                            }
-                        }
-                        .listRowSeparator(.hidden)
-                    }
-                }
-            }
-            .listStyle(.plain)
-            .scrollDismissesKeyboard(.interactively)
-            .refreshable {
-                await viewModel.refresh()
+                notesList
             }
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
@@ -91,72 +41,19 @@ public struct NoteListView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     VoxbriefLogoView(size: .inline)
                 }
+                .hideSharedBackgroundIfAvailable()
+
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    searchToolbarButton
+                }
+                .hideSharedBackgroundIfAvailable()
 
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    Button {
-                        viewModel.showingSyncStatus = true
-                    } label: {
-                        Image(systemName: "applewatch")
-                            .foregroundStyle(watchIconColor)
-                    }
-                    .accessibilityLabel(syncService.isReachable ? "Apple Watch connected" : "Apple Watch disconnected")
-
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.25)) {
-                            isSearchExpanded.toggle()
-                            if !isSearchExpanded {
-                                collapseSearch()
-                            }
-                        }
-                    } label: {
-                        Image(systemName: isSearchExpanded ? "magnifyingglass.circle.fill" : "magnifyingglass")
-                    }
-                    .accessibilityLabel(isSearchExpanded ? "Hide search and tags" : "Search and filter tags")
-
-                    Menu {
-                        Picker("Source Filter", selection: $viewModel.filterSource) {
-                            Text("All Sources").tag(NoteSource?.none)
-                            Text("Apple Watch").tag(NoteSource?.some(.watchApp))
-                            Text("Watch Complication").tag(NoteSource?.some(.watchComplication))
-                            Text("Watch Live Activity").tag(NoteSource?.some(.watchLiveActivity))
-                            Text("iPhone Direct").tag(NoteSource?.some(.phoneApp))
-                        }
-
-                        Toggle(isOn: $viewModel.onlyFavorites) {
-                            Label("Favorites Only", systemImage: "star")
-                        }
-
-                        Divider()
-
-                        ShareLink(item: viewModel.exportAllNotesMarkdown()) {
-                            Label("Export All Notes", systemImage: "square.and.arrow.up.on.square")
-                        }
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                    }
-
-                    Button {
-                        viewModel.showingSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
+                    trailingToolbarGroup
                 }
 
                 ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        viewModel.showingRecordSheet = true
-                    } label: {
-                        Image(systemName: "mic.fill")
-                    }
-                    .tint(Color.accentColor)
-                    .overlay(alignment: .topTrailing) {
-                        if viewModel.pipeline.activeProcessingCount > 0 {
-                            Circle()
-                                .fill(.orange)
-                                .frame(width: 7, height: 7)
-                                .offset(x: 8, y: -6)
-                        }
-                    }
+                    recordBottomBarButton
                 }
             }
             .sheet(isPresented: $viewModel.showingRecordSheet) {
@@ -193,6 +90,20 @@ public struct NoteListView: View {
                     Task { await viewModel.refresh() }
                 }
             }
+            .onChange(of: viewModel.showingSyncStatus) { _, isShowing in
+                if !isShowing {
+                    #if canImport(FeedbackKit)
+                    FeedbackKit.currentScreen = "NoteList"
+                    #endif
+                }
+            }
+            .onChange(of: viewModel.showingSettings) { _, isShowing in
+                if !isShowing {
+                    #if canImport(FeedbackKit)
+                    FeedbackKit.currentScreen = "NoteList"
+                    #endif
+                }
+            }
         }
     }
 
@@ -210,14 +121,18 @@ public struct NoteListView: View {
         if let searchIdx = args.firstIndex(of: "-voxbriefSearch"), searchIdx + 1 < args.count {
             let query = args[searchIdx + 1]
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isSearchExpanded = true
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                    isSearchExpanded = true
+                }
                 viewModel.searchText = query
             }
         }
         if let tagIdx = args.firstIndex(of: "-voxbriefTag"), tagIdx + 1 < args.count {
             let tag = args[tagIdx + 1]
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                isSearchExpanded = true
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                    isSearchExpanded = true
+                }
                 viewModel.selectedTag = tag
             }
         }
@@ -234,8 +149,9 @@ public struct NoteListView: View {
         case "list":
             collapseSearch()
         case "search":
-            withAnimation(.easeInOut(duration: 0.25)) {
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
                 isSearchExpanded = true
+                isSearchFieldFocused = true
             }
         case "detail":
             collapseSearch()
@@ -263,6 +179,136 @@ public struct NoteListView: View {
 
     // MARK: - Subviews
 
+    private var notesList: some View {
+        List {
+            if viewModel.notes.isEmpty {
+                emptyStateView
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .frame(maxWidth: .infinity, minHeight: 350)
+            } else {
+                ForEach(viewModel.notes) { note in
+                    NavigationLink(destination: NoteDetailView(note: note)) {
+                        NoteRowView(note: note)
+                    }
+                    .swipeActions(edge: .leading) {
+                        Button {
+                            viewModel.toggleFavorite(note: note)
+                        } label: {
+                            Label(note.isFavorite ? "Unfavorite" : "Favorite", systemImage: note.isFavorite ? "star.slash" : "star.fill")
+                        }
+                        .tint(.yellow)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            viewModel.delete(note: note)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+
+                        if note.status == .failed {
+                            Button {
+                                viewModel.retryProcessing(note: note)
+                            } label: {
+                                Label("Retry", systemImage: "arrow.triangle.2.circlepath")
+                            }
+                            .tint(.accentColor)
+                        }
+
+                        if note.status == .ready {
+                            Button {
+                                viewModel.beginMerge(source: note)
+                            } label: {
+                                Label("Append To…", systemImage: "arrow.triangle.merge")
+                            }
+                            .tint(.blue)
+                        }
+                    }
+                    .listRowSeparator(.hidden)
+                }
+            }
+        }
+        .listStyle(.plain)
+        .scrollDismissesKeyboard(.interactively)
+        .refreshable {
+            await viewModel.refresh()
+        }
+    }
+
+    @ViewBuilder
+    private var searchToolbarButton: some View {
+        if !isSearchExpanded {
+            Button {
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+                    isSearchExpanded = true
+                    isSearchFieldFocused = true
+                }
+            } label: {
+                Image(systemName: "magnifyingglass")
+                    .matchedGeometryEffect(id: "searchIcon", in: searchAnimationNamespace)
+            }
+            .accessibilityLabel("Search and filter tags")
+            .matchedGeometryEffect(id: "searchContainer", in: searchAnimationNamespace)
+        }
+    }
+
+    @ViewBuilder
+    private var trailingToolbarGroup: some View {
+        Button {
+            viewModel.showingSyncStatus = true
+        } label: {
+            Image(systemName: "applewatch")
+                .foregroundStyle(watchIconColor)
+        }
+        .accessibilityLabel(syncService.isReachable ? "Apple Watch connected" : "Apple Watch disconnected")
+
+        Menu {
+            Picker("Source Filter", selection: $viewModel.filterSource) {
+                Text("All Sources").tag(NoteSource?.none)
+                Text("Apple Watch").tag(NoteSource?.some(.watchApp))
+                Text("Watch Complication").tag(NoteSource?.some(.watchComplication))
+                Text("Watch Live Activity").tag(NoteSource?.some(.watchLiveActivity))
+                Text("iPhone Direct").tag(NoteSource?.some(.phoneApp))
+            }
+
+            Toggle(isOn: $viewModel.onlyFavorites) {
+                Label("Favorites Only", systemImage: "star")
+            }
+
+            Divider()
+
+            ShareLink(item: viewModel.exportAllNotesMarkdown()) {
+                Label("Export All Notes", systemImage: "square.and.arrow.up.on.square")
+            }
+        } label: {
+            Image(systemName: "line.3.horizontal.decrease.circle")
+        }
+
+        Button {
+            viewModel.showingSettings = true
+        } label: {
+            Image(systemName: "gearshape")
+        }
+    }
+
+    private var recordBottomBarButton: some View {
+        Button {
+            viewModel.showingRecordSheet = true
+        } label: {
+            Image(systemName: "mic.fill")
+        }
+        .tint(Color.accentColor)
+        .overlay(alignment: .topTrailing) {
+            if viewModel.pipeline.activeProcessingCount > 0 {
+                Circle()
+                    .fill(.orange)
+                    .frame(width: 7, height: 7)
+                    .offset(x: 8, y: -6)
+            }
+        }
+    }
+
     private var watchIconColor: Color {
         syncService.isReachable ? .green : .secondary
     }
@@ -275,6 +321,7 @@ public struct NoteListView: View {
             }
             Divider()
         }
+        .background(Color.appGroupedBackground)
     }
 
     private var searchBar: some View {
@@ -283,6 +330,7 @@ public struct NoteListView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 16))
+                    .matchedGeometryEffect(id: "searchIcon", in: searchAnimationNamespace)
 
                 TextField("Search notes, requirements, tags...", text: $viewModel.searchText)
                     .font(.body)
@@ -312,11 +360,10 @@ public struct NoteListView: View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color(UIColor.secondarySystemFill))
             }
+            .matchedGeometryEffect(id: "searchContainer", in: searchAnimationNamespace)
 
             Button("Cancel") {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    collapseSearch()
-                }
+                collapseSearch()
             }
             .font(.body)
             .foregroundStyle(Color.accentColor)
@@ -327,7 +374,9 @@ public struct NoteListView: View {
     }
 
     private func collapseSearch() {
-        isSearchExpanded = false
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.78)) {
+            isSearchExpanded = false
+        }
         viewModel.searchText = ""
         viewModel.selectedTag = nil
         isSearchFieldFocused = false
