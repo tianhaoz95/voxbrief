@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Voxbrief · Spoken Thoughts to Structured Specs (100% On-Device AI)</title>
-  <meta name="description" content="Capture voice notes instantly on Apple Watch, iPhone, and Mac. Transform stream-of-consciousness audio into structured Markdown specs, requirements, and action items with on-device Whisper & Qwen3 LLM.">
+  <meta name="description" content="Capture voice notes instantly on Apple Watch, iPhone, and Mac. Transform stream-of-consciousness audio into structured Markdown specs, requirements, and task lists with Apple Foundation Model, Whisper, and Qwen3.">
   <link rel="canonical" href="https://tianhaoz95.github.io/voxbrief/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://tianhaoz95.github.io/voxbrief/">
@@ -28,12 +28,12 @@
       } catch (e) {}
     })();
   </script>
-  <meta name="theme-color" content="#050811" id="themeColorMeta">
+  <meta name="theme-color" content="#0a0d14" id="themeColorMeta">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Ambient Lighting & Matrix Effects -->
+  <!-- Ambient Lighting & Subtle Grid -->
   <div class="bg-glow"></div>
   <div class="bg-grid"></div>
 
@@ -46,7 +46,7 @@
       </a>
       
       <ul class="nav-links" id="navLinks">
-        <li><a href="#demo">Live Demo</a></li>
+        <li><a href="#demo">Interactive Demo</a></li>
         <li><a href="#features">Architecture</a></li>
         <li><a href="#comparison">Compare</a></li>
         <li><a href="#watch">Apple Watch</a></li>
@@ -91,14 +91,8 @@
       <div class="container">
         <div class="hero-pill-wrap">
           <div class="badge-pill">
-            <div class="sound-bars" aria-hidden="true">
-              <span class="sound-bar"></span>
-              <span class="sound-bar"></span>
-              <span class="sound-bar"></span>
-              <span class="sound-bar"></span>
-            </div>
             <span class="pulsing-dot" aria-hidden="true"></span>
-            <span>100% PRIVATE ON-DEVICE SPEECH &amp; LLM · iOS 17, watchOS 10 &amp; macOS</span>
+            <span>100% ON-DEVICE SPEECH &amp; LLM · APPLE SILICON &amp; APPLE INTELLIGENCE</span>
           </div>
         </div>
 
@@ -107,7 +101,7 @@
         </h1>
 
         <p class="hero-subtitle">
-          Capture voice memos instantly on Apple Watch, iPhone, or Mac. On-device <strong>Whisper</strong> and <strong>Qwen3 LLM</strong> turn stream-of-consciousness audio into clean Markdown requirements, numbered logic, and action items — completely offline.
+          Capture voice memos instantly on Apple Watch, iPhone, or Mac. Powered by on-device <strong>WhisperKit</strong> and the <strong>Apple Foundation Model</strong> by default (with opt-in <strong>Qwen3 via MLX Swift</strong>), turning stream-of-consciousness audio into clean Markdown requirements, structured templates, and actionable checklists — completely offline.
         </p>
 
         <div class="hero-cta">
@@ -115,13 +109,13 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 11l5 5 5-5"/><path d="M4 19h16"/></svg>
             Get the Latest Build
           </a>
+          <a href="#demo" class="btn-secondary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Interactive Demo
+          </a>
           <a href="https://github.com/tianhaoz95/voxbrief" class="btn-secondary" target="_blank" rel="noopener">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-            View Source Code
-          </a>
-          <a href="#demo" class="btn-secondary">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-            Interactive Demo
+            GitHub (Open Source)
           </a>
         </div>
 
@@ -134,7 +128,7 @@
             <img src="https://img.shields.io/github/stars/tianhaoz95/voxbrief?style=flat-square&label=Stars&color=38bdf8" alt="GitHub Stars" loading="lazy">
           </a>
           <a href="https://github.com/tianhaoz95/voxbrief/commits/main" target="_blank" rel="noopener">
-            <img src="https://img.shields.io/github/last-commit/tianhaoz95/voxbrief?style=flat-square&label=Last%20Commit&color=a855f7" alt="Last Commit" loading="lazy">
+            <img src="https://img.shields.io/github/last-commit/tianhaoz95/voxbrief?style=flat-square&label=Last%20Commit&color=818cf8" alt="Last Commit" loading="lazy">
           </a>
           <a href="https://github.com/tianhaoz95/voxbrief/issues" target="_blank" rel="noopener">
             <img src="https://img.shields.io/github/issues/tianhaoz95/voxbrief?style=flat-square&label=Open%20Issues&color=10b981" alt="Open Issues" loading="lazy">
@@ -149,15 +143,15 @@
           </div>
           <div class="metric-item">
             <div class="metric-value">0 Bytes</div>
-            <div class="metric-label">Voice Data Sent to Cloud</div>
+            <div class="metric-label">Sent to Cloud · Sandboxed</div>
           </div>
           <div class="metric-item">
-            <div class="metric-value">Stage 1 + 2</div>
-            <div class="metric-label">WhisperCoreML + Qwen3 MLX</div>
+            <div class="metric-value">Default</div>
+            <div class="metric-label">Apple Foundation Model</div>
           </div>
           <div class="metric-item">
             <div class="metric-value">1 Tap</div>
-            <div class="metric-label">Apple Watch Complication</div>
+            <div class="metric-label">Watch Complications &amp; Mac Menubar</div>
           </div>
         </div>
 
@@ -165,12 +159,12 @@
         <div class="hero-graphic-container">
           <div class="floating-chip floating-chip-top">
             <div class="chip-icon-box">⌚</div>
-            <span>Apple Watch Series 11 · 1-Tap Offline AAC Capture</span>
+            <span>Apple Watch · 1-Tap Standalone Offline Capture</span>
           </div>
 
           <div class="floating-chip floating-chip-bottom">
             <div class="chip-icon-box">⚡️</div>
-            <span>MLX Swift Metal GPU · Qwen3 On-Device Copywriter</span>
+            <span>Apple Foundation Model &amp; MLX Swift · 100% On-Device</span>
           </div>
 
           <div class="hero-graphic-wrap">
@@ -199,9 +193,9 @@
             </div>
 
             <div class="demo-tab-selector" role="tablist" aria-label="Demo scenarios">
-              <button class="demo-tab-btn active" role="tab" aria-selected="true" onclick="switchDemoTab(0)">1. AI Architecture</button>
-              <button class="demo-tab-btn" role="tab" aria-selected="false" onclick="switchDemoTab(1)">2. Watch Complications</button>
-              <button class="demo-tab-btn" role="tab" aria-selected="false" onclick="switchDemoTab(2)">3. Release Checklist</button>
+              <button class="demo-tab-btn active" role="tab" aria-selected="true" onclick="switchDemoTab(0)">1. Software Spec</button>
+              <button class="demo-tab-btn" role="tab" aria-selected="false" onclick="switchDemoTab(1)">2. Sprint Task List</button>
+              <button class="demo-tab-btn" role="tab" aria-selected="false" onclick="switchDemoTab(2)">3. Engineering Standup</button>
             </div>
           </div>
 
@@ -231,7 +225,7 @@
               <span class="waveform-col" style="height: 30%;"></span>
             </div>
             <div class="player-timer" id="playerTimer">00:18 / 00:54</div>
-            <div class="player-pill">AAC @ 32kHz Mono</div>
+            <div class="player-pill">AAC @ 32kHz Mono · Local ASR</div>
           </div>
 
           <!-- Split View: Raw Spoken Memo vs Structured Markdown Spec -->
@@ -243,14 +237,14 @@
                 <span style="font-size: 0.8rem; color: var(--text-muted);">Verbatim Whisper Output</span>
               </div>
               <div class="raw-transcript-box" id="rawTranscriptBox">
-                "hey team <span class="filler">so yeah</span> for the AI engine we need complete privacy. requirement one is speech recognition must run locally with whisperkit and coreml so no audio ever leaves the device. requirement two is stage two structured copywriting runs on-device using qwen3 with mlx swift. condition 1 if the device supports metal gpu acceleration execute directly on neural engine. condition 2 if user configures a local ollama endpoint route there instead. <span class="filler">um</span> make sure to encrypt local storage with aes 256."
+                "hey team <span class="filler">so yeah</span> for the AI engine we need complete privacy. requirement one is speech recognition must run locally with whisperkit and coreml so no audio ever leaves the device. requirement two is stage two structured copywriting runs on-device using the apple foundation model by default with opt-in qwen3 via mlx swift. condition 1 if apple intelligence is available execute directly on neural engine. condition 2 if user configures a local ollama endpoint route there instead. <span class="filler">um</span> make sure to encrypt local storage with aes 256."
               </div>
             </div>
 
             <!-- Center Flow Divider -->
             <div class="split-divider" aria-hidden="true">
               <div class="pipeline-flow-icon">⚡️</div>
-              <div class="pipeline-flow-text">Two-Stage On-Device Flow</div>
+              <div class="pipeline-flow-text">Two-Stage On-Device Intelligence</div>
             </div>
 
             <!-- Right: Clean Spec -->
@@ -264,18 +258,18 @@
               </div>
               <div class="spec-rendered-box" id="specRenderedBox">
                 <div class="spec-title-line">On-Device AI Engine &amp; Privacy Architecture</div>
-                <div class="spec-quote">Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.</div>
+                <div class="spec-quote">Zero cloud transmission architecture running local Whisper CoreML ASR and native Apple Foundation Model LLM.</div>
                 
                 <div class="spec-section-head">🎯 Requirements</div>
                 <ul class="spec-list">
                   <li>Run speech recognition locally via WhisperKit CoreML (no audio leaves device)</li>
-                  <li>Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration</li>
+                  <li>Execute Stage 2 copywriting using Apple Foundation Model by default (or Qwen3 via MLX Swift)</li>
                   <li>Encrypt local audio recordings and notes database on disk with AES-256</li>
                 </ul>
 
                 <div class="spec-section-head">🔢 Execution Logic</div>
                 <ul class="spec-list">
-                  <li>If device supports Metal GPU, execute on-device Qwen3 model</li>
+                  <li>If Apple Intelligence is supported, use SystemLanguageModel on Neural Engine</li>
                   <li>If user opts into local LLM in Settings, route to private Ollama host</li>
                 </ul>
 
@@ -287,7 +281,7 @@
                   </li>
                   <li onclick="toggleDemoCheck(this)" role="checkbox" aria-checked="false" tabindex="0">
                     <span class="check-box-icon">✓</span>
-                    <span>Validate MLX Swift memory allocation and cache purge</span>
+                    <span>Validate Apple Foundation Model token generation speed</span>
                   </li>
                 </ul>
 
@@ -295,7 +289,7 @@
                   <span class="spec-tag">#AI</span>
                   <span class="spec-tag">#privacy</span>
                   <span class="spec-tag">#CoreML</span>
-                  <span class="spec-tag">#architecture</span>
+                  <span class="spec-tag">#AppleIntelligence</span>
                 </div>
               </div>
             </div>
@@ -319,16 +313,16 @@
             <div class="bento-icon">⚡️</div>
             <h3 class="bento-title">Two-Stage On-Device Intelligence</h3>
             <p class="bento-desc">
-              Audio recording is decoupled from copy synthesis. Stage 1 executes OpenAI's Whisper model on the Apple Neural Engine via <strong>WhisperKit CoreML</strong> for verbatim acoustic accuracy. Stage 2 executes <strong>Qwen3</strong> via <strong>MLX Swift</strong> with Apple Silicon GPU acceleration to extract requirements, conditions, and checklists into Markdown.
+              Audio capture is strictly decoupled from copy synthesis. Stage 1 executes OpenAI's Whisper on the Apple Neural Engine via <strong>WhisperKit CoreML</strong> for verbatim acoustic accuracy. Stage 2 executes the native <strong>Apple Foundation Model</strong> by default (or <strong>Qwen3</strong> via <strong>MLX Swift</strong> with Metal GPU acceleration) to turn rambling speech into structured Markdown specs with zero cloud round-trips.
             </p>
             <div class="bento-visual-wrap">
               <img src="assets/promo/promo_pipeline.png" alt="Two-Stage Pipeline Diagram">
             </div>
             <div class="tech-chips" style="margin-top: 20px;">
-              <span class="tech-chip">OpenAI Whisper</span>
+              <span class="tech-chip">Apple Foundation Model</span>
+              <span class="tech-chip">WhisperKit CoreML</span>
               <span class="tech-chip">Apple Neural Engine</span>
-              <span class="tech-chip">MLX Swift</span>
-              <span class="tech-chip">Metal GPU</span>
+              <span class="tech-chip">MLX Swift Metal</span>
               <span class="tech-chip">Qwen3 4-Bit</span>
             </div>
           </div>
@@ -338,7 +332,7 @@
             <div class="bento-icon bento-icon-purple">⌚</div>
             <h3 class="bento-title">Apple Watch Standalone</h3>
             <p class="bento-desc">
-              Capture audio with a single tap on your watch face complications (Circular, Corner, Rectangular, Inline). Operates 100% offline away from your iPhone. Automatically transfers high-efficiency AAC audio when back in range.
+              Capture ideas with a single tap on your watch face complications (Circular, Corner, Rectangular, Inline). Operates 100% offline away from your iPhone, preserving battery. Automatically background-syncs AAC audio via WatchConnectivity when reunited.
             </p>
             <div class="tech-chips">
               <span class="tech-chip">WidgetKit Complications</span>
@@ -351,9 +345,9 @@
           <!-- Bento 3: Absolute Privacy -->
           <div class="bento-item reveal">
             <div class="bento-icon bento-icon-emerald">🔒</div>
-            <h3 class="bento-title">Zero Cloud &amp; Zero Tracking</h3>
+            <h3 class="bento-title">Zero Cloud &amp; Sandboxed Privacy</h3>
             <p class="bento-desc">
-              Your voice and thoughts never pass through external servers. Zero telemetry, zero analytics libraries, zero advertising IDs. All notes and audio are stored securely in your device's sandboxed local filesystem.
+              Your voice and thoughts never leave your hardware. Zero telemetry, zero analytics trackers, zero third-party SDKs. Audio files, transcripts, and notes are encrypted and stored solely in your device's sandboxed filesystem.
             </p>
             <div class="tech-chips">
               <span class="tech-chip">Sandboxed Storage</span>
@@ -365,29 +359,31 @@
           <!-- Bento 4: Flexible Model Selection -->
           <div class="bento-item reveal">
             <div class="bento-icon">⚙️</div>
-            <h3 class="bento-title">3 AI Model Tiers</h3>
+            <h3 class="bento-title">Adaptive On-Device AI</h3>
             <p class="bento-desc">
-              Ships with pre-bundled <strong>Qwen3-0.6B</strong> ready on first launch. Download the high-fidelity <strong>Qwen3-4B</strong> on-demand in Settings, or configure a private local <strong>Ollama</strong> network host.
+              Uses the built-in <strong>Apple Foundation Model</strong> by default on supported platforms (iOS 26+, macOS 26+) with zero extra downloads. Users can opt into <strong>Qwen3-4B</strong> on-demand for open-weight local execution, or connect to a private <strong>Ollama</strong> LAN host.
             </p>
             <div class="tech-chips">
-              <span class="tech-chip">Bundled Qwen3-0.6B</span>
+              <span class="tech-chip">Apple Foundation Model</span>
               <span class="tech-chip">Downloadable Qwen3-4B</span>
+              <span class="tech-chip">Bundled Qwen3-0.6B</span>
               <span class="tech-chip">Private Ollama LAN</span>
             </div>
           </div>
 
           <!-- Bento 5: Productivity & Export (Large Span 2) -->
           <div class="bento-item bento-span-2 reveal">
-            <div class="bento-icon bento-icon-purple">🚀</div>
-            <h3 class="bento-title">Seamless Workflow Integration</h3>
+            <div class="bento-icon bento-icon-purple">📋</div>
+            <h3 class="bento-title">Custom Templates &amp; Personal Dictionary</h3>
             <p class="bento-desc">
-              Every note is formatted in GitHub-flavored Markdown. Copy bulleted requirements directly into GitHub issues, Jira tickets, Obsidian vaults, Apple Notes, or Slack channels with a single tap. Audio playback includes interactive waveform scrubbing and speed adjustments.
+              Auto-classifies spoken memos into structured templates: Design Doc, Task List, Meeting Notes, or custom schemas. A built-in Personal Technical Dictionary ensures proper nouns, technical acronyms, and team jargon are preserved verbatim without hallucination. Notes format into GitHub-flavored Markdown ready for Obsidian, Apple Notes, and Jira.
             </p>
             <div class="tech-chips">
+              <span class="tech-chip">Multi-Template Engine</span>
+              <span class="tech-chip">Personal Technical Dictionary</span>
               <span class="tech-chip">GitHub Flavored Markdown</span>
               <span class="tech-chip">Obsidian Ready</span>
-              <span class="tech-chip">Audio Scrubber</span>
-              <span class="tech-chip">iOS System Share Sheet</span>
+              <span class="tech-chip">macOS Menubar &amp; Hotkey</span>
             </div>
           </div>
         </div>
@@ -480,8 +476,8 @@
                     <p>Generic transcription endpoints with server queues and unknown privacy policies.</p>
                   </td>
                   <td class="comp-vox">
-                    <span class="comp-badge badge-success">WhisperKit CoreML + MLX Swift</span>
-                    <p>Tuned specifically for Apple Neural Engine (ANE) and Apple Silicon Metal GPU.</p>
+                    <span class="comp-badge badge-success">WhisperKit + Apple FM &amp; MLX Swift</span>
+                    <p>Tuned specifically for Apple Neural Engine (ANE), Apple Intelligence System Models, and Metal GPU.</p>
                   </td>
                 </tr>
               </tbody>
@@ -602,12 +598,12 @@
             <img src="assets/icon.png" alt="Voxbrief Icon" class="brand-icon">
             <span class="brand-name">Voxbrief</span>
           </div>
-          <p>Instant voice idea capture for Apple Watch, iPhone &amp; Mac. Two-stage on-device AI pipeline powered by WhisperKit CoreML and MLX Swift Qwen3.</p>
+          <p>Instant voice idea capture for Apple Watch, iPhone &amp; Mac. Two-stage on-device AI pipeline powered by WhisperKit CoreML, Apple FoundationModels &amp; MLX Swift Qwen3.</p>
         </div>
         <div class="footer-col">
           <h4>Product</h4>
           <ul>
-            <li><a href="#demo">Live Demo</a></li>
+            <li><a href="#demo">Interactive Demo</a></li>
             <li><a href="#features">Architecture</a></li>
             <li><a href="#comparison">Why On-Device</a></li>
             <li><a href="#watch">Apple Watch</a></li>
@@ -633,7 +629,7 @@
       </div>
       <div class="footer-bottom">
         <div>&copy; 2026 Tianhao Zhou. All rights reserved.</div>
-        <div>Built with Swift, SwiftUI, WhisperKit CoreML &amp; MLX Swift. 100% On-Device.</div>
+        <div>Built with Swift, SwiftUI, WhisperKit CoreML, Apple FoundationModels &amp; MLX Swift. 100% On-Device.</div>
       </div>
     </div>
   </footer>
@@ -653,21 +649,21 @@
         timer: "00:18 / 00:54",
         totalSeconds: 54,
         currentSeconds: 18,
-        raw: `"hey team <span class='filler'>so yeah</span> for the AI engine we need complete privacy. requirement one is speech recognition must run locally with whisperkit and coreml so no audio ever leaves the device. requirement two is stage two structured copywriting runs on-device using qwen3 with mlx swift. condition 1 if the device supports metal gpu acceleration execute directly on neural engine. condition 2 if user configures a local ollama endpoint route there instead. <span class='filler'>um</span> make sure to encrypt local storage with aes 256."`,
+        raw: `"hey team <span class='filler'>so yeah</span> for the AI engine we need complete privacy. requirement one is speech recognition must run locally with whisperkit and coreml so no audio ever leaves the device. requirement two is stage two structured copywriting runs on-device using the apple foundation model by default with opt-in qwen3 via mlx swift. condition 1 if apple intelligence is available execute directly on neural engine. condition 2 if user configures a local ollama endpoint route there instead. <span class='filler'>um</span> make sure to encrypt local storage with aes 256."`,
         spec: `
           <div class="spec-title-line">On-Device AI Engine &amp; Privacy Architecture</div>
-          <div class="spec-quote">Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.</div>
+          <div class="spec-quote">Zero cloud transmission architecture running local Whisper CoreML ASR and native Apple Foundation Model LLM.</div>
           
           <div class="spec-section-head">🎯 Requirements</div>
           <ul class="spec-list">
             <li>Run speech recognition locally via WhisperKit CoreML (no audio leaves device)</li>
-            <li>Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration</li>
+            <li>Execute Stage 2 copywriting using Apple Foundation Model by default (or Qwen3 via MLX Swift)</li>
             <li>Encrypt local audio recordings and notes database on disk with AES-256</li>
           </ul>
 
           <div class="spec-section-head">🔢 Execution Logic</div>
           <ul class="spec-list">
-            <li>If device supports Metal GPU, execute on-device Qwen3 model</li>
+            <li>If Apple Intelligence is supported, use SystemLanguageModel on Neural Engine</li>
             <li>If user opts into local LLM in Settings, route to private Ollama host</li>
           </ul>
 
@@ -679,7 +675,7 @@
             </li>
             <li onclick="toggleDemoCheck(this)" role="checkbox" aria-checked="false" tabindex="0">
               <span class="check-box-icon">✓</span>
-              <span>Validate MLX Swift memory allocation and cache purge</span>
+              <span>Validate Apple Foundation Model token generation speed</span>
             </li>
           </ul>
 
@@ -687,94 +683,86 @@
             <span class="spec-tag">#AI</span>
             <span class="spec-tag">#privacy</span>
             <span class="spec-tag">#CoreML</span>
-            <span class="spec-tag">#architecture</span>
+            <span class="spec-tag">#AppleIntelligence</span>
           </div>
         `,
-        copyMarkdown: `# On-Device AI Engine & Privacy Architecture\n\n> Zero cloud transmission architecture running local Whisper CoreML ASR and MLX Swift Qwen3 on-device LLM.\n\n### 🎯 Requirements\n- Run speech recognition locally via WhisperKit CoreML (no audio leaves device)\n- Execute Stage 2 copywriting using on-device Qwen3 via MLX Swift Metal acceleration\n- Encrypt local audio recordings and notes database on disk with AES-256\n\n### 🔢 Execution Logic\n1. If device supports Metal GPU, execute on-device Qwen3 model\n2. If user opts into local LLM in Settings, route to private Ollama host\n\n### ✅ Action Items\n- [ ] Benchmark CoreML neural engine inference latency\n- [ ] Validate MLX Swift memory allocation and cache purge\n\n#AI #privacy #CoreML #architecture`
+        copyMarkdown: `# On-Device AI Engine & Privacy Architecture\n\n> Zero cloud transmission architecture running local Whisper CoreML ASR and native Apple Foundation Model LLM.\n\n### 🎯 Requirements\n- Run speech recognition locally via WhisperKit CoreML (no audio leaves device)\n- Execute Stage 2 copywriting using Apple Foundation Model by default (or Qwen3 via MLX Swift)\n- Encrypt local audio recordings and notes database on disk with AES-256\n\n### 🔢 Execution Logic\n1. If Apple Intelligence is supported, use SystemLanguageModel on Neural Engine\n2. If user opts into local LLM in Settings, route to private Ollama host\n\n### ✅ Action Items\n- [ ] Benchmark CoreML neural engine inference latency\n- [ ] Validate Apple Foundation Model token generation speed\n\n#AI #privacy #CoreML #AppleIntelligence`
       },
       {
-        timer: "00:12 / 00:20",
-        totalSeconds: 20,
+        timer: "00:12 / 00:24",
+        totalSeconds: 24,
         currentSeconds: 12,
-        raw: `"make sure the watch app supports all watch face complication families <span class='filler'>you know</span> circular corner rectangular and inline. condition 1 tapping complication starts capture immediately without launching full app UI. condition 2 background fetch sweeps un-synced memos every fifteen minutes. <span class='filler'>like</span> test across 42, 46 and Ultra displays."`,
+        raw: `"sprint priorities for tomorrow. <span class='filler'>um</span> I need to finish updating the personal dictionary store so jargon like metal and coreml are protected. then check the apple watch complication tap response on watchOS 10. and finally review the PR for background sync queue before cutting release v1.15.0."`,
         spec: `
-          <div class="spec-title-line">Apple Watch Complications &amp; Offline Sync</div>
-          <div class="spec-quote">Instant 1-tap recording from watch face complications with background queue sync.</div>
+          <div class="spec-title-line">Sprint Priorities &amp; Task Execution</div>
+          <div class="spec-quote">Sprint task checklist generated automatically via Task List template classification.</div>
           
-          <div class="spec-section-head">🎯 Requirements</div>
-          <ul class="spec-list">
-            <li>Support all WidgetKit complication families: circular, corner, rectangular, inline</li>
-            <li>Maintain offline queue on Apple Watch with zero phone dependency</li>
-            <li>Background sync transfers AAC memos automatically when iPhone is nearby</li>
-          </ul>
-
-          <div class="spec-section-head">🔢 Workflow Conditions</div>
-          <ul class="spec-list">
-            <li>Tapping complication immediately starts audio capture without UI delay</li>
-            <li>Background fetch sweeps un-synced memos every 15-30 minutes</li>
-          </ul>
-
-          <div class="spec-section-head">✅ Action Items (Click to toggle)</div>
+          <div class="spec-section-head">✅ Sprint Tasks (Click to toggle)</div>
           <ul class="spec-checklist">
             <li onclick="toggleDemoCheck(this)" role="checkbox" aria-checked="false" tabindex="0">
               <span class="check-box-icon">✓</span>
-              <span>Test complications across 42mm, 46mm, and 49mm Ultra displays</span>
+              <span>Finish updating PersonalDictionaryStore to protect technical jargon</span>
             </li>
             <li onclick="toggleDemoCheck(this)" role="checkbox" aria-checked="false" tabindex="0">
               <span class="check-box-icon">✓</span>
-              <span>Verify Smart Stack Live Activity timer accuracy</span>
+              <span>Verify Apple Watch complication tap response on watchOS 10 displays</span>
+            </li>
+            <li onclick="toggleDemoCheck(this)" role="checkbox" aria-checked="false" tabindex="0">
+              <span class="check-box-icon">✓</span>
+              <span>Review PR for background sync queue before cutting release v1.15.0</span>
             </li>
           </ul>
 
           <div class="spec-tag-chips">
+            <span class="spec-tag">#Sprint</span>
             <span class="spec-tag">#watchOS</span>
-            <span class="spec-tag">#widgets</span>
-            <span class="spec-tag">#design</span>
+            <span class="spec-tag">#Tasks</span>
+            <span class="spec-tag">#Release</span>
           </div>
         `,
-        copyMarkdown: `# Apple Watch Complications & Offline Sync\n\n> Instant 1-tap recording from watch face complications with background queue sync.\n\n### 🎯 Requirements\n- Support all WidgetKit complication families: circular, corner, rectangular, inline\n- Maintain offline queue on Apple Watch with zero phone dependency\n- Background sync transfers AAC memos automatically when iPhone is nearby\n\n### 🔢 Workflow Conditions\n1. Tapping complication immediately starts audio capture without UI delay\n2. Background fetch sweeps un-synced memos every 15-30 minutes\n\n### ✅ Action Items\n- [ ] Test complications across 42mm, 46mm, and 49mm Ultra displays\n- [ ] Verify Smart Stack Live Activity timer accuracy\n\n#watchOS #widgets #design`
+        copyMarkdown: `# Sprint Priorities & Task Execution\n\n> Sprint task checklist generated automatically via Task List template classification.\n\n### ✅ Sprint Tasks\n- [ ] Finish updating PersonalDictionaryStore to protect technical jargon\n- [ ] Verify Apple Watch complication tap response on watchOS 10 displays\n- [ ] Review PR for background sync queue before cutting release v1.15.0\n\n#Sprint #watchOS #Tasks #Release`
       },
       {
-        timer: "00:24 / 00:38",
-        totalSeconds: 38,
-        currentSeconds: 24,
-        raw: `"quick release sync for testflight. <span class='filler'>um</span> first requirement build number must be UTC timestamp string so App Store Connect never rejects duplicate builds. second requirement confirm launch screen empty dict is present so app doesn't letterbox. <span class='filler'>also</span> make sure automated screenshots script generates both iphone and watch assets."`,
+        timer: "00:20 / 00:36",
+        totalSeconds: 36,
+        currentSeconds: 20,
+        raw: `"standup recap from today's architecture review. discussion was around whether to keep qwen models bundled or make them opt-in download. key decision we made apple foundation model the default for all compatible devices and made qwen3-4B an optional download in settings to keep initial app download light. follow-up is to update testflight build and verify test suite on both iOS and macOS."`,
         spec: `
-          <div class="spec-title-line">TestFlight &amp; App Store Release Automation</div>
-          <div class="spec-quote">Automated CI/CD release workflow and visual asset generation for App Store Connect.</div>
+          <div class="spec-title-line">AI Architecture Review &amp; Model Distribution</div>
+          <div class="spec-quote">Meeting notes capturing decisions, context, and follow-ups via Meeting Notes template.</div>
           
-          <div class="spec-section-head">🎯 Requirements</div>
+          <div class="spec-section-head">💡 Key Decisions</div>
           <ul class="spec-list">
-            <li>Automate build numbering via UTC timestamp to prevent duplicate rejections</li>
-            <li>Ensure empty UILaunchScreen dict is set in Info.plist to avoid letterboxing</li>
-            <li>Embed watch companion and WidgetKit extensions in single IPA</li>
+            <li>Apple Foundation Model set as default on iOS 26+ and macOS 26+ devices</li>
+            <li>Qwen3 models configured as opt-in downloads to keep initial app install lightweight</li>
           </ul>
 
-          <div class="spec-section-head">🔢 CI Conditions</div>
+          <div class="spec-section-head">🗣 Discussion &amp; Context</div>
           <ul class="spec-list">
-            <li>On workflow_dispatch, sign with App Store Connect API key</li>
-            <li>Fail build fast if 1024x1024 marketing icons are missing</li>
+            <li>Evaluated on-device storage footprint versus out-of-the-box convenience</li>
+            <li>Confirmed Apple Foundation Model delivers instant inference without extra network downloads</li>
           </ul>
 
-          <div class="spec-section-head">✅ Action Items (Click to toggle)</div>
+          <div class="spec-section-head">📋 Follow-ups (Click to toggle)</div>
           <ul class="spec-checklist">
             <li onclick="toggleDemoCheck(this)" role="checkbox" aria-checked="false" tabindex="0">
               <span class="check-box-icon">✓</span>
-              <span>Execute scripts/capture_screenshots.sh on booted simulators</span>
+              <span>Update TestFlight release and verify full unit test suite on iOS and macOS</span>
             </li>
             <li onclick="toggleDemoCheck(this)" role="checkbox" aria-checked="false" tabindex="0">
               <span class="check-box-icon">✓</span>
-              <span>Verify Fastlane metadata conforms to 30/100 char constraints</span>
+              <span>Publish release notes highlighting Apple Intelligence default</span>
             </li>
           </ul>
 
           <div class="spec-tag-chips">
-            <span class="spec-tag">#TestFlight</span>
-            <span class="spec-tag">#CI</span>
-            <span class="spec-tag">#Fastlane</span>
+            <span class="spec-tag">#Architecture</span>
+            <span class="spec-tag">#Decisions</span>
+            <span class="spec-tag">#AppleIntelligence</span>
+            <span class="spec-tag">#Standup</span>
           </div>
         `,
-        copyMarkdown: `# TestFlight & App Store Release Automation\n\n> Automated CI/CD release workflow and visual asset generation for App Store Connect.\n\n### 🎯 Requirements\n- Automate build numbering via UTC timestamp to prevent duplicate rejections\n- Ensure empty UILaunchScreen dict is set in Info.plist to avoid letterboxing\n- Embed watch companion and WidgetKit extensions in single IPA\n\n### 🔢 CI Conditions\n1. On workflow_dispatch, sign with App Store Connect API key\n2. Fail build fast if 1024x1024 marketing icons are missing\n\n### ✅ Action Items\n- [ ] Execute scripts/capture_screenshots.sh on booted simulators\n- [ ] Verify Fastlane metadata conforms to 30/100 char constraints\n\n#TestFlight #CI #Fastlane`
+        copyMarkdown: `# AI Architecture Review & Model Distribution\n\n> Meeting notes capturing decisions, context, and follow-ups via Meeting Notes template.\n\n### 💡 Key Decisions\n- Apple Foundation Model set as default on iOS 26+ and macOS 26+ devices\n- Qwen3 models configured as opt-in downloads to keep initial app install lightweight\n\n### 🗣 Discussion & Context\n- Evaluated on-device storage footprint versus out-of-the-box convenience\n- Confirmed Apple Foundation Model delivers instant inference without extra network downloads\n\n### 📋 Follow-ups\n- [ ] Update TestFlight release and verify full unit test suite on iOS and macOS\n- [ ] Publish release notes highlighting Apple Intelligence default\n\n#Architecture #Decisions #AppleIntelligence #Standup`
       }
     ];
 

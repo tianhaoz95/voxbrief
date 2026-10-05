@@ -80,7 +80,7 @@
           <p>Voxbrief runs its entire speech-to-text and AI transformation pipeline locally on your personal Apple device hardware:</p>
           <ul>
             <li><strong>Stage 1 (Speech Recognition):</strong> Audio transcription is executed locally via <strong>WhisperKit</strong> running OpenAI's Whisper model through Apple's CoreML framework on the Apple Neural Engine. No audio is ever streamed or uploaded to OpenAI or any cloud provider.</li>
-            <li><strong>Stage 2 (NLP Copywriting):</strong> Note restructuring and copy cleanup are performed on-device using <strong>Qwen3</strong> via <strong>MLX Swift</strong> with Apple Silicon Metal GPU acceleration. Processing takes place in memory on your device.</li>
+            <li><strong>Stage 2 (NLP Copywriting):</strong> Note restructuring and copy cleanup are performed on-device using the native <strong>Apple Foundation Model</strong> (on supported Apple Intelligence devices) or <strong>Qwen3</strong> via <strong>MLX Swift</strong> with Apple Silicon Metal GPU acceleration. Processing takes place strictly in local memory on your device.</li>
           </ul>
 
           <h2>2. Microphone Data &amp; Audio Recordings</h2>

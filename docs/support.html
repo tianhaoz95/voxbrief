@@ -79,23 +79,23 @@
           <h2>Frequently Asked Questions</h2>
 
           <h3>Does Voxbrief require an internet connection?</h3>
-          <p><strong>No.</strong> Voxbrief runs 100% on-device. Audio recording, speech-to-text transcription (via WhisperKit), and LLM copywriting (via MLX Swift and Qwen3) execute entirely locally on your iPhone, Apple Watch, and Mac hardware. You can capture and process voice notes completely offline, on flights, or in remote areas without any cellular or Wi-Fi connectivity.</p>
+          <p><strong>No.</strong> Voxbrief runs 100% on-device. Audio recording, speech-to-text transcription (via WhisperKit), and LLM copywriting (via Apple Foundation Model or MLX Swift Qwen3) execute entirely locally on your iPhone, Apple Watch, and Mac hardware. You can capture and process voice notes completely offline, on flights, or in remote areas without any cellular or Wi-Fi connectivity.</p>
 
           <h3>Can I record on Apple Watch without my iPhone nearby?</h3>
           <p><strong>Yes.</strong> The Apple Watch app is fully standalone. When you record a memo while away from your iPhone, the high-efficiency AAC audio file is saved securely in your Apple Watch's local storage. As soon as your Apple Watch and iPhone reconnect over Bluetooth or local Wi-Fi, the audio transfer initiates automatically in the background via Apple's WatchConnectivity framework.</p>
 
           <h3>Which devices and OS versions are supported?</h3>
           <ul>
-            <li><strong>iPhone:</strong> iOS 17.0 or later (optimized for Apple Silicon / Apple Neural Engine).</li>
+            <li><strong>iPhone:</strong> iOS 17.0 or later (Apple Foundation Model requires iOS 26+ with Apple Intelligence).</li>
             <li><strong>Apple Watch:</strong> watchOS 10.0 or later (Series 4 or newer, SE, Ultra).</li>
-            <li><strong>Mac:</strong> macOS 14.0 Sonoma or later with Apple Silicon support.</li>
+            <li><strong>Mac:</strong> macOS 14.0 Sonoma or later with Apple Silicon (Apple Foundation Model requires macOS 26+ with Apple Intelligence).</li>
           </ul>
 
           <h3>What on-device AI models does Voxbrief use?</h3>
           <ul>
-            <li><strong>Speech-to-Text (ASR):</strong> OpenAI's Whisper model running on Apple CoreML via WhisperKit.</li>
-            <li><strong>NLP Copywriting (Bundled):</strong> Qwen3-0.6B (4-bit quantized) ships pre-installed inside the application bundle. It requires zero setup and is immediately available upon first launch.</li>
-            <li><strong>NLP Copywriting (High-Fidelity):</strong> Qwen3-4B (4-bit quantized) can be downloaded on-demand in Settings &rarr; <em>On-Device Models</em> for even richer structuring and synthesis.</li>
+            <li><strong>Speech-to-Text (ASR):</strong> OpenAI's Whisper model running on Apple CoreML via WhisperKit on the Apple Neural Engine.</li>
+            <li><strong>Stage-2 Copywriting (System Default):</strong> Apple Foundation Model (via Apple's native <code>FoundationModels</code> framework) is used by default on supported devices with zero extra downloads and zero setup.</li>
+            <li><strong>Stage-2 Copywriting (Opt-in Open-Weight):</strong> Qwen3 models (<code>Qwen3-4B</code> and <code>Qwen3-0.6B</code>) running via MLX Swift on Apple Silicon GPU can be downloaded on-demand in Settings for users desiring open-weight models or operating on devices without Apple Intelligence.</li>
             <li><strong>Local Network LLM (Optional):</strong> If you run Ollama or a local LLM server on your home network, you can optionally configure Voxbrief to route note structuring to your private LAN endpoint.</li>
           </ul>
 
