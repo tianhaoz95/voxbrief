@@ -33,24 +33,39 @@
     })();
   </script>
   
-  <!-- FeedbackKit Web SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/feedbackkit-web/dist/feedbackkit.iife.js"></script>
+  <!-- FeedbackKit Web SDK (Local primary bundle with CDN fallback) -->
+  <script src="js/feedbackkit.iife.js"></script>
   <script>
     (function () {
+      function startFeedbackKit() {
+        if (window.FeedbackKit && !window.FeedbackKit.isConfigured) {
+          window.FeedbackKit.configure({
+            projectKey: "pk_ffa7308d843fd670a9bbd1d67ad0ebf54597",
+            endpoint: "https://gpucoladcyvijefdjudf.supabase.co/functions/v1/ingest-feedback",
+            appVersion: "1.15.0"
+          });
+          window.FeedbackKit.theme = { primaryColorHex: "#38bdf8" };
+          window.FeedbackKit.currentScreen = "Landing Page";
+          if (typeof window.FeedbackKit.enableFixVerification === "function") {
+            window.FeedbackKit.enableFixVerification();
+          }
+          if (typeof window.FeedbackKit.showFloatingTriggerButton === "function") {
+            window.FeedbackKit.showFloatingTriggerButton();
+          }
+        }
+      }
+
       if (window.FeedbackKit) {
-        window.FeedbackKit.configure({
-          projectKey: "pk_ffa7308d843fd670a9bbd1d67ad0ebf54597",
-          endpoint: "https://gpucoladcyvijefdjudf.supabase.co/functions/v1/ingest-feedback",
-          appVersion: "1.15.0"
-        });
-        window.FeedbackKit.theme = { primaryColorHex: "#38bdf8" };
-        window.FeedbackKit.currentScreen = "Landing Page";
-        if (typeof window.FeedbackKit.enableFixVerification === "function") {
-          window.FeedbackKit.enableFixVerification();
-        }
-        if (typeof window.FeedbackKit.showFloatingTriggerButton === "function") {
-          window.FeedbackKit.showFloatingTriggerButton();
-        }
+        startFeedbackKit();
+      } else {
+        var cdnScript = document.createElement("script");
+        cdnScript.src = "https://cdn.jsdelivr.net/npm/feedbackkit-web/dist/feedbackkit.iife.js";
+        cdnScript.onload = startFeedbackKit;
+        document.head.appendChild(cdnScript);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startFeedbackKit);
       }
     })();
   </script>
