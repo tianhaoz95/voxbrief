@@ -7,6 +7,7 @@ public enum CleanupEngineLabel {
     public static let notApplicable = "N/A"
     public static let ollama = "Ollama"
     public static let ruleBased = "Rule-Based (LLM Unavailable)"
+    public static let appleFoundationModel = "Apple Foundation Model"
 
     public static func onDeviceLLM(model: String) -> String {
         "On-Device LLM (\(model))"
@@ -124,6 +125,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     /// on-device models aren't supported on this device (e.g. the Simulator).
     public func warmUp() async {
         guard !UserDefaults.standard.bool(forKey: "use_local_llm_endpoint") else { return }
+        if await OnDeviceLLMService.shared.isUsingAppleFoundationModel { return }
         await OnDeviceLLMService.shared.warmUp()
     }
 
@@ -160,12 +162,32 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             }
         }
 
-        // 2. On-device LLM via MLX Swift -- the bundled Qwen3-0.6B model is always available;
-        //    the larger downloaded Qwen3-4B model (see Settings) is used automatically once ready.
-        do {
-            return try await processWithOnDeviceLLM(transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
-        } catch {
-            print("[LLMCopywriterService] On-device LLM failed, falling back to rule-based transformer: \(error)")
+        // 2. On-device LLM:
+        //    On available devices/platforms, Apple Foundation Model is used by default.
+        //    Qwen is only used when the user chooses to download and use it.
+        let onDevice = OnDeviceLLMService.shared
+        let useAppleFM = await onDevice.isUsingAppleFoundationModel
+        let useQwen = await onDevice.isUsingQwenModel
+
+        if useAppleFM {
+            do {
+                return try await processWithAppleFoundationModel(transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
+            } catch {
+                print("[LLMCopywriterService] Apple Foundation Model failed, falling back: \(error)")
+                if await onDevice.largeModelState == .ready {
+                    do {
+                        return try await processWithOnDeviceLLM(transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
+                    } catch {
+                        print("[LLMCopywriterService] Fallback Qwen LLM also failed: \(error)")
+                    }
+                }
+            }
+        } else if useQwen {
+            do {
+                return try await processWithOnDeviceLLM(transcript: trimmed, mode: mode, dictionary: dictionary, templates: templates)
+            } catch {
+                print("[LLMCopywriterService] On-device Qwen LLM failed, falling back to rule-based transformer: \(error)")
+            }
         }
 
         // 3. Deterministic rule-based transformer -- the zero-dependency fallback that always works.
@@ -407,7 +429,9 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
     static func legacyFields(from sections: [TemplateSectionContent]) -> (requirements: [String], conditions: [String], actionItems: [String]) {
         let requirements = sections.first(where: { $0.title == NoteTemplate.designDoc.sections[0].title })?.items ?? []
         let conditions = sections.first(where: { $0.title == NoteTemplate.designDoc.sections[1].title })?.items ?? []
-        let actionItems = sections.first(where: { $0.title == NoteTemplate.designDoc.sections[2].title })?.items ?? []
+        let actionItems = sections.first(where: { $0.title == NoteTemplate.designDoc.sections[2].title })?.items
+            ?? sections.first(where: { $0.style == .checklist })?.items
+            ?? []
         return (requirements, conditions, actionItems)
     }
 
@@ -453,7 +477,7 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
         // don't always follow the "omit bracketed annotations" instruction reliably.
         let cleanedText: String
         if let candidate = decoded.cleanedText?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
-            cleanedText = stripASRSpecialTokens(candidate)
+            cleanedText = sanitizeSpeechTranscript(stripASRSpecialTokens(candidate))
         } else {
             cleanedText = sanitizedFallback
         }
@@ -469,6 +493,125 @@ public final class LLMCopywriterService: LLMCopywriterServiceProtocol, @unchecke
             cleanedMarkdown: cleanedText,
             tags: tags,
             engine: CleanupEngineLabel.onDeviceLLM(model: await OnDeviceLLMService.shared.activeModelDisplayName)
+        )
+    }
+
+    // MARK: - Apple Foundation Model (System FoundationModels Framework)
+
+    private func processWithAppleFoundationModel(transcript: String, mode: RewriteMode, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
+        switch mode {
+        case .full:
+            return try await processWithAppleFoundationModelFull(transcript: transcript, dictionary: dictionary, templates: templates)
+        case .light:
+            return try await processWithAppleFoundationModelLight(transcript: transcript, dictionary: dictionary)
+        }
+    }
+
+    private func processWithAppleFoundationModelFull(transcript: String, dictionary: [DictionaryEntry], templates: [NoteTemplate]) async throws -> LLMProcessingResult {
+        let availableTemplates = templates.isEmpty ? NoteTemplate.builtIns : templates
+        let fallback = effectiveFallbackTemplate(in: availableTemplates)
+
+        let classificationRaw = try await AppleFoundationModelService.shared.generate(
+            systemPrompt: buildClassificationSystemPrompt(templates: availableTemplates),
+            userPrompt: transcript
+        )
+        let chosenTemplate = resolveTemplate(fromClassificationRaw: classificationRaw, candidates: availableTemplates, fallback: fallback)
+
+        let generationRaw = try await AppleFoundationModelService.shared.generate(
+            systemPrompt: buildGenerationSystemPrompt(template: chosenTemplate, dictionary: dictionary),
+            userPrompt: transcript
+        )
+        let parsed = try parseGenerationResponse(generationRaw, template: chosenTemplate)
+
+        let title: String
+        if let candidate = parsed.title?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+            title = candidate
+        } else {
+            title = generateTitle(from: splitIntoSentences(sanitizeSpeechTranscript(transcript)), raw: transcript)
+        }
+
+        let summary: String
+        if let candidate = parsed.summary?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+            summary = candidate
+        } else {
+            summary = "Voice memo captured and structured on-device."
+        }
+
+        let tags = (parsed.tags?.isEmpty == false) ? parsed.tags! : extractTags(from: transcript)
+        let (requirements, conditions, actionItems) = Self.legacyFields(from: parsed.sections)
+        let markdown = assembleMarkdown(title: title, summary: summary, sections: parsed.sections)
+
+        return LLMProcessingResult(
+            title: title,
+            summary: summary,
+            requirements: requirements,
+            conditions: conditions,
+            actionItems: actionItems,
+            cleanedMarkdown: markdown,
+            tags: tags,
+            engine: CleanupEngineLabel.appleFoundationModel,
+            sections: parsed.sections,
+            templateId: chosenTemplate.id,
+            templateName: chosenTemplate.name
+        )
+    }
+
+    private func processWithAppleFoundationModelLight(transcript: String, dictionary: [DictionaryEntry]) async throws -> LLMProcessingResult {
+        let systemPrompt = """
+        You lightly proofread a rough spoken voice-memo transcript. Fix only typos, grammar \
+        mistakes, and obvious speech-to-text errors, and remove filler words (um, uh, you know, \
+        sort of, kind of). Also remove any bracketed non-speech annotations the speech recognizer \
+        inserted, such as [Laughter], [Music], [Inaudible Remark], or [BLANK_AUDIO] -- these are \
+        the recognizer's own audio-event tags, not spoken words. Do NOT reorganize, summarize, \
+        restructure into lists, or drop any actual spoken content -- keep the original wording, \
+        sentence order, and level of detail as close to verbatim as possible. Respond with ONLY \
+        one valid JSON object -- no markdown code fences, \
+        no commentary before or after -- using exactly these keys: "title" (string, 8 words or \
+        fewer), "summary" (one sentence string), "cleanedText" (string, the full lightly-corrected \
+        transcript as continuous prose), "tags" (array of short hashtags starting with #).\(dictionaryInstructionBlock(dictionary))
+        """
+
+        let raw = try await AppleFoundationModelService.shared.generate(systemPrompt: systemPrompt, userPrompt: transcript)
+
+        guard let jsonSubstring = Self.extractJSONObject(from: raw) else {
+            throw LLMCopywriterError.unparsableResponse
+        }
+        let decoded = try JSONDecoder().decode(OnDeviceLLMLightJSONResult.self, from: Data(jsonSubstring.utf8))
+
+        let sanitizedFallback = stripASRSpecialTokens(sanitizeSpeechTranscript(transcript))
+
+        let title: String
+        if let candidate = decoded.title?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+            title = candidate
+        } else {
+            title = generateTitle(from: splitIntoSentences(sanitizedFallback), raw: transcript)
+        }
+
+        let summary: String
+        if let candidate = decoded.summary?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+            summary = candidate
+        } else {
+            summary = "Voice memo lightly proofread on-device."
+        }
+
+        let cleanedText: String
+        if let candidate = decoded.cleanedText?.trimmingCharacters(in: .whitespacesAndNewlines), !candidate.isEmpty {
+            cleanedText = sanitizeSpeechTranscript(stripASRSpecialTokens(candidate))
+        } else {
+            cleanedText = sanitizedFallback
+        }
+
+        let tags = (decoded.tags?.isEmpty == false) ? decoded.tags! : extractTags(from: transcript)
+
+        return LLMProcessingResult(
+            title: title,
+            summary: summary,
+            requirements: [],
+            conditions: [],
+            actionItems: [],
+            cleanedMarkdown: cleanedText,
+            tags: tags,
+            engine: CleanupEngineLabel.appleFoundationModel
         )
     }
 

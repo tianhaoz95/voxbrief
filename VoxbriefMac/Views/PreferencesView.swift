@@ -77,7 +77,7 @@ struct PreferencesView: View {
                     }
 
                     LabeledContent("Active Model") {
-                        Text(llmService.isUsingLargeModel ? OnDeviceLLMService.largeModelDisplayName : "Qwen3-0.6B")
+                        Text(llmService.activeModelDisplayName)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -102,11 +102,30 @@ struct PreferencesView: View {
                     }
                 }
 
+                LabeledContent(AppleFoundationModelService.modelDisplayName) {
+                    HStack(spacing: 8) {
+                        Text(AppleFoundationModelService.isSupportedOnThisDevice ? "System · Apple Intelligence" : "Unsupported on this Mac")
+                            .foregroundStyle(.secondary)
+                        if AppleFoundationModelService.isSupportedOnThisDevice {
+                            if llmService.isUsingAppleFoundationModel {
+                                Label("Active (Default)", systemImage: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            } else {
+                                Button("Set Active") {
+                                    llmService.modelPreference = .appleFoundation
+                                }
+                            }
+                        }
+                    }
+                }
+
+                largeModelRow
+
                 LabeledContent(OnDeviceLLMService.smallModelDisplayName) {
                     HStack(spacing: 8) {
-                        Text("\(OnDeviceLLMService.smallModelParameterCount) · bundled")
+                        Text("\(OnDeviceLLMService.smallModelParameterCount) · optional")
                             .foregroundStyle(.secondary)
-                        if !llmService.isUsingLargeModel {
+                        if llmService.modelPreference == .small {
                             Label("Active", systemImage: "checkmark.circle.fill")
                                 .foregroundStyle(.green)
                         } else {
@@ -116,17 +135,20 @@ struct PreferencesView: View {
                         }
                     }
                 }
-                largeModelRow
 
                 if llmService.modelPreference == .large && !llmService.isUsingLargeModel {
-                    Text("Qwen3-4B is selected, but not downloaded yet. Falling back to Qwen3-0.6B until downloaded.")
+                    Text(AppleFoundationModelService.isSupportedOnThisDevice
+                        ? "Qwen3-4B is selected, but not downloaded yet. Using Apple Foundation Model until downloaded."
+                        : "Qwen3-4B is selected, but not downloaded yet. Please download the model to use it.")
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
             } header: {
                 Text("On-Device Models")
             } footer: {
-                Text("The small model ships with the app and always works offline. Download the larger model for meaningfully better cleanup quality.")
+                Text(AppleFoundationModelService.isSupportedOnThisDevice
+                    ? "Apple Foundation Model is used by default with zero extra download. Qwen models are only used when you choose to download and use them."
+                    : "On Macs with Apple Intelligence, the Apple Foundation Model is used by default. On other Macs, download Qwen for local LLM cleanup.")
             }
 
             Section(

@@ -79,7 +79,7 @@ public struct SettingsView: View {
                         HStack {
                             Label("Framework", systemImage: "shippingbox")
                             Spacer()
-                            Text("MLX Swift")
+                            Text(llmService.isUsingAppleFoundationModel ? "Apple Intelligence" : "MLX Swift")
                                 .foregroundStyle(.secondary)
                         }
 
@@ -165,9 +165,9 @@ public struct SettingsView: View {
 
                 Section(
                     header: Text("On-Device Models"),
-                    footer: Text(OnDeviceLLMService.isSupportedOnThisDevice
-                        ? "The small model ships with the app and always works offline. Download the larger model for meaningfully better cleanup quality — it only needs network once, to download."
-                        : "On-device models require a real iPhone or iPad. The Simulator's graphics stack doesn't support MLX, so this won't work here — try a physical device.")
+                    footer: Text(AppleFoundationModelService.isSupportedOnThisDevice
+                        ? "Apple Foundation Model is used by default with zero extra download. Qwen models are only used when you choose to download and use them."
+                        : "On supported devices with Apple Intelligence, the Apple Foundation Model is used by default. On other devices, download Qwen for local LLM cleanup, or use the rule-based fallback.")
                 ) {
                     Picker("Model Preference", selection: $llmService.modelPreference) {
                         ForEach(OnDeviceModelSelection.allCases) { selection in
@@ -176,14 +176,16 @@ public struct SettingsView: View {
                     }
 
                     modelRow(
-                        name: OnDeviceLLMService.smallModelDisplayName,
-                        detail: "\(OnDeviceLLMService.smallModelParameterCount) parameters · bundled with the app",
+                        name: AppleFoundationModelService.modelDisplayName,
+                        detail: AppleFoundationModelService.isSupportedOnThisDevice
+                            ? "System Foundation Model · Apple Intelligence · Default on this device"
+                            : "Unavailable (requires Apple Intelligence)",
                         trailing: AnyView(
                             HStack(spacing: 8) {
-                                smallModelStatusBadge
-                                if OnDeviceLLMService.isSupportedOnThisDevice && llmService.isUsingLargeModel {
+                                appleFoundationModelStatusBadge
+                                if AppleFoundationModelService.isSupportedOnThisDevice && !llmService.isUsingAppleFoundationModel {
                                     Button("Use This") {
-                                        llmService.modelPreference = .small
+                                        llmService.modelPreference = .appleFoundation
                                     }
                                     .font(.caption.weight(.semibold))
                                 }
@@ -193,8 +195,26 @@ public struct SettingsView: View {
 
                     largeModelRow
 
+                    modelRow(
+                        name: OnDeviceLLMService.smallModelDisplayName,
+                        detail: "\(OnDeviceLLMService.smallModelParameterCount) parameters · optional lightweight model",
+                        trailing: AnyView(
+                            HStack(spacing: 8) {
+                                smallModelStatusBadge
+                                if OnDeviceLLMService.isSupportedOnThisDevice && llmService.modelPreference != .small {
+                                    Button("Use This") {
+                                        llmService.modelPreference = .small
+                                    }
+                                    .font(.caption.weight(.semibold))
+                                }
+                            }
+                        )
+                    )
+
                     if llmService.modelPreference == .large && !llmService.isUsingLargeModel {
-                        Text("Qwen3-4B is selected, but not downloaded yet. Falling back to Qwen3-0.6B until downloaded.")
+                        Text(AppleFoundationModelService.isSupportedOnThisDevice
+                            ? "Qwen3-4B is selected, but not downloaded yet. Using Apple Foundation Model until downloaded."
+                            : "Qwen3-4B is selected, but not downloaded yet. Please download the model to use it.")
                             .font(.caption)
                             .foregroundStyle(.orange)
                     }
@@ -324,9 +344,17 @@ public struct SettingsView: View {
     // MARK: - On-Device Model Manager
 
     private var activeModelSummary: String {
-        llmService.isUsingLargeModel
-            ? "\(OnDeviceLLMService.largeModelDisplayName) (downloaded)"
-            : "Qwen3-0.6B (bundled)"
+        if llmService.isUsingAppleFoundationModel {
+            return "\(AppleFoundationModelService.modelDisplayName) (System)"
+        } else if llmService.isUsingLargeModel {
+            return "\(OnDeviceLLMService.largeModelDisplayName) (downloaded)"
+        } else if llmService.isUsingQwenModel {
+            return "Qwen3-0.6B"
+        } else if AppleFoundationModelService.isSupportedOnThisDevice {
+            return "\(AppleFoundationModelService.modelDisplayName) (System)"
+        } else {
+            return "Rule-Based Fallback"
+        }
     }
 
     private func modelRow(name: String, detail: String, trailing: AnyView) -> some View {
@@ -342,6 +370,25 @@ public struct SettingsView: View {
             trailing
         }
         .padding(.vertical, 2)
+    }
+
+    @ViewBuilder
+    private var appleFoundationModelStatusBadge: some View {
+        if !AppleFoundationModelService.isSupportedOnThisDevice {
+            Label("Unsupported", systemImage: "exclamationmark.triangle.fill")
+                .labelStyle(.titleAndIcon)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+        } else if llmService.isUsingAppleFoundationModel {
+            Label("Active", systemImage: "checkmark.circle.fill")
+                .labelStyle(.titleAndIcon)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.green)
+        } else {
+            Text("Ready")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 
     @ViewBuilder
@@ -422,14 +469,14 @@ public struct SettingsView: View {
             Label("Unsupported", systemImage: "exclamationmark.triangle.fill")
                 .labelStyle(.titleAndIcon)
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.red)
-        } else if !llmService.isUsingLargeModel {
+                .foregroundStyle(.secondary)
+        } else if llmService.modelPreference == .small {
             Label("Active", systemImage: "checkmark.circle.fill")
                 .labelStyle(.titleAndIcon)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.green)
         } else {
-            Text("Ready")
+            Text("Optional")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

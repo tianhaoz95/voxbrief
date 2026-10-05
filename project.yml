@@ -238,6 +238,7 @@ targets:
       # and already take their dependencies via injectable init params -- see CLAUDE.md.
       - path: VoxbriefApp/Services/ASRService.swift
       - path: VoxbriefApp/Services/LLMCopywriterService.swift
+      - path: VoxbriefApp/Services/AppleFoundationModelService.swift
       - path: VoxbriefApp/Services/OnDeviceLLMService.swift
       - path: VoxbriefApp/Services/NoteProcessingPipeline.swift
       - path: VoxbriefApp/Services/NoteRepository.swift

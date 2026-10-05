@@ -32,8 +32,9 @@ public enum OnDeviceLLMError: LocalizedError {
 
 public enum OnDeviceModelSelection: String, CaseIterable, Identifiable, Sendable {
     case auto = "auto"
-    case small = "small"
+    case appleFoundation = "appleFoundation"
     case large = "large"
+    case small = "small"
 
     public var id: String { rawValue }
 
@@ -41,8 +42,10 @@ public enum OnDeviceModelSelection: String, CaseIterable, Identifiable, Sendable
         switch self {
         case .auto:
             return "Auto (Best Available)"
+        case .appleFoundation:
+            return "Apple Foundation Model (System)"
         case .small:
-            return "Qwen3-0.6B (Bundled)"
+            return "Qwen3-0.6B (Optional)"
         case .large:
             return "Qwen3-4B (Downloaded)"
         }
@@ -52,6 +55,8 @@ public enum OnDeviceModelSelection: String, CaseIterable, Identifiable, Sendable
         switch self {
         case .auto:
             return "Auto"
+        case .appleFoundation:
+            return "Apple Foundation"
         case .small:
             return "Qwen3-0.6B"
         case .large:
@@ -248,24 +253,61 @@ public final class OnDeviceLLMService: ObservableObject {
         refreshLargeModelState()
     }
 
-    /// Whether the higher-quality downloaded model is the one actually in use right now
-    /// (as opposed to the always-available bundled model).
-    public var isUsingLargeModel: Bool {
-        guard case .ready = largeModelState else {
-            return false
-        }
+    /// Whether Apple Foundation Model should be used for generation.
+    public var isUsingAppleFoundationModel: Bool {
+        guard AppleFoundationModelService.isSupportedOnThisDevice else { return false }
         switch modelPreference {
-        case .auto, .large:
+        case .auto:
+            // On available device/platforms, Apple Foundation Model is used by default.
             return true
+        case .appleFoundation:
+            return true
+        case .large:
+            // If user explicitly chose Qwen3-4B, only fall back to Apple Foundation if Qwen is not downloaded
+            return largeModelState != .ready
         case .small:
             return false
         }
     }
 
+    /// Whether the higher-quality downloaded model is the one actually in use right now.
+    public var isUsingLargeModel: Bool {
+        guard case .ready = largeModelState else {
+            return false
+        }
+        switch modelPreference {
+        case .large:
+            return true
+        case .auto:
+            // In auto mode, Apple Foundation Model takes precedence on supported devices;
+            // large Qwen is used only when Apple Foundation Model is unavailable.
+            return !AppleFoundationModelService.isSupportedOnThisDevice
+        case .appleFoundation, .small:
+            return false
+        }
+    }
+
+    /// Whether a Qwen model is actively chosen.
+    public var isUsingQwenModel: Bool {
+        if isUsingLargeModel { return true }
+        if modelPreference == .small { return true }
+        return false
+    }
+
     /// Short display name of whichever model would actually serve the next `generate` call --
     /// used to label notes with which engine cleaned them up.
     public var activeModelDisplayName: String {
-        isUsingLargeModel ? Self.largeModelDisplayName : "Qwen3-0.6B"
+        if isUsingAppleFoundationModel {
+            return AppleFoundationModelService.modelDisplayName
+        } else if isUsingLargeModel {
+            return Self.largeModelDisplayName
+        } else if isUsingQwenModel {
+            return "Qwen3-0.6B"
+        } else if AppleFoundationModelService.isSupportedOnThisDevice {
+            return AppleFoundationModelService.modelDisplayName
+        } else {
+            return "Rule-Based Fallback"
+        }
     }
 
     #if DEBUG

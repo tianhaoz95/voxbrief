@@ -393,24 +393,28 @@ final class LLMCopywriterServiceTests: XCTestCase {
         XCTAssertEqual(LLMCopywriterService.configuredLocalLLMModelName(), "qwen2.5:7b")
     }
 
-    func testCleanupEngineLabelOllamaWithModel() {
+    func testCleanupEngineLabelConstants() {
         XCTAssertEqual(CleanupEngineLabel.ollama, "Ollama")
+        XCTAssertEqual(CleanupEngineLabel.appleFoundationModel, "Apple Foundation Model")
         XCTAssertEqual(CleanupEngineLabel.ollama(model: "llama3.2:3b"), "Ollama (llama3.2:3b)")
         XCTAssertEqual(CleanupEngineLabel.onDeviceLLM(model: "Qwen3-4B"), "On-Device LLM (Qwen3-4B)")
     }
 
     func testOnDeviceModelSelectionProperties() {
         XCTAssertEqual(OnDeviceModelSelection.auto.rawValue, "auto")
+        XCTAssertEqual(OnDeviceModelSelection.appleFoundation.rawValue, "appleFoundation")
         XCTAssertEqual(OnDeviceModelSelection.small.rawValue, "small")
         XCTAssertEqual(OnDeviceModelSelection.large.rawValue, "large")
 
         XCTAssertEqual(OnDeviceModelSelection.auto.id, "auto")
+        XCTAssertEqual(OnDeviceModelSelection.appleFoundation.id, "appleFoundation")
         XCTAssertEqual(OnDeviceModelSelection.small.id, "small")
         XCTAssertEqual(OnDeviceModelSelection.large.id, "large")
 
         XCTAssertTrue(OnDeviceModelSelection.small.displayName.contains("0.6B"))
         XCTAssertTrue(OnDeviceModelSelection.large.displayName.contains("4B"))
         XCTAssertTrue(OnDeviceModelSelection.auto.displayName.contains("Auto"))
+        XCTAssertTrue(OnDeviceModelSelection.appleFoundation.displayName.contains("Apple Foundation"))
     }
 
     @MainActor
@@ -420,6 +424,10 @@ final class LLMCopywriterServiceTests: XCTestCase {
         defer {
             service.modelPreference = prevPref
         }
+
+        service.modelPreference = .appleFoundation
+        XCTAssertEqual(service.modelPreference, .appleFoundation)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: OnDeviceLLMService.modelPreferenceStorageKey), "appleFoundation")
 
         service.modelPreference = .small
         XCTAssertEqual(service.modelPreference, .small)
@@ -446,14 +454,23 @@ final class LLMCopywriterServiceTests: XCTestCase {
 
         // When large model is NOT ready:
         service.setLargeModelStateForTesting(.notDownloaded)
+
+        // 1. In .auto mode, Apple Foundation Model is used by default on supported platforms
         service.modelPreference = .auto
         XCTAssertFalse(service.isUsingLargeModel)
-        XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
+        if AppleFoundationModelService.isSupportedOnThisDevice {
+            XCTAssertTrue(service.isUsingAppleFoundationModel)
+            XCTAssertEqual(service.activeModelDisplayName, AppleFoundationModelService.modelDisplayName)
+        }
 
-        service.modelPreference = .large
-        XCTAssertFalse(service.isUsingLargeModel, "Should fall back when large model is not ready")
-        XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
+        // 2. In .appleFoundation mode:
+        service.modelPreference = .appleFoundation
+        if AppleFoundationModelService.isSupportedOnThisDevice {
+            XCTAssertTrue(service.isUsingAppleFoundationModel)
+            XCTAssertEqual(service.activeModelDisplayName, AppleFoundationModelService.modelDisplayName)
+        }
 
+        // 3. In .small mode:
         service.modelPreference = .small
         XCTAssertFalse(service.isUsingLargeModel)
         XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
@@ -461,17 +478,24 @@ final class LLMCopywriterServiceTests: XCTestCase {
         // When large model IS ready:
         service.setLargeModelStateForTesting(.ready)
 
-        // 1. In .auto mode, it prefers large model
-        service.modelPreference = .auto
-        XCTAssertTrue(service.isUsingLargeModel)
-        XCTAssertEqual(service.activeModelDisplayName, OnDeviceLLMService.largeModelDisplayName)
-
-        // 2. In .large mode, it uses large model
+        // 1. In .large mode, it uses downloaded large model
         service.modelPreference = .large
         XCTAssertTrue(service.isUsingLargeModel)
         XCTAssertEqual(service.activeModelDisplayName, OnDeviceLLMService.largeModelDisplayName)
 
-        // 3. In .small mode, it forces small model even though large model is ready!
+        // 2. In .auto mode on devices with Apple Foundation Model support,
+        // Apple Foundation Model is used by default even if Qwen is downloaded!
+        service.modelPreference = .auto
+        if AppleFoundationModelService.isSupportedOnThisDevice {
+            XCTAssertTrue(service.isUsingAppleFoundationModel)
+            XCTAssertFalse(service.isUsingLargeModel)
+            XCTAssertEqual(service.activeModelDisplayName, AppleFoundationModelService.modelDisplayName)
+        } else {
+            XCTAssertTrue(service.isUsingLargeModel)
+            XCTAssertEqual(service.activeModelDisplayName, OnDeviceLLMService.largeModelDisplayName)
+        }
+
+        // 3. In .small mode, it forces small model
         service.modelPreference = .small
         XCTAssertFalse(service.isUsingLargeModel)
         XCTAssertEqual(service.activeModelDisplayName, "Qwen3-0.6B")
