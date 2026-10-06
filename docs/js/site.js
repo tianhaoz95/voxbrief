@@ -416,19 +416,6 @@
         toggleTheme();
       }
       
-      // 'Space' key -> Play / Pause Audio Demo
-      if (e.code === 'Space') {
-        const demoSection = document.getElementById('demo');
-        if (demoSection) {
-          const rect = demoSection.getBoundingClientRect();
-          // Only trigger if demo section is partly visible
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
-            e.preventDefault();
-            window.togglePlaySimulation();
-          }
-        }
-      }
-      
       // 'Escape' key -> Close mobile nav
       if (e.key === 'Escape') {
         const links = document.getElementById('navLinks');
