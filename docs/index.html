@@ -74,9 +74,17 @@
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Ambient Grid & Glow -->
-  <div class="bg-glow" aria-hidden="true"></div>
-  <div class="bg-grid" aria-hidden="true"></div>
+  <!-- Atmospheric Animated Background -->
+  <div class="ambient-background" aria-hidden="true">
+    <div class="aurora-orb aurora-orb-1"></div>
+    <div class="aurora-orb aurora-orb-2"></div>
+    <div class="aurora-orb aurora-orb-3"></div>
+    <div class="aurora-orb aurora-orb-4"></div>
+    <div class="interactive-spotlight" id="cursorSpotlight"></div>
+    <canvas class="bg-particles" id="ambientParticles"></canvas>
+    <div class="beam-glow"></div>
+    <div class="bg-grid"></div>
+  </div>
 
   <!-- Header Navigation -->
   <header class="header">

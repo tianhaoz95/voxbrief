@@ -498,6 +498,119 @@
   }
 
   // ==========================================================================
+  // 08. ATMOSPHERIC ANIMATED BACKGROUND (Spotlight & Stardust Canvas)
+  // ==========================================================================
+  function initAmbientBackground() {
+    // 1. Mouse Spotlight tracking
+    const spotlight = document.getElementById('cursorSpotlight');
+    if (spotlight) {
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight * 0.3;
+      let currentX = mouseX;
+      let currentY = mouseY;
+      let isMoving = false;
+
+      function updateSpotlight() {
+        currentX += (mouseX - currentX) * 0.12;
+        currentY += (mouseY - currentY) * 0.12;
+        spotlight.style.setProperty('--mouse-x', `${currentX.toFixed(1)}px`);
+        spotlight.style.setProperty('--mouse-y', `${currentY.toFixed(1)}px`);
+
+        if (Math.abs(mouseX - currentX) > 0.5 || Math.abs(mouseY - currentY) > 0.5) {
+          requestAnimationFrame(updateSpotlight);
+        } else {
+          isMoving = false;
+        }
+      }
+
+      window.addEventListener('pointermove', e => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        if (!isMoving) {
+          isMoving = true;
+          requestAnimationFrame(updateSpotlight);
+        }
+      }, { passive: true });
+    }
+
+    // 2. Micro Stardust Particle Canvas
+    const canvas = document.getElementById('ambientParticles');
+    if (!canvas || !canvas.getContext) return;
+
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const ctx = canvas.getContext('2d');
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+    let animationFrame = null;
+    let isVisible = true;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize, { passive: true });
+
+    const particleCount = Math.min(36, Math.floor((width * height) / 36000));
+    const particles = [];
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.3 + 0.6,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: -(Math.random() * 0.32 + 0.14),
+        alpha: Math.random() * 0.55 + 0.25,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+
+    function renderParticles() {
+      if (!isVisible) return;
+      ctx.clearRect(0, 0, width, height);
+
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const r = isLight ? 2 : 56;
+      const g = isLight ? 132 : 189;
+      const b = isLight ? 199 : 248;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.phase += 0.02;
+
+        if (p.y < -10) {
+          p.y = height + 10;
+          p.x = Math.random() * width;
+        }
+        if (p.x < -10) p.x = width + 10;
+        if (p.x > width + 10) p.x = -10;
+
+        const pulseAlpha = Math.max(0.12, p.alpha + Math.sin(p.phase) * 0.22);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${pulseAlpha})`;
+        ctx.fill();
+      }
+
+      animationFrame = requestAnimationFrame(renderParticles);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      isVisible = !document.hidden;
+      if (isVisible) {
+        animationFrame = requestAnimationFrame(renderParticles);
+      } else if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    });
+
+    renderParticles();
+  }
+
+  // ==========================================================================
   // INITIALIZATION
   // ==========================================================================
   function init() {
@@ -508,6 +621,7 @@
     initBackToTop();
     initWaveformScrubber();
     initKeyboardShortcuts();
+    initAmbientBackground();
     renderWorkbench();
   }
 

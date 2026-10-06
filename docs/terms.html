@@ -57,8 +57,17 @@
   <meta name="theme-color" content="#08090d" id="themeColorMeta">
 </head>
 <body>
-  <div class="bg-glow"></div>
-  <div class="bg-grid"></div>
+  <!-- Atmospheric Animated Background -->
+  <div class="ambient-background" aria-hidden="true">
+    <div class="aurora-orb aurora-orb-1"></div>
+    <div class="aurora-orb aurora-orb-2"></div>
+    <div class="aurora-orb aurora-orb-3"></div>
+    <div class="aurora-orb aurora-orb-4"></div>
+    <div class="interactive-spotlight" id="cursorSpotlight"></div>
+    <canvas class="bg-particles" id="ambientParticles"></canvas>
+    <div class="beam-glow"></div>
+    <div class="bg-grid"></div>
+  </div>
 
   <!-- Header -->
   <header class="header">
