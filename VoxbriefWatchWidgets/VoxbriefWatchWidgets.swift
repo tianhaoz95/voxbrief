@@ -35,28 +35,28 @@ struct VoxbriefComplicationView: View {
                 AccessoryWidgetBackground()
                 Image(systemName: entry.isRecording ? "waveform.badge.mic" : "mic.fill")
                     .font(.title3)
-                    .foregroundColor(entry.isRecording ? .red : .blue)
+                    .foregroundColor(entry.isRecording ? .red : Color.accentColor)
             }
             .widgetURL(URL(string: "voxbrief://record?source=watch_complication"))
 
         case .accessoryCorner:
             Image(systemName: "mic.fill")
-                .foregroundColor(.blue)
+                .foregroundColor(Color.accentColor)
                 .widgetLabel {
-                    Text("Voice Note")
+                    Text("VoxBrief")
                 }
                 .widgetURL(URL(string: "voxbrief://record?source=watch_complication"))
 
         case .accessoryRectangular:
             HStack(spacing: 8) {
-                Image(systemName: "mic.circle.fill")
+                Image(systemName: entry.isRecording ? "waveform.circle.fill" : "mic.circle.fill")
                     .font(.title2)
-                    .foregroundColor(.blue)
+                    .foregroundColor(entry.isRecording ? .red : Color.accentColor)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Capture Idea")
+                    Text(entry.isRecording ? "Recording…" : "Quick Record")
                         .font(.headline)
                         .lineLimit(1)
-                    Text("Tap to record memo")
+                    Text(entry.isRecording ? "Tap to stop" : "Tap to speak memo")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -64,11 +64,12 @@ struct VoxbriefComplicationView: View {
             .widgetURL(URL(string: "voxbrief://record?source=watch_complication"))
 
         case .accessoryInline:
-            Label("Record Idea", systemImage: "mic.fill")
+            Label(entry.isRecording ? "Recording…" : "VoxBrief Memo", systemImage: entry.isRecording ? "waveform.badge.mic" : "mic.fill")
                 .widgetURL(URL(string: "voxbrief://record?source=watch_complication"))
 
         default:
             Image(systemName: "mic.fill")
+                .foregroundColor(Color.accentColor)
                 .widgetURL(URL(string: "voxbrief://record?source=watch_complication"))
         }
     }

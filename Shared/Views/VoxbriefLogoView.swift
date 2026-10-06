@@ -4,6 +4,7 @@ public struct VoxbriefLogoView: View {
     public enum Size {
         case large
         case inline
+        case watch
     }
 
     public var size: Size
@@ -12,10 +13,50 @@ public struct VoxbriefLogoView: View {
         self.size = size
     }
 
+    private var iconDimension: CGFloat {
+        switch size {
+        case .large: return 34
+        case .inline: return 26
+        case .watch: return 18
+        }
+    }
+
+    private var iconCornerRadius: CGFloat {
+        switch size {
+        case .large: return 9
+        case .inline: return 7
+        case .watch: return 5
+        }
+    }
+
+    private var iconSymbolSize: CGFloat {
+        switch size {
+        case .large: return 17
+        case .inline: return 13
+        case .watch: return 9
+        }
+    }
+
+    private var fontSize: CGFloat {
+        switch size {
+        case .large: return 32
+        case .inline: return 18
+        case .watch: return 14
+        }
+    }
+
+    private var spacing: CGFloat {
+        switch size {
+        case .large: return 10
+        case .inline: return 7
+        case .watch: return 5
+        }
+    }
+
     public var body: some View {
-        HStack(spacing: size == .large ? 10 : 7) {
+        HStack(spacing: spacing) {
             ZStack {
-                RoundedRectangle(cornerRadius: size == .large ? 9 : 7, style: .continuous)
+                RoundedRectangle(cornerRadius: iconCornerRadius, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: [
@@ -26,11 +67,11 @@ public struct VoxbriefLogoView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: size == .large ? 34 : 26, height: size == .large ? 34 : 26)
+                    .frame(width: iconDimension, height: iconDimension)
                     .shadow(color: Color.blue.opacity(0.35), radius: size == .large ? 5 : 2, y: 1)
 
                 Image(systemName: "waveform")
-                    .font(.system(size: size == .large ? 17 : 13, weight: .bold))
+                    .font(.system(size: iconSymbolSize, weight: .bold))
                     .foregroundStyle(.white)
             }
 
@@ -40,7 +81,7 @@ public struct VoxbriefLogoView: View {
                 Text("Brief")
                     .foregroundStyle(Color.accentColor)
             }
-            .font(.system(size: size == .large ? 32 : 18, weight: .bold, design: .rounded))
+            .font(.system(size: fontSize, weight: .bold, design: .rounded))
             .tracking(-0.5)
         }
         .fixedSize()

@@ -15,68 +15,91 @@ public struct WatchMainRecordView: View {
     
     public var body: some View {
         NavigationStack {
-            VStack(spacing: 8) {
-                Spacer(minLength: 16)
-
+            VStack(spacing: 6) {
                 if recorder.isRecording {
-                    // Active Recording UI
-                    VStack(spacing: 6) {
-                        Text("Recording Idea...")
-                            .font(.caption2.bold())
-                            .foregroundColor(.red)
+                    // MARK: - Active Recording State
+                    VStack(spacing: 4) {
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(Color.red)
+                                .frame(width: 6, height: 6)
+                            Text("RECORDING")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .tracking(0.8)
+                                .foregroundColor(.red)
+                        }
+                        .padding(.top, 2)
                         
                         Text(recorder.recordingDuration.formattedDuration)
-                            .font(.system(size: 28, weight: .semibold, design: .monospaced))
+                            .font(.system(size: 26, weight: .bold, design: .monospaced))
                             .foregroundColor(.primary)
+                            .monospacedDigit()
                         
                         Button {
                             stopAndSave()
                         } label: {
-                            CaptureWaveformView(isRecording: true, audioLevel: recorder.audioLevel, diameter: 30, systemImage: "stop.fill")
+                            CaptureWaveformView(isRecording: true, audioLevel: recorder.audioLevel, diameter: 44, systemImage: "stop.fill")
                         }
                         .buttonStyle(.plain)
                         
                         Text("Tap to stop & save")
-                            .font(.system(size: 10))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.secondary)
                     }
                 } else {
-                    // Ready to Record UI
-                    VStack(spacing: 6) {
+                    // MARK: - Ready / Idle State
+                    VStack(spacing: 4) {
+                        VoxbriefLogoView(size: .watch)
+                            .padding(.top, 2)
+                        
                         if showingSavedToast {
-                            Text("Saved! Syncing...")
-                                .font(.caption2.bold())
-                                .foregroundColor(.green)
+                            HStack(spacing: 4) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.green)
+                                Text("Saved (\(savedNoteDuration))")
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundColor(.green)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.15), in: Capsule())
                         } else {
-                            Text("Quick Idea Capture")
-                                .font(.caption2.bold())
+                            Text("Capture Idea")
+                                .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(.secondary)
                         }
                         
                         Button {
                             startRecording(source: .watchApp)
                         } label: {
-                            CaptureWaveformView(isRecording: false, audioLevel: 0, diameter: 30, systemImage: "mic.fill")
+                            CaptureWaveformView(isRecording: false, audioLevel: 0, diameter: 44, systemImage: "mic.fill")
                         }
                         .buttonStyle(.plain)
                         
                         Text("Tap to record")
-                            .font(.system(size: 11))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.secondary)
                     }
                 }
                 
-                Spacer(minLength: 2)
+                Spacer(minLength: 0)
                 
-                // Bottom Bar: Local Queue & Force Sync
-                HStack {
+                // MARK: - Bottom Pill Dock
+                HStack(spacing: 8) {
                     NavigationLink(destination: WatchNotesListView()) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "folder")
+                        HStack(spacing: 5) {
+                            Image(systemName: "tray.full.fill")
+                                .font(.system(size: 10, weight: .semibold))
                             Text("\(storage.notes.count)")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                         }
-                        .font(.caption2)
+                        .foregroundColor(.primary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.12), in: Capsule())
                     }
+                    .buttonStyle(.plain)
                     
                     Spacer()
                     
@@ -86,20 +109,33 @@ public struct WatchMainRecordView: View {
                         } label: {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.triangle.2.circlepath")
+                                    .font(.system(size: 10, weight: .bold))
                                 Text("\(storage.pendingNotes().count)")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
                             }
-                            .font(.caption2.bold())
                             .foregroundColor(.orange)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color.orange.opacity(0.18), in: Capsule())
                         }
+                        .buttonStyle(.plain)
                     } else {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption2)
-                            .foregroundColor(.green)
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 9, weight: .bold))
+                            Text("Synced")
+                                .font(.system(size: 10, weight: .semibold))
+                        }
+                        .foregroundColor(Color.accentColor)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                        .background(Color.accentColor.opacity(0.15), in: Capsule())
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 6)
+                .padding(.bottom, 2)
             }
-            .padding(4)
+            .padding(.horizontal, 4)
             .navigationDestination(isPresented: $showingNotes) {
                 WatchNotesListView()
             }
