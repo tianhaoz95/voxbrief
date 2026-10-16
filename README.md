@@ -1,5 +1,11 @@
 # Voxbrief: iOS & watchOS Voice Idea Capture & On-Device AI Cleanup
 
+> **Voxbrief has moved.** Development continues in
+> [`tianhaoz95/hejitech-apps`](https://github.com/tianhaoz95/hejitech-apps/tree/main/projects/voxbrief)
+> (`projects/voxbrief`), with its full history; new releases are tagged `voxbrief-v<version>` there.
+> This repository is archived and keeps the releases up to v1.26.3. Site:
+> https://tianhaoz95.github.io/hejitech-apps/voxbrief/site/
+
 [![Unit Tests](https://github.com/tianhaoz95/voxbrief/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/tianhaoz95/voxbrief/actions/workflows/unit-tests.yml)
 [![Release to TestFlight](https://github.com/tianhaoz95/voxbrief/actions/workflows/testflight.yml/badge.svg)](https://github.com/tianhaoz95/voxbrief/actions/workflows/testflight.yml)
 [![Release (macOS)](https://github.com/tianhaoz95/voxbrief/actions/workflows/release-mac.yml/badge.svg)](https://github.com/tianhaoz95/voxbrief/actions/workflows/release-mac.yml)
